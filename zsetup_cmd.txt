@@ -1,0 +1,5 @@
+// install from NPM
+npm i express dotenv mongoose bcryptjs jsonwebtoken cookie-parser
+
+// installing NodeMon as a "dev dependency"
+npm i -D nodemon
