@@ -1,10 +1,14 @@
-import Header from "./components/header"
+import Header from "./components/Header"
+import { Outlet } from "react-router-dom"
+import { Container } from "react-bootstrap"
 
 const App = () => {
   return (
     <>
       <Header />
-      <h2>The App</h2>
+      <Container className="my-2">
+        <Outlet />
+      </Container>
     </>
   )
 }

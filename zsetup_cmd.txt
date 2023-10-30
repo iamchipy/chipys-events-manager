@@ -7,6 +7,7 @@ npm i -D nodemon
 // install async feature
 npm i express-async-handler
 
+// POSTMAN VScode add in is quite nice for this testing
 
 ==============================================
 FRONT END
@@ -23,3 +24,4 @@ npm run dev     (to run back and front ends together)
 
 (front end)
 npm i bootstrap react-bootstrap react-icons
+npm i react-router-dom react-router-bootstrap
