@@ -4,8 +4,7 @@ import bcrypt from 'bcryptjs'
 // create a user schema for the noSQL DB to use
 const userSchema = mongoose.Schema({
     name: {
-        type: String,
-        required: true
+        type: String
     },
     discord: {
         type: String,
