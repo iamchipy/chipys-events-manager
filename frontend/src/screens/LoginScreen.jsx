@@ -5,6 +5,7 @@ import { useDispatch, useSelector} from 'react-redux'
 import FormContainer from "../components/FormContainer";
 import { useLoginMutation } from "../slices/userApiSlice";
 import { setCredentials } from "../slices/authSlice";
+import { toast } from "react-toastify";
 
 const LoginScreen = () => {
     const [discord, setDiscord] = useState('')
@@ -32,9 +33,9 @@ const LoginScreen = () => {
             navigate('/')
         }catch (err) {
             // adding "?." appears to let you skip ignore undefined parts and search for ".message"
-            // let errMsg = (err?.data?.message || err.error)
-            console.log(err)
-            // throw new Error(`ERR logging in: ${errMsg}`)
+            let errMsg = (err?.data?.message || err.error)
+            console.log(errMsg)
+            toast.error(errMsg)
         }
     }
 

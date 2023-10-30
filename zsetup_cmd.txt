@@ -26,3 +26,4 @@ npm run dev     (to run back and front ends together)
 npm i bootstrap react-bootstrap react-icons
 npm i react-router-dom react-router-bootstrap
 npm i @reduxjs/toolkit react-redux
+npm i react-toastify
