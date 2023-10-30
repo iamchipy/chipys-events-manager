@@ -1,6 +1,6 @@
 // backend / server entry point
 import express from 'express'
-
+import path from 'path'
 // Import .ENV and set it as config
 import dotenv from 'dotenv'
 dotenv.config()
@@ -30,7 +30,16 @@ app.use(cookieParser())
 
 // routes / endpoints
 app.use('/api/users', userRoutes)
-app.get('/', (req,res) => res.send('Server base response'))
+if (process.env.NODE_ENV === "production") {
+    const __dirname = path.resolve()
+    // this makes the dist folder a 'static route' whatever that is in our context
+    app.use(express.static(path.join(__dirname, 'frontend/dist')))
+    // now we point anything that isn't api/users there
+    app.get('*', (req,res) => res.sendFile(path.resolve(__dirname, 'frontend', 'dist', 'index.html')))
+}else{
+    app.get('/', (req,res) => res.send('Dev server base response [RDY]'))
+}
+
 
 // import errors
 app.use(notFound)
