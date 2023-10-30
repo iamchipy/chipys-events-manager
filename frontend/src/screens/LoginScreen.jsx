@@ -1,16 +1,44 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Form, Button, Row, Col } from "react-bootstrap";
+import { useDispatch, useSelector} from 'react-redux'
 import FormContainer from "../components/FormContainer";
+import { useLoginMutation } from "../slices/userApiSlice";
+import { setCredentials } from "../slices/authSlice";
 
 const LoginScreen = () => {
     const [discord, setDiscord] = useState('')
     const [password, setPassword] = useState('')
 
+    const navigate = useNavigate()
+    const dispatch = useDispatch()
+
+    const [login, { isLoading }] = useLoginMutation()
+
+    const { userInfo } = useSelector((state) => state.auth)
+
+    useEffect(() => {
+        if (userInfo) {
+            navigate('/')
+        }
+    }, [navigate, userInfo])
+
     const submitHandler = async (e) => {
         e.preventDefault()
-        console.log('sumbit pressed')
+        // console.log('login pressed')
+        try{
+            const res = await login({ discord, password }).unwrap()
+            dispatch(setCredentials({...res}))
+            navigate('/')
+        }catch (err) {
+            // adding "?." appears to let you skip ignore undefined parts and search for ".message"
+            // let errMsg = (err?.data?.message || err.error)
+            console.log(err)
+            // throw new Error(`ERR logging in: ${errMsg}`)
+        }
     }
+
+
     return (
     <FormContainer>
         <h1>Sign In</h1>
@@ -18,7 +46,7 @@ const LoginScreen = () => {
             <Form.Group ClassName='my-2' controlId="discord">
                 <Form.Label>Discord ID</Form.Label>
                 <Form.Control 
-                    type="email"
+                    type="text"
                     placeholder="Enter DiscordID"
                     value={discord}
                     onChange={(e)=>setDiscord(e.target.value)}
