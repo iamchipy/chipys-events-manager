@@ -45,7 +45,7 @@ const LoginScreen = () => {
     <FormContainer>
         <h1>Sign In</h1>
         <Form onSubmit={submitHandler}>
-            <Form.Group ClassName='my-2' controlId="discord">
+            <Form.Group className='my-2' controlId="discord">
                 <Form.Label>Discord ID</Form.Label>
                 <Form.Control 
                     type="text"
@@ -54,7 +54,7 @@ const LoginScreen = () => {
                     onChange={(e)=>setDiscord(e.target.value)}
                 ></Form.Control>
             </Form.Group>
-            <Form.Group ClassName='my-2' controlId="password">
+            <Form.Group className='my-2' controlId="password">
                 <Form.Label>Password</Form.Label>
                 <Form.Control 
                     type="password"

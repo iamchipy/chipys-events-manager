@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Form, Button, Row, Col } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+import { Form, Button } from "react-bootstrap";
 import FormContainer from "../components/FormContainer";
 import { useDispatch, useSelector} from 'react-redux'
 import { toast } from "react-toastify";
-import Loader from '../components/Loader'
-import {useRegisterMutation} from '../slices/userApiSlice'
 import { setCredentials } from "../slices/authSlice";
+import { useUpdateUserMutation } from "../slices/userApiSlice";
+import Loader from "../components/Loader";
 
-const RegisterScreen = () => {
+const ProfileScreen = () => {
     const [discord, setDiscord] = useState('')
     const [password, setPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
@@ -16,33 +16,37 @@ const RegisterScreen = () => {
     const navigate = useNavigate()
     const dispatch = useDispatch()
 
-    const [register, { isLoading }] = useRegisterMutation()
+    const [UpdatProfile, { isLoading }] = useUpdateUserMutation()
 
     const { userInfo } = useSelector((state) => state.auth)
 
     useEffect(() => {
-        if (userInfo) {
-            navigate('/')
-        }
-    }, [navigate, userInfo])
+        setDiscord(userInfo.discord)
+    }, [userInfo.setDiscord])
 
     const submitHandler = async (e) => {
         e.preventDefault()
-        if (password !== confirmPassword){
+        if (password === "" || confirmPassword === ""){
+            toast.error("Password required")
+        }else if (password !== confirmPassword) {
             toast.error("Passwords do not match")
         }else{
             try{
-                const res = await register({ discord, password }).unwrap()
+                const res = await UpdatProfile({
+                    _id: userInfo._id,
+                    discord,
+                    password
+                }).unwrap()
                 dispatch(setCredentials({...res}))
-                navigate('/')
-            }catch (err) {
+                toast.info(`${userInfo.discord}'s profile has been updated`)
+            }catch (err){
                 toast.error((err?.data?.message || err.error))
             }
         }
     }
     return (
     <FormContainer>
-        <h1>Sign Up</h1>
+        <h1>Update Profile</h1>
         <Form onSubmit={submitHandler}>
             <Form.Group className='my-2' controlId="discord">
                 <Form.Label>Discord ID</Form.Label>
@@ -71,19 +75,13 @@ const RegisterScreen = () => {
                     onChange={(e)=>setConfirmPassword(e.target.value)}
                 ></Form.Control>
             </Form.Group>     
-            {isLoading && <Loader />}               
+            {isLoading && <Loader />}             
             <Button type='submit' variant="primary" className="mt-3">
-                Sign Up 
+                Update 
             </Button>     
-
-            <Row className="py-3">
-                <Col>
-                    Already registered? <Link to='/login'>Sign In</Link>
-                </Col>
-            </Row>
         </Form>
     </FormContainer>
   )
 }
 
-export default RegisterScreen
+export default ProfileScreen
