@@ -76,13 +76,42 @@ const logoutUser = asyncHandler(async (req, res) => {
 // route        GET /api/users/profile
 // @access      Private
 const getUserProfile = asyncHandler(async (req, res) => {
-    res.status(200).json({message: "User Profile"})
+    // console.log(req.user)
+    const user = {
+        _id: req.user._id,
+        name: req.user.name,
+        discord: req.user.discord
+    }
+    res.status(200).json(user)
 })
 
 // @desc        Update/change profile
 // route        PUT /api/users
 // @access      Private
 const updateUserProfile = asyncHandler(async (req, res) => {
+    let newUserInfo = {
+        name: req.body.name,
+        discord: req.body.discord,
+        password: req.body.password
+    }
+    // first fetch user
+    const user = await User.findById(req.user._id)
+    // verify user was found
+    if (user){
+        // update field with the OR || op allowing easy ways to overwrite with new info
+        user.name = req.body.name || user.name
+        user.discord = req.body.discord || user.discord
+        // if a password was provided we'll update that too
+        if (req.body.password) {
+            user.password = req.body.password
+        }
+        // now await the save
+        const updatedUser = await user.save()
+        res.status(202).json(updatedUser)
+    }else{
+        res.status(404)
+        throw new Error("User not found (for profile updating)")
+    }
     res.status(200).json({message: "Update Profile"})
 })
 
