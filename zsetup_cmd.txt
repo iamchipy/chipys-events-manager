@@ -6,3 +6,17 @@ npm i -D nodemon
 
 // install async feature
 npm i express-async-handler
+
+
+==============================================
+FRONT END
+==============================================
+(in root)
+npm create vite@latest frontend
+// install dependency for vite
+cd frontend
+npm i 
+
+(in root)
+npm i -D concurrently
+npm run dev     (to run back and front ends together)
