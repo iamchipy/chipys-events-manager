@@ -6,6 +6,7 @@ import FormContainer from "../components/FormContainer";
 import { useLoginMutation } from "../slices/userApiSlice";
 import { setCredentials } from "../slices/authSlice";
 import { toast } from "react-toastify";
+import Loader from '../components/Loader'
 
 const LoginScreen = () => {
     const [discord, setDiscord] = useState('')
@@ -61,11 +62,11 @@ const LoginScreen = () => {
                     value={password}
                     onChange={(e)=>setPassword(e.target.value)}
                 ></Form.Control>
-            </Form.Group>       
+            </Form.Group>   
+            {isLoading && <Loader />}
             <Button type='submit' variant="primary" className="mt-3">
                 Sign In 
             </Button>     
-
             <Row className="py-3">
                 <Col>
                     New User? <Link to='/register'>Sign Up</Link>

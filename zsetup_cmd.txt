@@ -1,3 +1,8 @@
+npm run dev     (to run back and front ends together)
+==============================================
+==============================================
+
+
 // install from NPM
 npm i express dotenv mongoose bcryptjs jsonwebtoken cookie-parser
 
