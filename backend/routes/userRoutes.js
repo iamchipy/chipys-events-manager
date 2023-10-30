@@ -1,11 +1,19 @@
 import express from "express"
 const router = express.Router()
-import { authUser } from "../controllers/userControllers.js"
+import { authUser,
+    registerUser,
+    logoutUser,
+    getUserProfile,
+    updateUserProfile } from "../controllers/userControllers.js"
 
+// route linking
+router.post('/', registerUser)
 router.post('/auth', authUser)
-router.post('/logoff', authUser)
-router.put('/profile', authUser)
-router.get('/profile', authUser)
+router.post('/logout', logoutUser)
+// router.put('/profile', updateUserProfile)
+// router.get('/profile', getUserProfile)
+// can be chained as below
+router.route('/profile').get(getUserProfile).put(updateUserProfile)
 
 export default router
 
