@@ -4,7 +4,10 @@ import express from 'express'
 // Import .ENV and set it as config
 import dotenv from 'dotenv'
 dotenv.config()
+// import middleware custom errors
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
+// import middleware cookie-parser for protecting routes
+import cookieParser from 'cookie-parser';
 // import DB stuff for use and assign it
 import connectDB from './config/db.js'
 connectDB()
@@ -21,6 +24,9 @@ const app = express()
 // this lets us use JSON data and also URL encoded data
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
+
+// this lets us use cookie parsing in express app
+app.use(cookieParser())
 
 // routes / endpoints
 app.use('/api/users', userRoutes)

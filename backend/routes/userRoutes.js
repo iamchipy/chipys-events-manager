@@ -5,6 +5,8 @@ import { authUser,
     logoutUser,
     getUserProfile,
     updateUserProfile } from "../controllers/userControllers.js"
+import { protect } from "../middleware/authMiddleware.js"
+
 
 // route linking
 router.post('/', registerUser)
@@ -13,7 +15,7 @@ router.post('/logout', logoutUser)
 // router.put('/profile', updateUserProfile)
 // router.get('/profile', getUserProfile)
 // can be chained as below
-router.route('/profile').get(getUserProfile).put(updateUserProfile)
+router.route('/profile').get(protect, getUserProfile).put(protect,updateUserProfile)
 
 export default router
 

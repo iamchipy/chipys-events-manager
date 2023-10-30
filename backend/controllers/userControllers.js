@@ -18,7 +18,8 @@ const authUser = asyncHandler(async (req, res) => {
         res.status(201).json({
             _id: user._id,
             name: user.name,
-            discord: user.discord
+            discord: user.discord,
+            message: "login successful"
         })
     } else {
         res.status(401)
