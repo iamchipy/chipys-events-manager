@@ -61,7 +61,8 @@ const LoginScreen = () => {
                     value={password}
                     onChange={(e)=>setPassword(e.target.value)}
                 ></Form.Control>
-            </Form.Group>       
+            </Form.Group>   
+            {isLoading && <h2>Loading...</h2>}
             <Button type='submit' variant="primary" className="mt-3">
                 Sign In 
             </Button>     
