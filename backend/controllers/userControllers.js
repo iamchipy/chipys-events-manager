@@ -6,9 +6,6 @@ import generateToken from '../utils/generateToken.js'
 // route        POST /api/users/auth
 // @access      Public
 const authUser = asyncHandler(async (req, res) => {
-    // error example
-    // req.status(401)
-    // throw new Error('Something went wrong')
     const {discord, password} = req.body
 
     const user = await User.findOne({discord: discord})
@@ -56,7 +53,6 @@ const registerUser = asyncHandler(async (req, res) => {
         res.status(400)
         throw new Error('Invalid user data or unknown error with user creation')
     }
-
     console.log(user)
 })
 
@@ -64,7 +60,6 @@ const registerUser = asyncHandler(async (req, res) => {
 // route        POST /api/users/logout
 // @access      Public
 const logoutUser = asyncHandler(async (req, res) => {
-    
     res.cookie('jwt', '', {
         httpOnly: true,
         expires: new Date(0)

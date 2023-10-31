@@ -6,11 +6,12 @@ const Hero = () => {
     <div className=' py-5'>
       <Container className='d-flex justify-content-center'>
         <Card className='p-5 d-flex flex-column align-items-center hero-card bg-light w-75'>
-          <h1 className='text-center mb-4'>Chipys Breeding Assistant</h1>
+          <img src="https://chipy.dev/res/c3_logo.png" className="img-fluid" alt="logo" />
+          <h1 className='text-center mb-4'>Chipy's Breeder Assistant</h1>
           <p className='text-center mb-4'>
-            This is a boilerplate for CHIPY authentication that stores a JWT in
-            an HTTP-Only cookie. It also uses Redux Toolkit and the React
-            Bootstrap library
+            Welcome to Chipy's event manager for ARK Survival Ascended! This tool helps breeders
+            manager their requests from tribe members for new tames, arrange hatching events, and 
+            notification announcements for members and people on the request list.
           </p>
           <div className='d-flex'>
             <LinkContainer to='/login' >

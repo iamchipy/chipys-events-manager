@@ -3,18 +3,26 @@ import bcrypt from 'bcryptjs'
 
 // create a user schema for the noSQL DB to use
 const userSchema = mongoose.Schema({
-    name: {
-        type: String
-    },
     discord: {
         type: String,
-        required: true,
-        unique: true
+        equired: [true, "Required"],
+        unique: true,
+        index: true
     },    
     password: {
         type: String,
         required: true
-    }
+    },
+    role: {
+        type: String,
+        lowercase: true,         
+    },
+    guild: {
+        type: String,       
+    },    
+    note: {
+        type: String,       
+    },                
 },{
     // Enables time stamping
     timestamps: true

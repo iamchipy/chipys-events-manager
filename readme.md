@@ -9,11 +9,17 @@ This is where you can go to sign up for ASA dinos for your tribe!
 ### Frontend features
 - [X] user creation
 - - [ ] discord sign-in with oAuth
-- [ ] Dino list page
-- - [ ] Dino Icons with easy sign up toggle buttons
 - [ ] Breeder Admin page
 - - [ ] System for breeders to add new dinos
 - - [ ] System for breeders to manage a breeding event
+- - [ ] System for breeders to see/share/post current stats/lines
+- [ ] Private/personal info pages
+- - [X] Profile page
+- - [ ] Dino sign-up/request
+- - [ ] Hatching events page
+- [ ] public info pages
+- - [X] Registration/sign-up
+- - [ ] Welcome page
 
 ### Backend features
 - [X] user database
@@ -24,5 +30,5 @@ This is where you can go to sign up for ASA dinos for your tribe!
 - [ ] create breeder/admin schemas
 - - [ ] create signup method/page
 - - [ ] create additional perivilage level
-- [ ] connect to discord messaging for announcing breeding sessions
-- - [ ]
+- [ ] discord sign-in with oAuth
+- - [ ] connect to discord messaging for announcing breeding sessions

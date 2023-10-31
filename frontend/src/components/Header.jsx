@@ -1,4 +1,4 @@
-import { Navbar, Nav, Container, NavDropdown, Badge} from 'react-bootstrap';
+import { Navbar, Nav, Container, NavDropdown, Badge, NavbarBrand, NavItem} from 'react-bootstrap';
 import { FaSignInAlt, FaSignOutAlt } from 'react-icons/fa';
 import { useSelector, useDispatch } from 'react-redux';
 import { LinkContainer } from 'react-router-bootstrap'
@@ -26,18 +26,25 @@ const Header = () => {
     <header>
       <Navbar bg='dark' variant='dark' expand='lg' collapseOnSelect>
         <Container>
-          <LinkContainer to='/'>
-            <Navbar.Brand>Chipys Breeding Assistant</Navbar.Brand>
+          <img src="https://chipy.dev/res/c3_logo.png" style={{width:28, marginTop: -2, marginRight: 5}} alt="logo" />
+          <LinkContainer to='/home'>
+            <Navbar.Brand>Chipy's Breeder Assistant</Navbar.Brand>
           </LinkContainer>
           <Navbar.Toggle aria-controls='basic-navbar-nav' />
           <Navbar.Collapse id='basic-navbar-nav'>
             <Nav className='ms-auto'>
               {userInfo ? (
-                <>
+                <>            
+                  {/* <LinkContainer to='/profile'> */}
+                    <img src="https://www.freepnglogos.com/uploads/discord-logo-png/discord-logo-vector-download-0.png" style={{width:24, height:24, margin:5}} alt="avatar" />
+                  {/* </LinkContainer> */}
                   <NavDropdown title={userInfo.discord} id="username">
+                  <LinkContainer to='/request'>
+                      <NavDropdown.Item>Requests</NavDropdown.Item>
+                  </LinkContainer>                       
                   <LinkContainer to='/profile'>
                       <NavDropdown.Item>Profile</NavDropdown.Item>
-                    </LinkContainer>
+                  </LinkContainer>
                   <NavDropdown.Item onClick={logoutHandler}>Logout</NavDropdown.Item>
                   </NavDropdown>
                 </>

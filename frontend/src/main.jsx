@@ -15,6 +15,7 @@ import HomeScreen from './screens/HomeScreen.jsx'
 import LoginScreen from './screens/LoginScreen.jsx'
 import RegisterScreen from './screens/RegisterScreen.jsx'
 import ProfileScreen from './screens/ProfileScreen.jsx'
+import RequestScreen from './screens/RequestScreen'
 
 {/* ALL ROUTES LIVES HERE */}
 const router = createBrowserRouter(
@@ -26,6 +27,7 @@ const router = createBrowserRouter(
       {/* CONTROLED/PRIVATE routes */}
       <Route path='' element={<PrivateRoute />}>
         <Route path='/profile' element={<ProfileScreen />} />
+        <Route path='/request' element={<RequestScreen />} />
       </Route>
     </Route>
   ))
