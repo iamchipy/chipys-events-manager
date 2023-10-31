@@ -35,3 +35,30 @@ npm i react-toastify
 
 
 NPM run build 
+
+
+==============================================
+PRODUCTION
+==============================================
+root$ >> fix the .env
+root$ npm i
+frontend $ npm i
+frontend $ npm run build
+
+==============================================
+Process manager // portmanger
+==============================================
+(root)
+npm install -g npm@10.2.1
+pm2 start backend/server.js
+FIREWALL
+sudo ufw enable
+sudo ufw allow http
+sudo ufw allow https
+sudo ufw allow ssh
+PORT CONTROL
+sudo apt install nginx
+sudo nano /etc/nginx/sites-available/default
+- modify `server_name`
+- modify `location / {}`
+sudo service nginx restart
