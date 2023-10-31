@@ -19,6 +19,8 @@ const LoginScreen = () => {
 
     const { userInfo } = useSelector((state) => state.auth)
 
+    const discordOAuthURI = "https://discord.com/api/oauth2/authorize?client_id=1168939215367721021&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Foauth&response_type=token&scope=identify%20guilds"
+
     useEffect(() => {
         if (userInfo) {
             navigate('/')
@@ -30,8 +32,9 @@ const LoginScreen = () => {
         // console.log('login pressed')
         try{
             const res = await login({ discord, password }).unwrap()
+            console.log({...res})
             dispatch(setCredentials({...res}))
-            navigate('/')
+            // navigate('/')
         }catch (err) {
             // adding "?." appears to let you skip ignore undefined parts and search for ".message"
             let errMsg = (err?.data?.message || err.error)
@@ -39,7 +42,6 @@ const LoginScreen = () => {
             toast.error(errMsg)
         }
     }
-
 
     return (
     <FormContainer>
@@ -64,12 +66,18 @@ const LoginScreen = () => {
                 ></Form.Control>
             </Form.Group>   
             {isLoading && <Loader />} 
-            <Button type='submit' variant="primary" className="mt-3">
+            <Button type='submit' disabled={true} variant="primary" className="mt-3">
                 Sign In 
             </Button>     
             <Row className="py-3">
                 <Col>
                     New User? <Link to='/register'>Sign Up</Link>
+                </Col>
+                <Col>
+                    <Link to={discordOAuthURI}>
+                        Sign In with Discord!
+                        <img width="80" src="https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a69f118df70ad7828d4_icon_clyde_blurple_RGB.svg" />
+                    </Link>
                 </Col>
             </Row>
         </Form>

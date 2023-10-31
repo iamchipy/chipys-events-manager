@@ -5,6 +5,7 @@ import { LinkContainer } from 'react-router-bootstrap'
 import { useLogoutMutation } from '../slices/userApiSlice';
 import { logout } from '../slices/authSlice';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 const Header = () => {
   const { userInfo } = useSelector((state)=>state.auth)
@@ -22,6 +23,16 @@ const Header = () => {
       console.log(err)
     }
   }
+
+  let avatarURL = `https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a6ca814282eca7172c6_icon_clyde_white_RGB.svg`
+  // let displayName = "Sign In"
+  try{
+    avatarURL = `https://cdn.discordapp.com/avatars/${userInfo.id}/${userInfo.avatar}`
+    // displayName = userInfo.global_name
+  }catch{
+    toast.warn("Error loading user variables")
+  }
+  
   return (
     <header>
       <Navbar bg='dark' variant='dark' expand='lg' collapseOnSelect>
@@ -36,9 +47,9 @@ const Header = () => {
               {userInfo ? (
                 <>            
                   {/* <LinkContainer to='/profile'> */}
-                    <img src="https://www.freepnglogos.com/uploads/discord-logo-png/discord-logo-vector-download-0.png" style={{width:24, height:24, margin:5}} alt="avatar" />
+                    <img src={avatarURL} style={{width:24, height:24, margin:5}} alt="avatar" />
                   {/* </LinkContainer> */}
-                  <NavDropdown title={userInfo.discord} id="username">
+                  <NavDropdown title={userInfo.global_name} id="username">
                   <LinkContainer to='/event'>
                       <NavDropdown.Item>Events</NavDropdown.Item>
                   </LinkContainer>    
@@ -55,12 +66,8 @@ const Header = () => {
                 <>
                   <LinkContainer to='/login'>
                     <Nav.Link>
+                      <img src={avatarURL} style={{width:24, height:24, marginRight:12}} alt="avatar" />
                       <FaSignInAlt /> Sign In
-                    </Nav.Link>
-                  </LinkContainer>
-                  <LinkContainer to='/register'>
-                    <Nav.Link>
-                      <FaSignOutAlt /> Sign Up
                     </Nav.Link>
                   </LinkContainer>
                 </>

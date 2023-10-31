@@ -17,6 +17,7 @@ import RegisterScreen from './screens/RegisterScreen.jsx'
 import ProfileScreen from './screens/ProfileScreen.jsx'
 import RequestScreen from './screens/RequestScreen'
 import EventScreen from './screens/EventScreen'
+import OAuthScreen from './screens/OAuthScreen'
 
 {/* ALL ROUTES LIVES HERE */}
 const router = createBrowserRouter(
@@ -25,6 +26,7 @@ const router = createBrowserRouter(
       <Route index={true} path = '/*' element={<HomeScreen />} />
       <Route path='/login' element={<LoginScreen />} />
       <Route path='/register' element={<RegisterScreen />} />
+      <Route path='/oauth' element={<OAuthScreen />} />
       {/* CONTROLED/PRIVATE routes */}
       <Route path='' element={<PrivateRoute />}>
         <Route path='/profile' element={<ProfileScreen />} />
