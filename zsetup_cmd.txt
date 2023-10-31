@@ -39,6 +39,7 @@ NPM run build
 
 ==============================================
 PRODUCTION
+ssh root@23.239.19.48
 ==============================================
 root$ >> fix the .env
 root$ npm i
@@ -62,3 +63,4 @@ sudo nano /etc/nginx/sites-available/default
 - modify `server_name`
 - modify `location / {}`
 sudo service nginx restart
+
