@@ -5,43 +5,46 @@ import FormContainer from "../components/FormContainer";
 import { useDispatch, useSelector} from 'react-redux'
 import { toast } from "react-toastify";
 import { setCredentials } from "../slices/authSlice";
-import { useUpdateUserMutation } from "../slices/userApiSlice";
+import { useRequestMutation } from "../slices/userApiSlice";
 import Loader from "../components/Loader";
+import dinoNames from "../assets/dinoNames";
+import { Typeahead } from "react-bootstrap-typeahead"
 
 
 const RequestScreen = () => {
     const [discord, setDiscord] = useState('')
     const [password, setPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
+    const [multiSelections, setMultiSelections] = useState([]);
+
+    const getDinoImage = (i) => {
+        return dinoNames[i]
+    }
 
     // const navigate = useNavigate()
     const dispatch = useDispatch()
 
-    const [UpdatProfile, { isLoading }] = useUpdateUserMutation()
+    const [requestDino, { isLoading }] = useRequestMutation()
 
     const { userInfo } = useSelector((state) => state.auth)
 
+    // load user data if it exists
     useEffect(() => {
         setDiscord(userInfo.discord)
     }, [userInfo.setDiscord])
 
-    const submitHandler = async (e) => {
+    const requestHandler = async (e) => {
         e.preventDefault()
-        if (password === "" || confirmPassword === ""){
-            toast.error("Password required")
-        }else if (password !== confirmPassword) {
-            toast.error("Passwords do not match")
+        // if user isn't logged in
+        
+        if (!userInfo.id) {
+            toast.error("Please log in")
         }else{
-            try{
-                const res = await UpdatProfile({
-                    _id: userInfo._id,
-                    discord,
-                    password
-                }).unwrap()
-                dispatch(setCredentials({...res}))
-                toast.info(`${userInfo.discord}'s profile has been updated`)
-            }catch (err){
-                toast.error((err?.data?.message || err.error))
+            // if we have something selected to add
+            if (multiSelections !== ""){
+                toast.info(`Requesting... ${multiSelections}`)
+                console.log(multiSelections.typeof)
+                await requestDino({ discord, password }).unwrap()
             }
         }
     }
@@ -49,7 +52,7 @@ const RequestScreen = () => {
     return (
     <FormContainer>
         <h1>Request Dinos</h1>
-        <Form onSubmit={submitHandler}>
+        <Form onSubmit={requestHandler}>
             <Form.Group className='my-2' controlId="previously-requested">
                 <Form.Label>Pending Requests</Form.Label>
                 <ListGroup>
@@ -65,41 +68,40 @@ const RequestScreen = () => {
                
                 </ListGroup>
             </Form.Group>
-            <Form.Group className='my-2' controlId="dino">
+            {/* <Form.Group className='my-2' controlId="dino">
                 <Form.Label>New Request</Form.Label>
                 <Form.Control
                     as="select"
                     onChange={e=>{
                         console.log(e.target.value)
-                        alert(`${e.target.value} has been requested`)
+                        toast.info(`${getDinoImage(e.target.value)} has been requested`)
                     }}>
                     <option>Select Dino</option>
-                    <option value="Pteradon">Pteradon</option>
-                    <option value="Rex">Rex</option>
-                    <option value="Racer">Racer</option>                    
+                    <option value="1">dinoNames[1]</option>
+                    <option value="2">dinoNames[2]</option>
+                    <option value="3">dinoNames[3]</option>
+                    <option value="4">dinoNames[4]</option>
+                    <option value="REX">Rex</option>
+                    <option value="RACER">Racer</option>                  
                 </Form.Control>
-            </Form.Group>            
-            {/* <Form.Group className='my-2' controlId="password">
-                <Form.Label>Password</Form.Label>
-                <Form.Control 
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e)=>setPassword(e.target.value)}
-                ></Form.Control>
-            </Form.Group>  
-            <Form.Group className='my-2' controlId="confirmPassword">
-                <Form.Label>Confirm Password</Form.Label>
-                <Form.Control 
-                    type="password"
-                    placeholder="Confirm"
-                    value={confirmPassword}
-                    onChange={(e)=>setConfirmPassword(e.target.value)}
-                ></Form.Control>
-            </Form.Group>      */}
+            </Form.Group>          */}
+            <Form.Group className="mt-3">
+                <Form.Label>Select Desired Dinos</Form.Label>
+                <Typeahead
+                    id="basic-typeahead-multiple"
+                    labelKey="name"
+                    multiple
+                    onChange={setMultiSelections}
+                    highlightOnlyResult={false}
+                    options={dinoNames}
+                    placeholder="Choose several states..."
+                    selected={multiSelections}
+                />
+            </Form.Group>               
+
             {isLoading && <Loader />}             
             <Button type='submit' variant="primary" className="mt-3">
-                Update 
+                Request 
             </Button>     
         </Form>
     </FormContainer>
