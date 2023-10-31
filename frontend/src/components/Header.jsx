@@ -39,9 +39,12 @@ const Header = () => {
                     <img src="https://www.freepnglogos.com/uploads/discord-logo-png/discord-logo-vector-download-0.png" style={{width:24, height:24, margin:5}} alt="avatar" />
                   {/* </LinkContainer> */}
                   <NavDropdown title={userInfo.discord} id="username">
+                  <LinkContainer to='/event'>
+                      <NavDropdown.Item>Events</NavDropdown.Item>
+                  </LinkContainer>    
                   <LinkContainer to='/request'>
                       <NavDropdown.Item>Requests</NavDropdown.Item>
-                  </LinkContainer>                       
+                  </LinkContainer>                                         
                   <LinkContainer to='/profile'>
                       <NavDropdown.Item>Profile</NavDropdown.Item>
                   </LinkContainer>
