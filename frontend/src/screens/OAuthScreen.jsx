@@ -38,6 +38,7 @@ const OAuthScreen = () => {
                 const {id, username, discriminator, avatar, global_name} = response;
                 toast.success(`Welcome ${global_name}`)
                 dispatch(setCredentials({id, username, discriminator, avatar, global_name}))
+                // REGISTER users maybe here or maybe we never log users
             }).catch(console.error);
     }
 

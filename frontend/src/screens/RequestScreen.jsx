@@ -43,8 +43,8 @@ const RequestScreen = () => {
             // if we have something selected to add
             if (multiSelections !== ""){
                 toast.info(`Requesting... ${multiSelections}`)
-                console.log(multiSelections.typeof)
-                await requestDino({ discord, password }).unwrap()
+                console.log(typeof multiSelections)
+                await requestDino({ multiSelections, userInfo }).unwrap()
             }
         }
     }
@@ -58,7 +58,10 @@ const RequestScreen = () => {
                 <ListGroup>
                     <ListGroup.Item as="li" className="d-flex justify-content-between align-items-start">
                         <div className="ms-2 me-auto">
-                        <div className="fw-bold">Dino Name</div>
+                        <div className="fw-bold">
+                            <img width="55" src="https://www.dododex.com/media/creature/archaeopteryx.png" />
+                            Archaeopteryx
+                        </div>
                         Reqested on 10-30-2023
                         </div>
                         <Badge bg="primary" pill>
@@ -68,23 +71,6 @@ const RequestScreen = () => {
                
                 </ListGroup>
             </Form.Group>
-            {/* <Form.Group className='my-2' controlId="dino">
-                <Form.Label>New Request</Form.Label>
-                <Form.Control
-                    as="select"
-                    onChange={e=>{
-                        console.log(e.target.value)
-                        toast.info(`${getDinoImage(e.target.value)} has been requested`)
-                    }}>
-                    <option>Select Dino</option>
-                    <option value="1">dinoNames[1]</option>
-                    <option value="2">dinoNames[2]</option>
-                    <option value="3">dinoNames[3]</option>
-                    <option value="4">dinoNames[4]</option>
-                    <option value="REX">Rex</option>
-                    <option value="RACER">Racer</option>                  
-                </Form.Control>
-            </Form.Group>          */}
             <Form.Group className="mt-3">
                 <Form.Label>Select Desired Dinos</Form.Label>
                 <Typeahead

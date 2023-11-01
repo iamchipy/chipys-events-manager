@@ -5,7 +5,7 @@ import bcrypt from 'bcryptjs'
 const userSchema = mongoose.Schema({
     discord: {
         type: String,
-        equired: [true, "Required"],
+        required: [true, "Required"],
         unique: true,
         index: true
     },    

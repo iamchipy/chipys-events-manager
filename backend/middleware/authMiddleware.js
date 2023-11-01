@@ -3,8 +3,8 @@ import asyncHandler from 'express-async-handler'
 import User from '../models/userModel.js'
 
 const protect = asyncHandler(async (req, res, next)=> {
-    let token
-    token = req.cookies.jwt
+    let token = req.cookies.jwt
+    //TODO add additional tiers for Discord auth and Admins
 
     if (token){
         try{
