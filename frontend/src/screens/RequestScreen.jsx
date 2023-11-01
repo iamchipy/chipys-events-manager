@@ -23,7 +23,13 @@ function RequestScreen() {
             const result = await fetchPending({ userInfo })
             setListItems(result.data);
         }
-        fetchData();
+        // update list
+        try{
+            fetchData()
+        }catch (err){
+            console.warn("Trouble fetching pending dino request history:")
+            console.warn(err)
+        }        
     }, [fetchPending,userInfo]);
 
   // response to new request button
@@ -39,21 +45,13 @@ function RequestScreen() {
                 toast.info(`Requesting... ${multiSelections}`)
                 // console.log(typeof multiSelections)
                 await requestDino({ multiSelections, userInfo })
-            }
-
-            // update list
-            try{
-                fetchData(userInfo)
-            }catch (err){
-                console.warn("Trouble fetching pending dino request history:")
-                console.warn(err)
             }            
-        }          
+        }  
+        const result = await fetchPending({ userInfo })
+        setListItems(result.data);             
     }
   return (
-    <FormContainer>
-
-    
+    <FormContainer>  
         <h1>Request Dinos</h1>
         <Form onSubmit={requestHandler}>
             <Form.Group className='my-2' controlId="previously-requested">
@@ -65,9 +63,13 @@ function RequestScreen() {
                             <div className="fw-bold">
                                 <img width="55" src={`https://www.dododex.com/media/creature/${item.dino.toLowerCase()}.png`} />
                                 {item.dino}
+                                <Badge bg="primary" pill>
+                                1
+                                </Badge>                                
                             </div>
                             {`Date: ${item.updatedAt.substring(0,10)} (${item.status})`}
                             </div>
+                        
                         </ListGroup.Item>
                     ))}
                 </ListGroup>
