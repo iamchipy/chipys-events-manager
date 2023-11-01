@@ -28,11 +28,11 @@ const router = createBrowserRouter(
       <Route path='/register' element={<RegisterScreen />} />
       <Route path='/oauth' element={<OAuthScreen />} />
       {/* CONTROLED/PRIVATE routes */}
-      <Route path='' element={<PrivateRoute />}>
+      {/* <Route path='' element={<PrivateRoute />}> */}
         <Route path='/profile' element={<ProfileScreen />} />
         <Route path='/request' element={<RequestScreen />} />
         <Route path='/event' element={<EventScreen />} />
-      </Route>
+      {/* </Route> */}
     </Route>
   ))
   

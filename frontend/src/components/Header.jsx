@@ -30,7 +30,7 @@ const Header = () => {
     avatarURL = `https://cdn.discordapp.com/avatars/${userInfo.id}/${userInfo.avatar}`
     // displayName = userInfo.global_name
   }catch{
-    toast.warn("Error loading user variables")
+    // toast.warn("Error loading user variables")
   }
   
   return (
