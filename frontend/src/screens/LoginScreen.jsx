@@ -7,6 +7,7 @@ import { useLoginMutation } from "../slices/userApiSlice";
 import { setCredentials } from "../slices/authSlice";
 import { toast } from "react-toastify";
 import Loader from '../components/Loader'
+import discordOAuthURL from "../components/DiscordOAuthURL";
 
 const LoginScreen = () => {
     const [discord, setDiscord] = useState('')
@@ -18,9 +19,6 @@ const LoginScreen = () => {
     const [login, { isLoading }] = useLoginMutation()
 
     const { userInfo } = useSelector((state) => state.auth)
-
-    const discordOAuthURI = "https://discord.com/api/oauth2/authorize?client_id=1168939215367721021&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Foauth&response_type=token&scope=identify%20guilds"
-    // const discordOAuthURI = "https://discord.com/api/oauth2/authorize?client_id=1168939215367721021&redirect_uri=https%3A%2F%2Fbreeding.chipy.dev%2Foauth&response_type=token&scope=identify%20guilds"
 
     useEffect(() => {
         if (userInfo) {
@@ -75,7 +73,7 @@ const LoginScreen = () => {
                     New User? <Link to='/register'>Sign Up</Link>
                 </Col>
                 <Col>
-                    <Link to={discordOAuthURI}>
+                    <Link to={discordOAuthURL}>
                         Sign In with Discord!
                         <img width="80" src="https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a69f118df70ad7828d4_icon_clyde_blurple_RGB.svg" />
                     </Link>

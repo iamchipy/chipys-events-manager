@@ -3,26 +3,35 @@ import User from '../models/userModel.js'
 import DinoRequest from '../models/requestModel.js'
 import generateToken from '../utils/generateToken.js'
 
-// @desc        Auth user/set token
+// @desc        Auth user get/set token
 // route        POST /api/users/auth
 // @access      Public
 const authUser = asyncHandler(async (req, res) => {
-    const {discord, password} = req.body
+    // changing over to Discord OAuth only
+    // const {discord, password} = req.body
 
-    const user = await User.findOne({discord: discord})
+    // const user = await User.findOne({discord: discord})
     
-    if (user && (await user.matchPassword(password))) {
-        generateToken(res, user.id)
-        res.status(201).json({
-            id: user.id,
-            name: user.name,
-            discord: user.discord,
-            message: "login successful"
-        })
-    } else {
-        res.status(401)
-        throw new Error('Invalid credentials')
-    }
+    // if (user && (await user.matchPassword(password))) {
+    //     generateToken(res, user.id)
+    //     res.status(201).json({
+    //         id: user.id,
+    //         name: user.name,
+    //         discord: user.discord,
+    //         message: "login successful"
+    //     })
+    // } else {
+    //     res.status(401)
+    //     throw new Error('Invalid credentials')
+    // }
+
+    const devDiscordOAuthURI = "https://discord.com/api/oauth2/authorize?client_id=1168939215367721021&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Foauth&response_type=token&scope=identify%20guilds"
+    const prodDiscordOAuthURI = "https://discord.com/api/oauth2/authorize?client_id=1168939215367721021&redirect_uri=https%3A%2F%2Fbreeding.chipy.dev%2Foauth&response_type=token&scope=identify%20guilds"
+    // pick dev or production urls depending on ENV variable
+    OAuthURL = process.env.NODE_ENV === "production" ? prodDiscordOAuthURI : devDiscordOAuthURI
+    // not sure how to get URL redirects working from here of it that is even a good way to do it
+    //TODO build a URL redirect to Discord Auth if users arrive here without it, then tokenize it 
+
 })
 
 // @desc        Register a new user
@@ -162,46 +171,6 @@ const requestDino = asyncHandler(async (req, res) => {
     
 })
  
-
-
-// const registerUser = asyncHandler(async (req, res) => {
-//     const {name, discord, password} = req.body
-
-//     const userExists = await User.findOne({discord})
-//     if (userExists) {
-//         res.status(400)
-//         throw new Error('User already exists')
-//     }
-
-//     const user = await User.create({
-//         name,
-//         discord,
-//         password
-//     })
-
-//     if (user) {
-//         generateToken(res, user.id)
-//         res.status(201).json({
-//             id: user.id,
-//             name: user.name,
-//             discord: user.discord
-//         })
-//     } else {
-//         res.status(400)
-//         throw new Error('Invalid user data or unknown error with user creation')
-//     }
-//     console.log(user)
-// })
-
-
-
-
-
-
-
-
-
-
 export {
     authUser,
     registerUser,
