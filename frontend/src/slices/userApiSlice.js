@@ -43,7 +43,15 @@ export const usersApliSplice = apiSlice.injectEndpoints({
                 method: 'PUT',
                 body: data
             })                 
-        }),                             
+        }),  
+        updateRequest: builder.mutation({
+            query: (data) => ({
+                url: `${USERS_URL}/updateRequest`,
+                method: 'PUT',
+                body: data
+            })                 
+        }),             
+                                
     })
 })
 
@@ -53,4 +61,5 @@ export const {
     useRegisterMutation,
     useUpdateUserMutation,
     useRequestMutation,
-    useFetchPendingMutation } = usersApliSplice
+    useFetchPendingMutation,
+    useUpdateRequestMutation } = usersApliSplice

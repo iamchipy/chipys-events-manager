@@ -3,6 +3,9 @@ import User from '../models/userModel.js'
 import DinoRequest from '../models/requestModel.js'
 import generateToken from '../utils/generateToken.js'
 
+// variables for standard
+const INCOMPLETE_STATES = {$nin:["Completed","DeletedByUser"]}
+
 // @desc        Auth user get/set token
 // route        POST /api/users/auth
 // @access      Public
@@ -136,7 +139,7 @@ const requestDino = asyncHandler(async (req, res) => {
     listOfRequestedDinos.forEach(async (dino) => {
         // build filter for this user/dino/non-completed
         const filter = {
-            status: {$ne:"Completed"},
+            status: INCOMPLETE_STATES,
             dino: dino,
             id: req.body.userInfo.id
         }
@@ -177,7 +180,7 @@ const fetchPending = asyncHandler(async (req, res) => {
     // console.log(`fetchPending: ${req.body.userInfo.id}`)
     // filter 
     const filter = {
-        status: {$ne:"Completed"},
+        status: INCOMPLETE_STATES,
         id: req.body.userInfo.id
     }    
     // console.log(`fetchPending: ${req.body.userInfo.global_name}`)
@@ -193,6 +196,26 @@ const fetchPending = asyncHandler(async (req, res) => {
     }
 })
 
+// @desc        Update a dino request
+// route        PUT /api/users/updateRequest
+// @access      Private
+const updateRequest = asyncHandler(async (req, res) => {    
+    // console.warn(JSON.stringify(req.body))
+    const filter = {
+        _id: req.body.selectedRequest._id
+    }
+    const updatedValue = req.body.updatedValue
+    const verification = await DinoRequest.findOneAndUpdate(filter, updatedValue)
+
+    // console.warn(JSON.stringify(verification))
+    // return requests
+    if (verification === undefined){
+        res.status(400).json(`Message: No requests found for ${req.body.userInfo.global_name} :: ${filter}`)
+    } else {
+        res.status(200).json(verification)
+    }
+})
+
 export {
     authUser,
     registerUser,
@@ -200,5 +223,6 @@ export {
     getUserProfile,
     updateUserProfile,
     requestDino,
-    fetchPending
+    fetchPending,
+    updateRequest
 }
