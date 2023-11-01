@@ -144,7 +144,7 @@ const requestDino = asyncHandler(async (req, res) => {
         const requestExists = await DinoRequest.find(filter)
         // check for duplicate entries or previous non-complete requests
         if (requestExists[0] !== undefined) {
-            console.log(`Found DUPLICATE request for ${dino}`)
+            // console.log(`Found DUPLICATE request for ${dino}`)
             // console.log(`Found DUPLICATES: ${requestExists}`)
             duplicates.push(dino)
         }else {
@@ -159,23 +159,46 @@ const requestDino = asyncHandler(async (req, res) => {
         }
     })
  
-    console.log(duplicates)
     // run status check
     if (duplicates.length < 1) {
         res.status(200).json({message: "Requests logged"})
     }else{
+        console.log(`Duplicates (ignored): ${duplicates}`)
         //TODO loop back and build a proper wait into this as right now it's ALWAYS returns
         //s200 due to Async causing loops to find duplicatesAFTER 200 response completes
         res.status(400).json({message: `Duplicate request(s) for ${duplicates}`})
     }
-    
 })
  
+// @desc        Get user's pending requests
+// route        PUT /api/users/fetchPending
+// @access      Private
+const fetchPending = asyncHandler(async (req, res) => {    
+    // console.log(`fetchPending: ${req.body.userInfo.id}`)
+    // filter 
+    const filter = {
+        status: {$ne:"Completed"},
+        id: req.body.userInfo.id
+    }    
+    // console.log(`fetchPending: ${req.body.userInfo.global_name}`)
+    // lookup pending and completed requests matching user
+    const requestPending = await DinoRequest.find(filter)
+    // console.log(`results: ${requestPending}`)
+
+    // return requests
+    if (requestPending[0] === undefined){
+        res.status(400).json(`Message: No requests found for ${req.body.userInfo.global_name}`)
+    } else {
+        res.status(200).json(requestPending)
+    }
+})
+
 export {
     authUser,
     registerUser,
     logoutUser,
     getUserProfile,
     updateUserProfile,
-    requestDino
+    requestDino,
+    fetchPending
 }

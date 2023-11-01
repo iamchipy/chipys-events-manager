@@ -5,8 +5,9 @@ import { authUser,
     logoutUser,
     getUserProfile,
     updateUserProfile,
-    requestDino } from "../controllers/userControllers.js"
-import { protect } from "../middleware/authMiddleware.js"
+    requestDino,
+    fetchPending } from "../controllers/userControllers.js"
+// import { protect } from "../middleware/authMiddleware.js"
 
 
 // route linking
@@ -14,7 +15,8 @@ router.post('/', registerUser)
 router.post('/auth', authUser)
 router.post('/logout', logoutUser)
 router.post("/request", requestDino)
-router.route('/profile').get(protect, getUserProfile).put(protect,updateUserProfile)
+router.put("/fetchPending", fetchPending)
+// router.route('/profile').get(protect, getUserProfile).put(protect,updateUserProfile)
 
 export default router
 

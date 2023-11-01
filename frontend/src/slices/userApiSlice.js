@@ -36,7 +36,14 @@ export const usersApliSplice = apiSlice.injectEndpoints({
                 method: 'POST',
                 body: data
             })                 
-        }),                     
+        }),   
+        fetchPending: builder.mutation({
+            query: (data) => ({
+                url: `${USERS_URL}/fetchPending`,
+                method: 'PUT',
+                body: data
+            })                 
+        }),                             
     })
 })
 
@@ -45,4 +52,5 @@ export const {
     useLogoutMutation,
     useRegisterMutation,
     useUpdateUserMutation,
-    useRequestMutation } = usersApliSplice
+    useRequestMutation,
+    useFetchPendingMutation } = usersApliSplice
