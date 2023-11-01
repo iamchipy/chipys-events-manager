@@ -1,6 +1,7 @@
 node_modules
 .env
 zsetup_cmd.txt
+frontend/src/components/DiscordOAuthURL.jsx
 
 # Logs
 logs
@@ -26,3 +27,4 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
