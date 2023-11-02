@@ -21,16 +21,16 @@ const Hero = () => {
 
           {userInfo === null ? 
             <div className='d-flex'>
-              <LinkContainer to='/login' >
+              <LinkContainer to='/register' >
                 <Button variant='primary' className='me-3'>
                   Sign In
                 </Button>
               </LinkContainer>
-              <LinkContainer to='/register' >
+              {/* <LinkContainer to='/register' >
                 <Button variant='secondary'>
                   Register
                 </Button>
-              </LinkContainer>
+              </LinkContainer> */}
             </div>
             :
             <div className='d-flex'>

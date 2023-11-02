@@ -64,7 +64,7 @@ const Header = () => {
                 </>
               ) : (
                 <>
-                  <LinkContainer to='/login'>
+                  <LinkContainer to='/register'>
                     <Nav.Link>
                       <img src={avatarURL} style={{width:24, height:24, marginRight:12}} alt="avatar" />
                       <FaSignInAlt /> Sign In

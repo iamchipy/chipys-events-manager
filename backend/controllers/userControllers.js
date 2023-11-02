@@ -41,32 +41,35 @@ const authUser = asyncHandler(async (req, res) => {
 // route        POST /api/users
 // @access      Public
 const registerUser = asyncHandler(async (req, res) => {
-    const {name, discord, password} = req.body
+    // console.warn(JSON.stringify(req.body))
+    const userFilter = {id: req.body.id}
+    let newUser = null
+    let updatedUserValues = null
 
-    const userExists = await User.findOne({discord})
+    // Check if user is new (if not update user)
+    const userExists = await User.findOne(userFilter)
     if (userExists) {
-        res.status(400)
-        throw new Error('User already exists')
+        console.log("Attempting to update user")
+        updatedUserValues = await User.findOneAndUpdate(userFilter, req.body)
+        if (!updatedUserValues){
+            res.status(400)
+            throw new Error(`Failed too update user ${req.body.global_name}`)
+        }
+    }else{
+        console.log("Attempting to create new user")
+        newUser = await User.create(req.body)
     }
 
-    const user = await User.create({
-        name,
-        discord,
-        password
-    })
-
-    if (user) {
-        generateToken(res, user.id)
+    if (newUser !== undefined || updatedUserValues !== undefined) {
+        generateToken(res, req.body.id)
         res.status(201).json({
             id: user.id,
-            name: user.name,
-            discord: user.discord
+            name: user.global_name,
         })
     } else {
         res.status(400)
         throw new Error('Invalid user data or unknown error with user creation')
     }
-    console.log(user)
 })
 
 // @desc        Logout user/clear tokens?
@@ -97,22 +100,15 @@ const getUserProfile = asyncHandler(async (req, res) => {
 // route        PUT /api/users
 // @access      Private
 const updateUserProfile = asyncHandler(async (req, res) => {
-    let newUserInfo = {
-        name: req.body.name,
-        discord: req.body.discord,
-        password: req.body.password
-    }
+
     // first fetch user
-    const user = await User.findById(req.user.id)
+    const user = await User.findById(req.body.id)
     // verify user was found
     if (user){
         // update field with the OR || op allowing easy ways to overwrite with new info
-        user.name = req.body.name || user.name
-        user.discord = req.body.discord || user.discord
-        // if a password was provided we'll update that too
-        if (req.body.password) {
-            user.password = req.body.password
-        }
+        user.timezone = req.body.timezone || user.timezone
+        user.role = req.body.role || user.role
+
         // now await the save
         const updatedUser = await user.save()
         res.status(202).json(updatedUser)

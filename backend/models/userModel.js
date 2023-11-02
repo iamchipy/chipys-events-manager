@@ -11,14 +11,37 @@ const userSchema = mongoose.Schema({
     },    
     role: {
         type: String,
-        lowercase: true,         
+        lowercase: true,    
+        default: "user",     
     },
-    guild: {
-        type: String,       
+    guilds: {
+        type: Object,       
     },    
     note: {
+        type: String,   
+        default: "none"       
+    },  
+    avatar: {
         type: String,       
-    },                
+    },      
+    disciminator: {
+        type: String,       
+    },     
+    global_name: {
+        type: String,     
+        default: "unregistered"     
+    },       
+    locale: {
+        type: String,       
+    },     
+    username: {
+        type: String,   
+        default: "unregistered"    
+    },   
+    timezone: {
+        type: Number,
+        default: 0   
+    }        
 },{
     // Enables time stamping
     timestamps: true

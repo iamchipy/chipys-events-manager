@@ -5,8 +5,7 @@ import FormContainer from "../components/FormContainer";
 import { useDispatch, useSelector} from 'react-redux'
 import { toast } from "react-toastify";
 import { setCredentials } from "../slices/authSlice";
-// import { fetchUserAll } from "../components/DiscordFetchUser";
-    
+import { useRegisterMutation } from "../slices/userApiSlice";
 
 const OAuthScreen = () => {
     // website navigation
@@ -17,10 +16,13 @@ const OAuthScreen = () => {
     // Look for the fragment that will be returned to this URI
     const fragment = new URLSearchParams(window.location.hash.slice(1))
     const [accessToken, tokenType] = [fragment.get('access_token'), fragment.get('token_type')];    
-
     // Extract authentication info
     const { userInfo } = useSelector((state) => state.auth)
+    // Used for saving user's data to DB
+    const [registerUser, { isLoading }] = useRegisterMutation()
 
+    // once we have tokens this function does a double promise to get user AND guilds info
+    // We then safe the info and register the user
     const fetchUserAll = (tokenType,accessToken) => {
         if (tokenType === undefined || accessToken === undefined) {
             console.log(`Invalid Toekn/Access skipping discord fetch`);
@@ -38,15 +40,19 @@ const OAuthScreen = () => {
                 return res.json()
             }))
         }).then(function (data) {
+            // HERE is where we land when a user has successfully logged in and we have data
             const fetchedUser = {...data[0], guilds:data[1]}
             console.log(fetchedUser)
+            toast.success(`Welcome ${fetchedUser.global_name}`)
             dispatch(setCredentials(fetchedUser))
+            registerUser(fetchedUser)
             
         }).catch(function (err) {
             console.error(`DiscordError406: ${err}`)
         })
     }
 
+    // Handle the initial sign in request but only run once
     useEffect(() => {
         if (!hasRunOnce.current){
             fetchUserAll(tokenType, accessToken)
@@ -55,56 +61,13 @@ const OAuthScreen = () => {
 
     }, []); // Empty array ensures this runs once on mount
 
+    // Handle redirects once we have user info
     useEffect(() => {
         // redirect if signed in
         if (userInfo) {
             navigate('/home')
         }
     }, [navigate, userInfo])    
-
-    
-
-        // const userInfo = fetchUserAll(tokenType, accessToken)
-        // console.warn(JSON.stringify(userInfo))
-        
-    
-        // console.log(`Access Token Present ${JSON.stringify(accessToken)}`);
-        // let userInfo = {}
-        // // if we do have a token then lets fetch user info
-        // fetch('https://discord.com/api/users/@me', {
-        //     headers: {
-        //         authorization: `${tokenType} ${accessToken}`,
-        //     },
-        // })
-        //     .then(result => result.json())
-        //     .then(response => {
-        //         console.log(`AUTH RES ${JSON.stringify(response)}`);
-        //         const {id, username, discriminator, avatar, global_name} = response;
-        //         userInfo = {
-        //             id: id,
-        //             username: username,
-        //             idiscriminatord: discriminator,
-        //             avatar: avatar,
-        //             global_name: global_name,
-        //         }
-        //         toast.success(`Welcome ${global_name}`)
-        //     }).catch(console.error);
-
-        // console.log(`userInfo After 1 ${JSON.stringify(userInfo)}`);
-        // fetch('https://discord.com/api/users/@me/guilds', {
-        //     headers: {
-        //         authorization: `${tokenType} ${accessToken}`,
-        //     },
-        // })
-        //     .then(result => result.json())
-        //     .then(response => {
-        //         userInfo["guilds"] = response
-        //         console.log(`guilds: ${JSON.stringify(response)}`);
-        //     })
-        //     console.log(`userInfo After 2 ${JSON.stringify(userInfo)}`);
-        //     // cache the creds
-        //     dispatch(setCredentials(userInfo))
-    
 
     return (
         <FormContainer>
