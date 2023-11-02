@@ -75,7 +75,8 @@ function RequestScreen() {
         status: "DeletedByUser"
       }
       await updateRequest({ selectedRequest, updatedValue })
-
+      const result = await fetchPending({ userInfo })
+      setListItems(result.data);      
     };
 
 
