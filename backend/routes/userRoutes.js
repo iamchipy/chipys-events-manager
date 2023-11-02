@@ -8,7 +8,7 @@ import { authUser,
     requestDino,
     fetchPending,
     updateRequest } from "../controllers/userControllers.js"
-// import { protect } from "../middleware/authMiddleware.js"
+import { protect } from "../middleware/authMiddleware.js"
 
 
 // route linking
@@ -20,6 +20,7 @@ router.post("/request", requestDino)
 router.put("/fetchPending", fetchPending)
 router.put("/updateRequest", updateRequest)
 // router.route('/profile').get(protect, getUserProfile).put(protect,updateUserProfile)
+router.route('/profile').put(updateUserProfile)
 
 export default router
 

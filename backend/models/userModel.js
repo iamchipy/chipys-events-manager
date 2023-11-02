@@ -24,7 +24,7 @@ const userSchema = mongoose.Schema({
     avatar: {
         type: String,       
     },      
-    disciminator: {
+    discriminator: {
         type: String,       
     },     
     global_name: {

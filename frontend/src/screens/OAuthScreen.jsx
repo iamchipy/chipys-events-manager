@@ -1,11 +1,11 @@
-import { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Form, Button } from "react-bootstrap";
+import { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import FormContainer from "../components/FormContainer";
 import { useDispatch, useSelector} from 'react-redux'
 import { toast } from "react-toastify";
 import { setCredentials } from "../slices/authSlice";
 import { useRegisterMutation } from "../slices/userApiSlice";
+import Loader from "../components/Loader";
 
 const OAuthScreen = () => {
     // website navigation
@@ -25,7 +25,7 @@ const OAuthScreen = () => {
     // We then safe the info and register the user
     const fetchUserAll = (tokenType,accessToken) => {
         if (tokenType === undefined || accessToken === undefined) {
-            console.log(`Invalid Toekn/Access skipping discord fetch`);
+            console.log(`Invalid Token/Access skipping discord fetch`);
             return false
         }else{
             console.log(`${tokenType} -- ${accessToken}`);
@@ -42,10 +42,13 @@ const OAuthScreen = () => {
         }).then(function (data) {
             // HERE is where we land when a user has successfully logged in and we have data
             const fetchedUser = {...data[0], guilds:data[1]}
-            console.log(fetchedUser)
+            console.log("fetchedUser:")
+            console.info(fetchedUser)
             toast.success(`Welcome ${fetchedUser.global_name}`)
+            
+            const updatedUser = registerUser(fetchedUser)
+            // console.warn(JSON.stringify(updatedUser))
             dispatch(setCredentials(fetchedUser))
-            registerUser(fetchedUser)
             
         }).catch(function (err) {
             console.error(`DiscordError406: ${err}`)
@@ -59,6 +62,7 @@ const OAuthScreen = () => {
             hasRunOnce.current = true
         }
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []); // Empty array ensures this runs once on mount
 
     // Handle redirects once we have user info
@@ -71,7 +75,8 @@ const OAuthScreen = () => {
 
     return (
         <FormContainer>
-            <h1>Authorizing</h1>        
+            <h1>Authorizing</h1>  
+            {isLoading && <Loader />}  
         </FormContainer>
     )
 }
