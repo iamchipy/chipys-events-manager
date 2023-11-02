@@ -89,12 +89,8 @@ const logoutUser = asyncHandler(async (req, res) => {
 // route        GET /api/users/profile
 // @access      Private
 const getUserProfile = asyncHandler(async (req, res) => {
-    // console.log(req.user)
-    const user = {
-        id: req.user.id,
-        name: req.user.name,
-        discord: req.user.discord
-    }
+    console.log(req.userInfo)
+    const user = await User.findOne({id:req.body.id})
     res.status(200).json(user)
 })
 

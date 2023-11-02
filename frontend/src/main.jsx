@@ -12,7 +12,6 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import './index.css'
 import PrivateRoute from './components/PrivateRotue.jsx'
 import HomeScreen from './screens/HomeScreen.jsx'
-import LoginScreen from './screens/LoginScreen.jsx'
 import RegisterScreen from './screens/RegisterScreen.jsx'
 import ProfileScreen from './screens/ProfileScreen.jsx'
 import RequestScreen from './screens/RequestScreen'
@@ -28,11 +27,11 @@ const router = createBrowserRouter(
       <Route path='/register' element={<RegisterScreen />} />
       <Route path='/oauth' element={<OAuthScreen />} />
       {/* CONTROLED/PRIVATE routes */}
-      {/* <Route path='' element={<PrivateRoute />}> */}
+      <Route path='' element={<PrivateRoute />}>
         <Route path='/profile' element={<ProfileScreen />} />
         <Route path='/request' element={<RequestScreen />} />
         <Route path='/event' element={<EventScreen />} />
-      {/* </Route> */}
+      </Route>
     </Route>
   ))
   

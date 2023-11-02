@@ -1,11 +1,10 @@
-import { Navbar, Nav, Container, NavDropdown, Badge, NavbarBrand, NavItem} from 'react-bootstrap';
-import { FaSignInAlt, FaSignOutAlt } from 'react-icons/fa';
+import { Navbar, Nav, Container, NavDropdown} from 'react-bootstrap';
+import { FaSignInAlt } from 'react-icons/fa';
 import { useSelector, useDispatch } from 'react-redux';
 import { LinkContainer } from 'react-router-bootstrap'
 import { useLogoutMutation } from '../slices/userApiSlice';
 import { logout } from '../slices/authSlice';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
 
 const Header = () => {
   const { userInfo } = useSelector((state)=>state.auth)
@@ -39,7 +38,7 @@ const Header = () => {
         <Container>
           <img src="https://chipy.dev/res/c3_logo.png" style={{width:28, marginTop: -2, marginRight: 5}} alt="logo" />
           <LinkContainer to='/home'>
-            <Navbar.Brand>Chipy's Breeder Assistant</Navbar.Brand>
+            <Navbar.Brand>{"Chipy's Breeder Assistant"}</Navbar.Brand>
           </LinkContainer>
           <Navbar.Toggle aria-controls='basic-navbar-nav' />
           <Navbar.Collapse id='basic-navbar-nav'>
@@ -56,9 +55,9 @@ const Header = () => {
                   <LinkContainer to='/request'>
                       <NavDropdown.Item>Requests</NavDropdown.Item>
                   </LinkContainer>                                         
-                  {/* <LinkContainer to='/profile'>
+                  <LinkContainer to='/profile'>
                       <NavDropdown.Item>Profile</NavDropdown.Item>
-                  </LinkContainer> */}
+                  </LinkContainer>
                   <NavDropdown.Item onClick={logoutHandler}>Logout</NavDropdown.Item>
                   </NavDropdown>
                 </>

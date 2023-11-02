@@ -14,9 +14,12 @@ const userSchema = mongoose.Schema({
         lowercase: true,    
         default: "user",     
     },
+    guild: {
+        type: String,       
+    },    
     guilds: {
         type: Object,       
-    },    
+    },        
     note: {
         type: String,   
         default: "none"       

@@ -23,7 +23,14 @@ export const usersApliSplice = apiSlice.injectEndpoints({
                 method: 'PUT',
                 body: data
             })
-        }),         
+        }), 
+        getProfile: builder.mutation({
+            query: () => ({
+                url: `${USERS_URL}/profile`,
+                method: 'GET'
+            })
+        }),          
+              
         logout: builder.mutation({
             query: () => ({
                 url: `${USERS_URL}/logout`,
@@ -62,4 +69,5 @@ export const {
     useUpdateUserMutation,
     useRequestMutation,
     useFetchPendingMutation,
-    useUpdateRequestMutation } = usersApliSplice
+    useUpdateRequestMutation,
+    useGetProfileMutation } = usersApliSplice

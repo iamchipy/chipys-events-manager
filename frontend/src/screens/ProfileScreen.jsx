@@ -1,21 +1,23 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Form, Button } from "react-bootstrap";
 import FormContainer from "../components/FormContainer";
 import { useDispatch, useSelector} from 'react-redux'
 import { toast } from "react-toastify";
 import { setCredentials } from "../slices/authSlice";
-import { useUpdateUserMutation } from "../slices/userApiSlice";
+import { useUpdateUserMutation, useGetProfileMutation} from "../slices/userApiSlice";
 import TimezonePicker from 'react-bootstrap-timezone-picker';
+import { Typeahead } from "react-bootstrap-typeahead"
 
 
 const ProfileScreen = () => {
     const dispatch = useDispatch()
     const [UpdatProfile] = useUpdateUserMutation()
+    const [GetProfile] = useGetProfileMutation()
     const { userInfo } = useSelector((state) => state.auth)
-    const [timezone, setTimezone] = useState('Europe/Moscow');
-    const [role, setRole] = useState(userInfo.role)
-    const [note, setNote] = useState(userInfo.note)
-
+    const [timezone, setTimezone] = useState();
+    const [role, setRole] = useState()
+    const [note, setNote] = useState()
+    const [guildSelection, setGuildSelection] = useState();
 
     const handleRoleChange = async (event) => {
         setRole(event.target.value)
@@ -24,7 +26,38 @@ const ProfileScreen = () => {
     const handleNoteChange = async (event) => {
         setNote(event.target.value)
     }    
+
+    let guildNames = []
+    for (let i = 0; i < userInfo.guilds.length; i++){
+        guildNames.push(userInfo.guilds[i].name)
+    }
     
+    // console.log(userInfo)
+    const loadFormValues = async () => {
+        try{
+            const user = await GetProfile(userInfo.id)
+                .then(res => {
+                    console.warn("received user:")
+                    console.warn(res)
+                })
+            console.info(user)
+            
+        }catch (e){
+            console.error(e)
+        }
+
+        // try{
+        //     setRole(userInfo.role)
+        //     setNote(userInfo.note)
+        //     setGuildSelection(userInfo.guild)
+        //     setTimezone(userInfo.timezone)
+        //     toast.info("Profile loaded")
+        // }catch (e) {
+        //     toast.error("Failed to load profile values")
+        //     console.error(e)
+        // }
+    }
+
     // NEED an API to request user info (not in)
 
     const convertToUTCOffset = (timeZone) => {
@@ -46,7 +79,7 @@ const ProfileScreen = () => {
         if (minute) result += parseInt(minute);
       
         return result;
-      };
+    };
 
     const submitHandler = async (e) => {
         e.preventDefault()
@@ -55,6 +88,7 @@ const ProfileScreen = () => {
                 id: userInfo.id,
                 timezone: convertToUTCOffset(timezone),
                 role: role,
+                guild: guildSelection[0],
                 note: note,}).unwrap()
             // console.warn(updatedUser)
             toast.info(`${userInfo.global_name}'s profile has been updated`)
@@ -66,6 +100,11 @@ const ProfileScreen = () => {
         }
 
     }
+
+    useEffect(()=>{
+        loadFormValues()
+    },[])
+
 
     return (
     <FormContainer>
@@ -86,7 +125,19 @@ const ProfileScreen = () => {
                     disabled={true}
                     value={userInfo.id}
                 ></Form.Control>
-            </Form.Group>            
+            </Form.Group>     
+            <Form.Group className="mt-3">
+                <Form.Label>Select Desired Dinos</Form.Label>
+                    <Typeahead
+                        id="Dino-Selector"
+                        labelKey="dinoSearch"
+                        onChange={setGuildSelection}
+                        highlightOnlyResult={false}
+                        options={guildNames}
+                        placeholder="Select multiple"
+                        selected={guildSelection}
+                    />
+                </Form.Group>                     
             <Form.Group className='my-2' controlId="timezone">
                 <Form.Label>Select Timezone</Form.Label>  
                 {/* TimezonePicker seems to be getting sunset and needs suppressed */}
