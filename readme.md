@@ -38,9 +38,11 @@ This webapp is designed to help ARK mega-tribe breeders manager the dino request
 
 
 
-# React + Vite + MongoDB + Bootstrap
+# Credits
+## React + Vite + MongoDB + Bootstrap
 
 This app was created using several publicly available tool. Here are some of their links as a way to give correct credit and thanks.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- [@vitejs](https://github.com/vitejs/vite-plugin-react/tree/main)
+- [@MongoDB](https://cloud.mongodb.com)
+- [@Bootstrap](https://getbootstrap.com)
