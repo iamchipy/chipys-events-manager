@@ -20,7 +20,8 @@ const requestSchema = mongoose.Schema({
         lowercase: true,         
     },
     guild: {
-        type: String,       
+        type: String,   
+        required: true    
     }, 
     status: {
         type: String,       

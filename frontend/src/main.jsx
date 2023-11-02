@@ -17,6 +17,7 @@ import ProfileScreen from './screens/ProfileScreen.jsx'
 import RequestScreen from './screens/RequestScreen'
 import EventScreen from './screens/EventScreen'
 import OAuthScreen from './screens/OAuthScreen'
+import RequestQueueScreen from './screens/RequestQueueScreen'
 
 {/* ALL ROUTES LIVES HERE */}
 const router = createBrowserRouter(
@@ -31,6 +32,7 @@ const router = createBrowserRouter(
         <Route path='/profile' element={<ProfileScreen />} />
         <Route path='/request' element={<RequestScreen />} />
         <Route path='/event' element={<EventScreen />} />
+        <Route path='/queue' element={<RequestQueueScreen />} />
       </Route>
     </Route>
   ))

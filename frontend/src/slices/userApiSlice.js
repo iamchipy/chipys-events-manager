@@ -50,7 +50,14 @@ export const usersApliSplice = apiSlice.injectEndpoints({
                 method: 'PUT',
                 body: data
             })                 
-        }),  
+        }), 
+        fetchPendingByFilter: builder.mutation({
+            query: (data) => ({
+                url: `${USERS_URL}/fetchPendingByFilter`,
+                method: 'PUT',
+                body: data
+            })                 
+        }),          
         updateRequest: builder.mutation({
             query: (data) => ({
                 url: `${USERS_URL}/updateRequest`,
@@ -70,4 +77,5 @@ export const {
     useRequestMutation,
     useFetchPendingMutation,
     useUpdateRequestMutation,
-    useGetProfileMutation } = usersApliSplice
+    useGetProfileMutation,
+    useFetchPendingByFilterMutation } = usersApliSplice

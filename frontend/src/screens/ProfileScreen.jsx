@@ -127,7 +127,7 @@ const ProfileScreen = () => {
                 ></Form.Control>
             </Form.Group>     
             <Form.Group className="mt-3">
-                <Form.Label>Select Desired Dinos</Form.Label>
+                <Form.Label>Select Tibe Discord</Form.Label>
                     <Typeahead
                         id="Dino-Selector"
                         labelKey="dinoSearch"
@@ -165,7 +165,10 @@ const ProfileScreen = () => {
                     type="text"
                     onChange={handleNoteChange}
                 />                          
-            </Form.Group>                      
+            </Form.Group>       
+            PLEASE NOTE current known bug is that your settings arn't loading correctly BUT THEY DO SAVE
+            so please setup everything correctly and trust that it's submitted as long as you do the 
+            whole form all at once               
             <Button type='submit' variant="primary" className="mt-3">
                 Update 
             </Button>     

@@ -185,6 +185,28 @@ const fetchPending = asyncHandler(async (req, res) => {
     }
 })
 
+// @desc        Get user's pending requests for any user of a guild
+// route        PUT /api/users/fetchPendingByFilter
+// @access      Private
+const fetchPendingByFilter = asyncHandler(async (req, res) => {    
+    // console.log(`fetchPendingByFilter: ${req.body.userInfo.id}`)
+    console.log(`fetchPendingByFilter: ${req.body.filter}`)
+    console.log(req.body.filter)
+    // filter 
+    const filter = req.body.filter
+    // console.log(`fetchPending: ${req.body.userInfo.global_name}`)
+    // lookup pending and completed requests matching user
+    const requestPending = await DinoRequest.find(filter)
+    // console.log(`results: ${requestPending}`)
+
+    // return requests
+    if (requestPending[0] === undefined){
+        res.status(400).json(`Message: No requests found for ${req.body.userInfo.guild}`)
+    } else {
+        res.status(200).json(requestPending)
+    }
+})
+
 // @desc        Update a dino request
 // route        PUT /api/users/updateRequest
 // @access      Private
@@ -213,5 +235,6 @@ export {
     updateUserProfile,
     requestDino,
     fetchPending,
-    updateRequest
+    updateRequest,
+    fetchPendingByFilter
 }
