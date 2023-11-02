@@ -1,98 +1,167 @@
 import { useState, useEffect } from "react";
-// import { useNavigate } from "react-router-dom";
-import { Form, Button, ListGroup, Badge } from "react-bootstrap";
+import { Form, Button, ListGroup, Badge, Modal } from "react-bootstrap";
 import FormContainer from "../components/FormContainer";
-import { useDispatch, useSelector} from 'react-redux'
+import { useSelector} from 'react-redux'
 import { toast } from "react-toastify";
-import { setCredentials } from "../slices/authSlice";
-import { useUpdateUserMutation } from "../slices/userApiSlice";
+import { useRequestMutation, useFetchPendingMutation, useUpdateRequestMutation } from "../slices/userApiSlice";
 import Loader from "../components/Loader";
-
+import dinoNames from "../assets/dinoNames";
+import { Typeahead } from "react-bootstrap-typeahead"
+import { Link } from "react-router-dom";
+import TimezonePicker from 'react-bootstrap-timezone-picker';
 
 const EventScreen = () => {
-    // const [discord, setDiscord] = useState('')
-    // const [password, setPassword] = useState('')
-    // const [confirmPassword, setConfirmPassword] = useState('')
 
-    // // const navigate = useNavigate()
-    // const dispatch = useDispatch()
+    // Define constants for later
+    const [listItems, setListItems] = useState([]);
+    const [fetchPending] = useFetchPendingMutation() 
+    const { userInfo } = useSelector((state) => state.auth)
+    const [multiSelections, setMultiSelections] = useState([]);
+    const [selectedRequest, setselectedRequest] = useState([]);
+    const [timezone, setTimezone] = useState('Europe/Moscow');
+    const [requestDino, { isLoading }] = useRequestMutation()
+    const [updateRequest, { isUpdating }] = useUpdateRequestMutation()
+    const [show, setShow] = useState(false);
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);    
 
-    // const [UpdatProfile, { isLoading }] = useUpdateUserMutation()
+    // update function to keep the page dynamic
+    useEffect(() => {
+        async function fetchData() {
+            const result = await fetchPending({ userInfo })
+            setListItems(result.data);
+        }
+        // update list
+        try{
+            fetchData()
+        }catch (err){
+            console.warn("Trouble fetching pending dino request history:")
+            console.warn(err)
+        }        
+    }, [fetchPending,userInfo]);
 
-    // const { userInfo } = useSelector((state) => state.auth)
+  // response to new request button
+    const requestHandler = async (e) => {
+        e.preventDefault()
+        // if user isn't logged in
+        
+        if (!userInfo.id) {
+            toast.error("Please log in")
+        }else{
+            // if we have something selected to add
+            if (multiSelections !== ""){
+                toast.info(`Requesting... ${multiSelections}`)
+                // console.log(typeof multiSelections)
+                await requestDino({ multiSelections, userInfo })
+            }            
+        }  
+        const result = await fetchPending({ userInfo })
+        setListItems(result.data);             
+    }
 
-    // useEffect(() => {
-    //     setDiscord(userInfo.discord)
-    // }, [userInfo.setDiscord])
+    // Click options 
+    const optionsHandler = async (event, clickedRequest) => {
+        event.preventDefault()
+
+        // toast.info(`${clickedItem.dino} was clicked`)
+        setselectedRequest(clickedRequest)
+        handleShow()
+    }
+    
+    // delete handler
+    const handleDelete = async () => {
+        // Handle the delete operation here
+        toast.success(`${selectedRequest.dino} request deleted`);
+        handleClose();
+        const updatedValue = {
+            status: "DeletedByUser"
+        }
+        await updateRequest({ selectedRequest, updatedValue })
+        const result = await fetchPending({ userInfo })
+        setListItems(result.data);      
+    };
 
     const submitHandler = async (e) => {
-    //     e.preventDefault()
-    //     if (password === "" || confirmPassword === ""){
-    //         toast.error("Password required")
-    //     }else if (password !== confirmPassword) {
-    //         toast.error("Passwords do not match")
-    //     }else{
-    //         try{
-    //             const res = await UpdatProfile({
-    //                 _id: userInfo._id,
-    //                 discord,
-    //                 password
-    //             }).unwrap()
-    //             dispatch(setCredentials({...res}))
-    //             toast.info(`${userInfo.discord}'s profile has been updated`)
-    //         }catch (err){
-    //             toast.error((err?.data?.message || err.error))
-    //         }
-    //     }
+
     }
 
     return (
     <>
+        <Modal show={show} onHide={handleClose}>
+            <Modal.Header closeButton>
+            <Modal.Title>Confirm Deletion</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+            {`${selectedRequest.dino} requested on ${selectedRequest.updatedAt}, delete?`}
+            </Modal.Body>
+            <Modal.Footer>
+            <Button variant="secondary" onClick={handleClose}>
+                Cancel
+            </Button>
+            <Button variant="danger" onClick={handleDelete}>
+                Delete
+            </Button>
+            </Modal.Footer>
+        </Modal>
+
         <FormContainer>
-            <h1>Existing Events</h1>
+            <h1>Upcoming</h1>
             <Form onSubmit={submitHandler}>
                 <Form.Group className='my-2' controlId="previously-requested">
-                    <Form.Label>Pending Requests</Form.Label>
+                    <Form.Label>Scheduled Events</Form.Label>
                     <ListGroup>
-                        <ListGroup.Item 
-                          as="li" 
-                          className="d-flex justify-content-between align-items-start" >
-                            <div className="ms-2 me-auto">
-                            <div className="fw-bold">Giga's with Chipy</div>
-                            11-11-2023 11AM -5 UTC
-                            </div>
-                            <Badge bg="primary" pill>
-                            3
-                            </Badge>
-                        </ListGroup.Item>
-                
+                        {Array.isArray(listItems) && listItems.map((item, index) => (
+                            <ListGroup.Item key={index} action onClick={(event) => optionsHandler(event,item)} >
+                                <div className="ms-2 me-auto">
+                                <div className="fw-bold">
+                                    <img width="55" src={`https://www.dododex.com/media/creature/${item.dino.toLowerCase()}.png`} />
+                                    {item.dino}
+                                    <Badge bg="primary" pill>
+                                    1
+                                    </Badge>                                
+                                </div>
+                                {`Date: ${item.updatedAt.substring(0,10)} (${item.status})`}
+                                </div>                            
+                            </ListGroup.Item>
+                        ))}
                     </ListGroup>
-                </Form.Group>  
+                </Form.Group>                
             </Form>
         </FormContainer>        
         <FormContainer>
             <h1>Create Event</h1>
             <Form onSubmit={submitHandler}>
-            <Form.Group className='my-2' controlId="dino">
-                    <Form.Label>New Request</Form.Label>
-                    <Form.Control
-                        as="select"
-                        onChange={e=>{
-                            console.log(e.target.value)
-                            alert(`${e.target.value} has been requested`)
-                        }}>
-                        <option>Select Dino</option>
-                        <option value="Pteradon">Pteradon</option>
-                        <option value="Rex">Rex</option>
-                        <option value="Racer">Racer</option>                    
-                    </Form.Control>
-                </Form.Group>   
+                <Form.Group className="mt-3">
+                    <Form.Label>Select Dino</Form.Label>
+                    <Typeahead
+                        id="Dino-Selector"
+                        labelKey="dinoSearch"
+                        multiple
+                        onChange={setMultiSelections}
+                        highlightOnlyResult={false}
+                        options={dinoNames}
+                        placeholder="Select multiple"
+                        selected={multiSelections}
+                    />
+                </Form.Group>     
                 <Form.Group className='my-2' controlId="dino">
-                    <Form.Label>New Request</Form.Label>
+                    <Form.Label>Select Day</Form.Label>
                     <Form.Control
-                        type="text"
+                        type="date"
                         placeholder="Select a date"
                     />
+                    <Form.Label>Select Time</Form.Label>
+                    <Form.Control
+                        type="time"
+                        placeholder="Select a time"
+                    />     
+                    <Form.Label>Select Timezone</Form.Label>  
+                    <TimezonePicker
+                        absolute={false}
+                        defaultValue="Europe/Moscow"
+                        placeholder="Select timezone..."
+                        onChange={(tz) => setTimezone(tz)}
+                    />                                                
                 </Form.Group>                            
                 
                 <Button type='submit' variant="primary" className="mt-3">

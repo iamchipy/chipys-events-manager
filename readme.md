@@ -1,7 +1,9 @@
 # Welcome to Chipy's Breeding Assistant
 ### Alpha testing site is now LIVE @ [breeding.chipy.dev](https://breeding.chipy.dev)
 
-This is where you can go to sign up for ASA dinos for your tribe!
+This webapp is designed to help ARK mega-tribe breeders manager the dino requests, hatching events, and announcements.
+
+
 
 
 # Roadmap
@@ -32,3 +34,13 @@ This is where you can go to sign up for ASA dinos for your tribe!
 - - [ ] create additional perivilage level
 - [ ] discord sign-in with oAuth
 - - [ ] connect to discord messaging for announcing breeding sessions
+
+
+
+
+# React + Vite + MongoDB + Bootstrap
+
+This app was created using several publicly available tool. Here are some of their links as a way to give correct credit and thanks.
+
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh

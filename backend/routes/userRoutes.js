@@ -15,6 +15,7 @@ import { authUser,
 router.post('/', registerUser)
 router.post('/auth', authUser)
 router.post('/logout', logoutUser)
+// router.post('/register', registerUser)
 router.post("/request", requestDino)
 router.put("/fetchPending", fetchPending)
 router.put("/updateRequest", updateRequest)
