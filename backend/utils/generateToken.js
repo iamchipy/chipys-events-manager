@@ -5,12 +5,6 @@ const generateToken = (res, userId)=> {
         expiresIn: '30d'
     })
 
-    // Clear tokens
-    res.cookie('jwt', '', {
-        httpOnly: true,
-        expires: new Date(0)
-    })    
-
     // create token and place into response's cookie
     res.cookie('jwt', token, {
         httpOnly: true,
@@ -18,7 +12,8 @@ const generateToken = (res, userId)=> {
         secure: process.env.NODE_ENV !== 'development',
         sameSite: 'strict',
         // 30x days in sec
-        maxAge: 30*24*60*60
+        // maxAge: 30*24*60*60
+        maxAge: 600
     })
 }
 export default generateToken
