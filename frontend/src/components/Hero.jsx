@@ -39,11 +39,21 @@ const Hero = () => {
                   Request Dinos
                 </Button>
               </LinkContainer>
-              <LinkContainer to='/event' >
+              {/* <LinkContainer to='/event' >
                 <Button variant='secondary'>
                   Events
                 </Button>
+              </LinkContainer> */}
+              <LinkContainer to='/profile' >
+                <Button variant='secondary'>
+                  Profile
+                </Button>
               </LinkContainer>
+              {/* <LinkContainer to='/queue' >
+                <Button variant='secondary'>
+                  Waiting List
+                </Button>
+              </LinkContainer>               */}
             </div>
           }
         </Card>

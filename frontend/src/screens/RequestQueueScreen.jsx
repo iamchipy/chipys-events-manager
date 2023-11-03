@@ -127,7 +127,8 @@ function RequestQueueScreen() {
         </Modal>
     
         <FormContainer>  
-            <h1>Request Dinos</h1>
+            <h1>Waiting List</h1>
+            <h5>{userInfo.guild}</h5>
             <Form.Group className="mt-3">
                 <Form.Label>Filter</Form.Label>
                 <Typeahead
