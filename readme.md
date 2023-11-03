@@ -7,7 +7,11 @@ This MERN Stack webapp is designed to help ARK mega-tribe breeders manager the d
 
 1. You can start using the app by going to [breeding.chipy.dev](https://breeding.chipy.dev) and signing in with your Discord. 
 2. Then click your name in the top right and go to your profile and make sure to select which "guild" or Discord server you are from. (If you don't select the right guild your Tribe breeders won't see your requests)
+![image](https://github.com/iamchipy/chipys-breeding-manager/assets/1663877/49ac4ec3-fb9f-4b8c-a301-d1ab4bf2bcb2)
+
 3. Once you've done that you are ready to request Dinos (from the Requests page)!
+![image](https://github.com/iamchipy/chipys-breeding-manager/assets/1663877/0ee2b50d-56d8-4ef8-a684-6fd8d8c79e00)
+
 
 
 # Roadmap
