@@ -13,7 +13,7 @@ import { protect } from "../middleware/authMiddleware.js"
 
 
 // route linking
-router.post('/', registerUser)
+// router.post('/', registerUser)
 router.post('/auth', authUser)
 router.post('/logout', logoutUser)
 router.post("/request", requestDino)
