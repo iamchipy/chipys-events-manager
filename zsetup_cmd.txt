@@ -66,3 +66,6 @@ sudo nano /etc/nginx/sites-available/default
 - modify `location / {}`
 sudo service nginx restart
 
+
+chmod +x deploy.sh  -- to set script as executable
+

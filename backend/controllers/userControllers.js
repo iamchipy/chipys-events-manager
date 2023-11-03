@@ -58,11 +58,11 @@ const registerUser = asyncHandler(async (req, res) => {
                     console.log("result.error")
                     console.log(result.error)
                     result.status(400)
-                    throw new Error(`Failed to update user ${req.body.global_name}`)                    
+                    throw new Error(`Failed to update user ${req.body.id}`)                    
                 }
-                console.log(`${result.data.global_name} profile updated`)
-                res.status(200).json(result.data)    
-                generateToken(res, result.data.id)            
+                console.log(`${result.global_name} profile updated`)
+                res.status(200).json(result)    
+                generateToken(res, result.id)            
             }).catch( e=> {console.error(e)})
     }else{
         console.log("Attempting to create new user")
@@ -72,7 +72,7 @@ const registerUser = asyncHandler(async (req, res) => {
                     console.log("result.error")
                     console.log(result.error)
                     result.status(400)
-                    throw new Error(`Failed to create user ${req.body.global_name}`)     
+                    throw new Error(`Failed to create user ${req.body.id}`)     
                 }
                 console.log(result)
                 console.log(`${result} profile created`)
