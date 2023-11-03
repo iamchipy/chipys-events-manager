@@ -112,15 +112,17 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     // console.warn(req.body)
 
     // first fetch user
-    const updatedUser = await User.findOneAndUpdate({id:req.body.id},req.body)
-
-    // verify user was found
-    if (updatedUser){
-        res.status(202).json(updatedUser)
-    }else{
-        res.status(404)
-        throw new Error("User not found (for profile updating)")
-    }
+    await User.findOneAndUpdate({id:req.body.id},req.body)
+        .then(result=>{
+            // console.warn(result)
+            if ("error" in result) {
+                res.status(400).json("unknown error when updating user ")
+            }else{
+                res.status(202).json(result)
+            }
+        }).catch(err => {
+            res.status(501).json(err)
+        })
 })
 
 // @desc        Request dino for user

@@ -16,13 +16,18 @@ const ProfileScreen = () => {
     let [timezone, setTimezone] = useState([userInfo.timezone]);
     let [role, setRole] = useState([userInfo.role])
     let [note, setNote] = useState([userInfo.note])
-    let [guildSelection, setGuildSelection] = useState([userInfo.guild || ""]);
+    let [guildSelection, setGuildSelection] = useState([userInfo.guilds[userInfo.guild] || ""]);
+    let [guildIDSelection, setGuildIDSelection] = useState(userInfo.guild);
 
     const timezoneList = [-12,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,11,12]
 
     let guildNames = []
-    for (let i = 0; i < userInfo.guilds.length; i++){
-        guildNames.push(userInfo.guilds[i].name)
+    let guildIds = Object.keys(userInfo.guilds)
+    for (let i = 0; i < guildIds.length; i++){
+        // console.log(i)        
+        // console.log(userInfo.guilds[guildIds[i]])        
+        // console.log(userInfo.guilds[guildIds[i]].name)        
+        guildNames.push(userInfo.guilds[guildIds[i]].name)
     }
     
     const handleRoleChange = async (event) => {
@@ -36,6 +41,14 @@ const ProfileScreen = () => {
     const handleTimezone = async (event) => {
         setTimezone(event.target.value)
     }        
+
+    const handleGuildSelection = async (selected) => {
+        // we are doing this menually for guilds to be able to 
+        // track the guild id manually
+        setGuildSelection(selected)
+        setGuildIDSelection(guildIds[guildNames.indexOf(selected[0])])
+        console.log(`Guild ${userInfo.guilds[guildIDSelection].name} selected (${guildIDSelection})`)
+    }
 
     // console.log(userInfo)
     const loadFormValues = async () => {
@@ -91,8 +104,8 @@ const ProfileScreen = () => {
         
         // unwrapping lists
         // console.log(Object.prototype.toString.call(guildSelection))
-        if (guildSelection instanceof Array){
-            guildSelection = guildSelection[0]
+        if (guildIDSelection instanceof Array){
+            guildIDSelection = guildIDSelection[0]
         }
         if (note instanceof Array){
             note = note[0]
@@ -103,13 +116,13 @@ const ProfileScreen = () => {
         if (role instanceof Array){
             role = role[0]
         }                        
-
+        console.log(guildIDSelection)
         try{
             await UpdateProfile({
                 id: userInfo.id,
                 timezone: timezone,
                 role: role,
-                guild: guildSelection,
+                guild: parseInt(guildIDSelection),
                 note: note,})
                 .then(res => {
                     toast.info(`${res.data.global_name}'s profile has been updated`)
@@ -152,12 +165,12 @@ const ProfileScreen = () => {
             <Form.Group className="mt-3">
                 <Form.Label>Select Discord Server</Form.Label>
                     <Typeahead
-                        id="Dino-Selector"
-                        labelKey="dinoSearch"
-                        onChange={setGuildSelection}
+                        id="guild-selector"
+                        labelKey="guildSearch"
+                        onChange={handleGuildSelection}
                         highlightOnlyResult={false}
                         options={guildNames}
-                        placeholder="Select Guild"
+                        placeholder="Select Discord Server"
                         selected={guildSelection}
                     />
                 </Form.Group>                     
