@@ -74,8 +74,8 @@ const registerUser = asyncHandler(async (req, res) => {
                     result.status(400)
                     throw new Error(`Failed to create user ${req.body.id}`)     
                 }
-                console.log(result)
-                console.log(`${result} profile created`)
+                // console.log(result)
+                console.log(`${result.global_name} profile created`)
                 res.status(201).json(result)      
                 generateToken(res, result.id)  
             }).catch( e=> {console.error(e)})

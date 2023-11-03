@@ -5,6 +5,12 @@ const generateToken = (res, userId)=> {
         expiresIn: '30d'
     })
 
+    // Clear tokens
+    res.cookie('jwt', '', {
+        httpOnly: true,
+        expires: new Date(0)
+    })    
+
     // create token and place into response's cookie
     res.cookie('jwt', token, {
         httpOnly: true,
