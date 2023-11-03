@@ -18,7 +18,8 @@ const userSchema = mongoose.Schema({
         type: String,       
     },    
     guilds: {
-        type: Object,       
+        type: Object,   
+        default: "none"      
     },        
     note: {
         type: String,   
