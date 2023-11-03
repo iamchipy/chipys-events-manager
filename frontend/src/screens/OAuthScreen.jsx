@@ -47,12 +47,18 @@ const OAuthScreen = () => {
             toast.success(`Welcome ${fetchedUser.global_name}`)
             
             registerUser(fetchedUser).then(res=>{
+                toast.info(`Fetching profile data . . . `)
                 // console.warn(JSON.stringify(res.data))
                 dispatch(setCredentials(res.data))
-            })
-            // console.warn(JSON.stringify(updatedUser))
-            // dispatch(setCredentials(fetchedUser))
-            
+                console.log(res.data.guild)
+                console.log(typeof res.data.guild)
+                if (res.data.guild !== undefined) {
+                    toast.success(`${res.data.guild}`)
+                }else{
+                    toast.warn("Please go to PROFILE and select a Discord Server", {autoClose: 10000})
+                }
+                
+            })            
         }).catch(function (err) {
             console.error(`DiscordError406: ${err}`)
         })

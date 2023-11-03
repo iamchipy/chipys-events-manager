@@ -43,6 +43,7 @@ const authUser = asyncHandler(async (req, res) => {
 // @access      Public
 const registerUser = asyncHandler(async (req, res) => {
     // console.warn(JSON.stringify(req.body))
+    console.warn("registerUser initiated")
     const userFilter = {id: req.body.id}
     let newUser = null
     let updatedUserValues = null
@@ -65,14 +66,17 @@ const registerUser = asyncHandler(async (req, res) => {
     if (newUser !== undefined || updatedUserValues !== undefined) {
         generateToken(res, req.body.id)
         if (updatedUserValues !== undefined){
+            console.log(`${updatedUserValues.global_name} profile updated`)
             res.status(200).json(updatedUserValues)
         }else{
+            console.log(`${updatedUserValues.global_name} profile created`)
             res.status(201).json(newUser)
         }
         
     } else {
-        res.status(400)
-        throw new Error('Invalid user data or unknown error with user creation')
+        e = "Invalid user data or unknown error with user creation"
+        res.status(400).json({Message: e})
+        throw new Error(e)
     }
 })
 
