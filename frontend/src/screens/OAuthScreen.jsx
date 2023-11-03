@@ -41,7 +41,13 @@ const OAuthScreen = () => {
             }))
         }).then(function (data) {
             // HERE is where we land when a user has successfully logged in and we have data
-            const fetchedUser = {...data[0], guilds:data[1]}
+            // convert Guilds to an object instead of an unorder'd list
+            let guilds = data[1].reduce((obj, item) => {
+                obj[item.id] = item;
+                return obj;
+            }, {});
+            // now combind them into a new user obj
+            const fetchedUser = {...data[0], guilds:guilds}
             console.log("fetchedUser:")
             console.info(fetchedUser)
             toast.success(`Welcome ${fetchedUser.global_name}`)
@@ -50,7 +56,6 @@ const OAuthScreen = () => {
                 toast.info(`Fetching profile data . . . `)
                 // console.warn(JSON.stringify(res.data))
                 dispatch(setCredentials(res.data))
-                // http://localhost:3000/oauth#token_type=Bearer&access_token=16gcn6W4Rh3SjBfw2rNeAfqRNRfxO3&expires_in=604800&scope=identify+guilds
                 // console.log(res.data.guild)
                 // console.log(typeof res.data.guild)
                 if ("guild" in res.data  && res.data.guild !== undefined) {
