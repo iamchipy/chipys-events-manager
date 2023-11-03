@@ -53,30 +53,32 @@ const registerUser = asyncHandler(async (req, res) => {
     if (userExists) {
         console.log("Attempting to update user")
         updatedUserValues = await User.findOneAndUpdate(userFilter, req.body)
-        // console.log(updatedUserValues)
-        if (!updatedUserValues){
-            res.status(400)
-            throw new Error(`Failed to update user ${req.body.global_name}`)
-        }
+            .then(result => {
+                if (result.error){
+                    console.log("result.error")
+                    console.log(result.error)
+                    result.status(400)
+                    throw new Error(`Failed to update user ${req.body.global_name}`)                    
+                }
+                console.log(`${result.data.global_name} profile updated`)
+                res.status(200).json(result.data)    
+                generateToken(res, result.data.id)            
+            }).catch( e=> {console.error(e)})
     }else{
         console.log("Attempting to create new user")
         newUser = await User.create(req.body)
-    }
-
-    if (newUser !== undefined || updatedUserValues !== undefined) {
-        generateToken(res, req.body.id)
-        if (updatedUserValues !== undefined){
-            console.log(`${updatedUserValues.global_name} profile updated`)
-            res.status(200).json(updatedUserValues)
-        }else{
-            console.log(`${updatedUserValues.global_name} profile created`)
-            res.status(201).json(newUser)
-        }
-        
-    } else {
-        e = "Invalid user data or unknown error with user creation"
-        res.status(400).json({Message: e})
-        throw new Error(e)
+            .then(result=>{
+                if (result.error){
+                    console.log("result.error")
+                    console.log(result.error)
+                    result.status(400)
+                    throw new Error(`Failed to create user ${req.body.global_name}`)     
+                }
+                console.log(result)
+                console.log(`${result} profile created`)
+                res.status(201).json(result)      
+                generateToken(res, result.id)  
+            }).catch( e=> {console.error(e)})
     }
 })
 

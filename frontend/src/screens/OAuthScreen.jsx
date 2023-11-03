@@ -48,17 +48,18 @@ const OAuthScreen = () => {
             
             registerUser(fetchedUser).then(res=>{
                 toast.info(`Fetching profile data . . . `)
-                // console.warn(JSON.stringify(res.data))
+                console.warn(JSON.stringify(res.data))
                 dispatch(setCredentials(res.data))
-                console.log(res.data.guild)
-                console.log(typeof res.data.guild)
+                // http://localhost:3000/oauth#token_type=Bearer&access_token=16gcn6W4Rh3SjBfw2rNeAfqRNRfxO3&expires_in=604800&scope=identify+guilds
+                // console.log(res.data.guild)
+                // console.log(typeof res.data.guild)
                 if (res.data.guild !== undefined) {
                     toast.success(`${res.data.guild}`)
                 }else{
                     toast.warn("Please go to PROFILE and select a Discord Server", {autoClose: 10000})
                 }
                 
-            }).catch(error => console.error(error))        
+            }).catch(error => console.warn(`Failed to fetch UserData e:${error}`))        
         }).catch(function (err) {
             console.error(`DiscordError406: ${err}`)
         })

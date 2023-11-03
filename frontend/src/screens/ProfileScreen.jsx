@@ -150,7 +150,7 @@ const ProfileScreen = () => {
                 ></Form.Control>
             </Form.Group>     
             <Form.Group className="mt-3">
-                <Form.Label>Select Tibe Discord</Form.Label>
+                <Form.Label>Select Discord Server</Form.Label>
                     <Typeahead
                         id="Dino-Selector"
                         labelKey="dinoSearch"
@@ -194,8 +194,10 @@ const ProfileScreen = () => {
                     defaultValue={note}
                 />                          
             </Form.Group>           
-            I know there is some funk going on with refreshing this page, known bug.   
-            <br/>   
+            I know there is some funk going on with refreshing this page, known bug. 
+            <br/> 
+            <b>PLEASE double click the Update button</b>  
+              
             <Button type='submit' variant="primary" className="mt-3">
                 Update 
             </Button>     
