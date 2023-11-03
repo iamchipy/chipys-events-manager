@@ -101,6 +101,7 @@ function RequestScreen() {
     
         <FormContainer>  
             <h1>Request Dinos</h1>
+            <h5>{userInfo.guild}</h5>
             <Form >
                 <Form.Group className='my-2' controlId="previously-requested">
                     <ListGroup>
