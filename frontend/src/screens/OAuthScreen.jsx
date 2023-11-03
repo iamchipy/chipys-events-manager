@@ -46,9 +46,12 @@ const OAuthScreen = () => {
             console.info(fetchedUser)
             toast.success(`Welcome ${fetchedUser.global_name}`)
             
-            const updatedUser = registerUser(fetchedUser)
+            registerUser(fetchedUser).then(res=>{
+                // console.warn(JSON.stringify(res.data))
+                dispatch(setCredentials(res.data))
+            })
             // console.warn(JSON.stringify(updatedUser))
-            dispatch(setCredentials(fetchedUser))
+            // dispatch(setCredentials(fetchedUser))
             
         }).catch(function (err) {
             console.error(`DiscordError406: ${err}`)

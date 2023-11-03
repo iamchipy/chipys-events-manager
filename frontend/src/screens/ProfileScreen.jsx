@@ -4,20 +4,19 @@ import FormContainer from "../components/FormContainer";
 import { useDispatch, useSelector} from 'react-redux'
 import { toast } from "react-toastify";
 import { setCredentials } from "../slices/authSlice";
-import { useUpdateUserMutation, useGetProfileMutation} from "../slices/userApiSlice";
-import TimezonePicker from 'react-bootstrap-timezone-picker';
+import { useUpdateUserMutation } from "../slices/userApiSlice";
 import { Typeahead } from "react-bootstrap-typeahead"
 
 
 const ProfileScreen = () => {
     const dispatch = useDispatch()
-    const [UpdatProfile] = useUpdateUserMutation()
-    const [GetProfile] = useGetProfileMutation()
+    const [UpdateProfile] = useUpdateUserMutation()
+
     const { userInfo } = useSelector((state) => state.auth)
-    const [timezone, setTimezone] = useState();
-    const [role, setRole] = useState()
-    const [note, setNote] = useState()
-    const [guildSelection, setGuildSelection] = useState();
+    const [timezone, setTimezone] = useState(userInfo.timezone);
+    const [role, setRole] = useState(userInfo.role)
+    const [note, setNote] = useState([userInfo.note])
+    const [guildSelection, setGuildSelection] = useState([userInfo.guild]);
 
     const handleRoleChange = async (event) => {
         setRole(event.target.value)
@@ -25,7 +24,13 @@ const ProfileScreen = () => {
 
     const handleNoteChange = async (event) => {
         setNote(event.target.value)
-    }    
+    }  
+
+    const handleTimezone = async (event) => {
+        setTimezone(event.target.value)
+    }        
+    
+    const timezoneList = [-12,-11,-10]
 
     let guildNames = []
     for (let i = 0; i < userInfo.guilds.length; i++){
@@ -34,17 +39,17 @@ const ProfileScreen = () => {
     
     // console.log(userInfo)
     const loadFormValues = async () => {
-        try{
-            const user = await GetProfile(userInfo.id)
-                .then(res => {
-                    console.warn("received user:")
-                    console.warn(res)
-                })
-            console.info(user)
+        // try{
+        //     const user = await GetProfile(userInfo.id)
+        //         .then(res => {
+        //             console.warn("received user:")
+        //             console.warn(res)
+        //         })
+        //     console.info(user)
             
-        }catch (e){
-            console.error(e)
-        }
+        // }catch (e){
+        //     console.error(e)
+        // }
 
         // try{
         //     setRole(userInfo.role)
@@ -61,6 +66,7 @@ const ProfileScreen = () => {
     // NEED an API to request user info (not in)
 
     const convertToUTCOffset = (timeZone) => {
+        if (timezone === 0) {return 0}
         const timeZoneName = Intl.DateTimeFormat("ia", {
           timeZoneName: "short",
           timeZone,
@@ -83,18 +89,22 @@ const ProfileScreen = () => {
 
     const submitHandler = async (e) => {
         e.preventDefault()
+        toast.info("submitting")
         try{
-            const updatedUser = await UpdatProfile({
+            await UpdateProfile({
                 id: userInfo.id,
                 timezone: convertToUTCOffset(timezone),
                 role: role,
                 guild: guildSelection[0],
-                note: note,}).unwrap()
-            // console.warn(updatedUser)
-            toast.info(`${userInfo.global_name}'s profile has been updated`)
-            dispatch(setCredentials({...updatedUser}))
-            
+                note: note,})
+                .then(res => {
+                    toast.info(`${res.data.global_name}'s profile has been updated`)
 
+                    dispatch(setCredentials(res.data))
+                    // SOMETHING is funky here causing AUTH Redux maybe to fail being over written
+                    // console.warn("Response value")
+                    // console.log(res.data)
+                })
         }catch (err){
             toast.error((err?.data?.message || err.error))
         }
@@ -104,7 +114,6 @@ const ProfileScreen = () => {
     useEffect(()=>{
         loadFormValues()
     },[])
-
 
     return (
     <FormContainer>
@@ -134,28 +143,29 @@ const ProfileScreen = () => {
                         onChange={setGuildSelection}
                         highlightOnlyResult={false}
                         options={guildNames}
-                        placeholder="Select multiple"
+                        placeholder="Select Guild"
                         selected={guildSelection}
                     />
                 </Form.Group>                     
             <Form.Group className='my-2' controlId="timezone">
                 <Form.Label>Select Timezone</Form.Label>  
-                {/* TimezonePicker seems to be getting sunset and needs suppressed */}
-                <TimezonePicker
-                    absolute={false}
-                    defaultValue="Europe/Moscow"
-                    placeholder="Select timezone..."
-                    onChange={(tz) => setTimezone(tz)}
-                />   
+                <Form.Select>
+                    {Array.isArray(timezoneList) && timezoneList.map((item, index) => (
+                        <option key={index} action onClick={(event) => handleTimezone(event, item)} >
+                            {timezoneList[index]} UTC
+                        </option>
+                    ))}                    
+                </Form.Select>
             </Form.Group>  
             <Form.Group className='my-2' controlId="userRole">
                 <Form.Label>Role</Form.Label>
                 <Form.Select 
                     aria-label="Select one"
                     onChange={handleRoleChange}
+                    defaultValue={role}
                     >
-                    <option value="User">User</option>
-                    <option value="Breeder">Breeder</option>
+                    <option value="user">User</option>
+                    <option value="breeder">Breeder</option>
                 </Form.Select>                              
             </Form.Group> 
             <Form.Group className='my-2' controlId="userNote">
@@ -164,11 +174,10 @@ const ProfileScreen = () => {
                     aria-label="Leave a note"
                     type="text"
                     onChange={handleNoteChange}
+                    defaultValue={note}
                 />                          
-            </Form.Group>       
-            PLEASE NOTE current known bug is that your settings arn't loading correctly BUT THEY DO SAVE
-            so please setup everything correctly and trust that it's submitted as long as you do the 
-            whole form all at once               
+            </Form.Group>              
+            <br/>   
             <Button type='submit' variant="primary" className="mt-3">
                 Update 
             </Button>     

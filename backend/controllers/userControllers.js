@@ -64,10 +64,12 @@ const registerUser = asyncHandler(async (req, res) => {
 
     if (newUser !== undefined || updatedUserValues !== undefined) {
         generateToken(res, req.body.id)
-        res.status(201).json({
-            id: user.id,
-            name: user.global_name,
-        })
+        if (updatedUserValues !== undefined){
+            res.status(200).json(updatedUserValues)
+        }else{
+            res.status(201).json(newUser)
+        }
+        
     } else {
         res.status(400)
         throw new Error('Invalid user data or unknown error with user creation')
@@ -89,7 +91,7 @@ const logoutUser = asyncHandler(async (req, res) => {
 // route        GET /api/users/profile
 // @access      Private
 const getUserProfile = asyncHandler(async (req, res) => {
-    console.log(req.userInfo)
+    console.log(req.body.userInfo)
     const user = await User.findOne({id:req.body.id})
     res.status(200).json(user)
 })
@@ -98,6 +100,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
 // route        PUT /api/users/profile
 // @access      Private
 const updateUserProfile = asyncHandler(async (req, res) => {
+    // console.warn(req.body.id)
     // console.warn(req.body)
 
     // first fetch user
@@ -130,7 +133,8 @@ const requestDino = asyncHandler(async (req, res) => {
         const filter = {
             status: INCOMPLETE_STATES,
             dino: dino,
-            id: req.body.userInfo.id
+            id: req.body.userInfo.id,
+            guild: req.body.userInfo.guild
         }
         // run query for the data
         const requestExists = await DinoRequest.find(filter)
@@ -142,10 +146,12 @@ const requestDino = asyncHandler(async (req, res) => {
         }else {
             // submit new dino request entry
             console.log(`Creating ${dino} for ${userName}`)
+            console.log(req.body.userInfo)
             await DinoRequest.create({
                 id: req.body.userInfo.id,
                 dino: dino,
                 status: "Pending",
+                guild: req.body.userInfo.guild,
                 global_name: req.body.userInfo.global_name
             })
         }
@@ -190,8 +196,8 @@ const fetchPending = asyncHandler(async (req, res) => {
 // @access      Private
 const fetchPendingByFilter = asyncHandler(async (req, res) => {    
     // console.log(`fetchPendingByFilter: ${req.body.userInfo.id}`)
-    console.log(`fetchPendingByFilter: ${req.body.filter}`)
-    console.log(req.body.filter)
+    // console.log(`fetchPendingByFilter: ${req.body.filter}`)
+    // console.log(req.body.filter)
     // filter 
     const filter = req.body.filter
     // console.log(`fetchPending: ${req.body.userInfo.global_name}`)

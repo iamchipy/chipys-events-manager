@@ -20,7 +20,8 @@ router.post("/request", requestDino)
 router.put("/fetchPending", fetchPending)
 router.put("/fetchPendingByFilter", fetchPendingByFilter)
 router.put("/updateRequest", updateRequest)
-router.route('/profile').get(protect, getUserProfile).put(protect,updateUserProfile)
+router.route('/profile').get(protect, getUserProfile).put(updateUserProfile)
+// TODO ADD PROTECT back in
 
 
 export default router

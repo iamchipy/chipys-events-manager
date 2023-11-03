@@ -3,17 +3,16 @@ import { Form, Button, ListGroup, Badge, Modal } from "react-bootstrap";
 import FormContainer from "../components/FormContainer";
 import { useSelector} from 'react-redux'
 import { toast } from "react-toastify";
-import { useFetchPendingByFilterMutation } from "../slices/userApiSlice";
+import { useFetchPendingByFilterMutation, useUpdateRequestMutation } from "../slices/userApiSlice";
 import Loader from "../components/Loader";
 import dinoNames from "../assets/dinoNames";
 import { Typeahead } from "react-bootstrap-typeahead"
-import { Link } from "react-router-dom";
-
 
 function RequestQueueScreen() {
     // Define constants for later
     const [listItems, setListItems] = useState([]);
-    const [fetchPendingByFilter, isLoading] = useFetchPendingByFilterMutation() 
+    const [fetchPendingByFilter, {isLoading}] = useFetchPendingByFilterMutation() 
+    const [updateRequest, {isWaiting}] = useUpdateRequestMutation() 
     const { userInfo } = useSelector((state) => state.auth)
     const [multiSelections, setMultiSelections] = useState([]);
     const [selectedRequest, setselectedRequest] = useState([]);
@@ -23,8 +22,8 @@ function RequestQueueScreen() {
 
     let filter = {
         status: {$nin:["Completed","DeletedByUser"]},
-        // guild: userInfo.guild
-        global_name: "Asswan"
+        guild: userInfo.guild,
+        // global_name: "Asswan"
     }
     
     // // update function to keep the page dynamic
@@ -59,7 +58,7 @@ function RequestQueueScreen() {
     // }, [fetchPendingByFilter, userInfo]);    
 
   // response to new request button
-    const requestHandler = async (e) => {
+    const refreshFiltered = async (e) => {
         e.preventDefault()
         // // if user isn't logged in
         
@@ -73,10 +72,14 @@ function RequestQueueScreen() {
         //         await requestDino({ multiSelections, userInfo })
         //     }            
         // }  
-        filter = {
-            status: {$nin:["Completed","DeletedByUser"]},
-            dino:multiSelections,
+        if (multiSelections.length > 0){
+            filter = {
+                status: {$nin:["Completed","DeletedByUser"]},
+                dino:multiSelections,
+                guild: userInfo.guild
+            }            
         }
+
         const result = await fetchPendingByFilter({ userInfo, filter  })
         setListItems(result.data);             
     }
@@ -98,7 +101,7 @@ function RequestQueueScreen() {
       const updatedValue = {
         status: "Completed"
       }
-    //   await updateRequest({ selectedRequest, updatedValue })
+    await updateRequest({ selectedRequest, updatedValue })
       const result = await fetchPendingByFilter({ userInfo, filter })
       setListItems(result.data);      
     };
@@ -140,6 +143,13 @@ function RequestQueueScreen() {
             </Form.Group>             
             
             <Form >
+
+                {isLoading && <Loader />}                  
+                {isWaiting && <Loader />}                  
+                <Button onClick={refreshFiltered} variant="primary" className="mt-3">
+                    Refresh Queue 
+                </Button>                  
+   
                 <Form.Group className='my-2' controlId="previously-requested">
                     <ListGroup>
                         <Form.Label>Pending Requests</Form.Label>
@@ -161,16 +171,7 @@ function RequestQueueScreen() {
                             </ListGroup.Item>
                         ))}
                     </ListGroup>
-                </Form.Group>              
-
-                {isLoading && <Loader />}                  
-                
-                <Button onClick={requestHandler} variant="primary" className="mt-3">
-                    Request 
-                </Button>     
-                {/* <Button variant="secondary" style={{float: 'right'}} className="mt-3">
-                    refresh
-                </Button>   */}
+                </Form.Group> 
 
             </Form>
         </FormContainer>   
