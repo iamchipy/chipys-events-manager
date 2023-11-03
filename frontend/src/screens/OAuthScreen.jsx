@@ -58,7 +58,7 @@ const OAuthScreen = () => {
                     toast.warn("Please go to PROFILE and select a Discord Server", {autoClose: 10000})
                 }
                 
-            })            
+            }).catch(error => console.error(error))        
         }).catch(function (err) {
             console.error(`DiscordError406: ${err}`)
         })
