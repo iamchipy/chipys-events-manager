@@ -212,7 +212,7 @@ const fetchPendingByFilter = asyncHandler(async (req, res) => {
 
     // return requests
     if (requestPending[0] === undefined){
-        res.status(400).json(`Message: No requests found for ${req.body.userInfo.guild}`)
+        res.status(404).json(`Message: No requests matching filter`)
     } else {
         res.status(200).json(requestPending)
     }

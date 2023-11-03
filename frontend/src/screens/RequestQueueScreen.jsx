@@ -19,12 +19,6 @@ function RequestQueueScreen() {
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);    
-
-    let filter = {
-        status: {$nin:["Completed","DeletedByUser"]},
-        guild: userInfo.guild,
-        // global_name: "Asswan"
-    }
     
     // // update function to keep the page dynamic
     // useEffect(() => {
@@ -60,28 +54,37 @@ function RequestQueueScreen() {
   // response to new request button
     const refreshFiltered = async (e) => {
         e.preventDefault()
-        // // if user isn't logged in
-        
-        // if (!userInfo.id) {
-        //     toast.error("Please log in")
-        // }else{
-        //     // if we have something selected to add
-        //     if (multiSelections !== ""){
-        //         toast.info(`Requesting... ${multiSelections}`)
-        //         // console.log(typeof multiSelections)
-        //         await requestDino({ multiSelections, userInfo })
-        //     }            
-        // }  
+
+        // Set the filter baseline
+        let filter = {
+            status: {$nin:["Completed","DeletedByUser"]},
+            guild: userInfo.guild,
+            global_name: userInfo.global_name
+        }
+
+        // if the user is a breeder we remove the user limit
+        if (userInfo.role === "breeder") {
+            delete filter.global_name
+        }
+
+        // if the user is selecting mutliple dinos we add in the dino filter
         if (multiSelections.length > 0){
             filter = {
-                status: {$nin:["Completed","DeletedByUser"]},
+                ...filter,
                 dino:multiSelections,
-                guild: userInfo.guild
             }            
         }
 
-        const result = await fetchPendingByFilter({ userInfo, filter  })
-        setListItems(result.data);             
+        try{
+            console.info(filter)
+            const result = await fetchPendingByFilter({ filter })            
+            setListItems(result.data);   
+        }catch (e) {
+            toast.warn("No matching items found!")
+
+        }
+
+                  
     }
 
     // Click options 
@@ -95,15 +98,14 @@ function RequestQueueScreen() {
     
     // delete handler
     const handleDelete = async () => {
-      // Handle the delete operation here
-      toast.success(`${selectedRequest.global_name} has received ${selectedRequest.dino}`);
-      handleClose();
-      const updatedValue = {
-        status: "Completed"
-      }
-    await updateRequest({ selectedRequest, updatedValue })
-      const result = await fetchPendingByFilter({ userInfo, filter })
-      setListItems(result.data);      
+        // Handle the delete operation here
+        toast.success(`${selectedRequest.global_name} has received ${selectedRequest.dino}`);
+        handleClose();
+        const updatedValue = {
+            status: "Completed"
+        }
+        await updateRequest({ selectedRequest, updatedValue })
+        refreshFiltered()    
     };
 
 
