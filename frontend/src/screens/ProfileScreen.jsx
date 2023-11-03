@@ -13,11 +13,18 @@ const ProfileScreen = () => {
     const [UpdateProfile] = useUpdateUserMutation()
 
     const { userInfo } = useSelector((state) => state.auth)
-    const [timezone, setTimezone] = useState(userInfo.timezone);
-    const [role, setRole] = useState(userInfo.role)
-    const [note, setNote] = useState([userInfo.note])
-    const [guildSelection, setGuildSelection] = useState([userInfo.guild]);
+    let [timezone, setTimezone] = useState([userInfo.timezone]);
+    let [role, setRole] = useState([userInfo.role])
+    let [note, setNote] = useState([userInfo.note])
+    let [guildSelection, setGuildSelection] = useState([userInfo.guild]);
 
+    const timezoneList = [-12,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,11,12]
+
+    let guildNames = []
+    for (let i = 0; i < userInfo.guilds.length; i++){
+        guildNames.push(userInfo.guilds[i].name)
+    }
+    
     const handleRoleChange = async (event) => {
         setRole(event.target.value)
     }
@@ -29,14 +36,7 @@ const ProfileScreen = () => {
     const handleTimezone = async (event) => {
         setTimezone(event.target.value)
     }        
-    
-    const timezoneList = [-12,-11,-10]
 
-    let guildNames = []
-    for (let i = 0; i < userInfo.guilds.length; i++){
-        guildNames.push(userInfo.guilds[i].name)
-    }
-    
     // console.log(userInfo)
     const loadFormValues = async () => {
         // try{
@@ -63,39 +63,53 @@ const ProfileScreen = () => {
         // }
     }
 
-    // NEED an API to request user info (not in)
 
-    const convertToUTCOffset = (timeZone) => {
-        if (timezone === 0) {return 0}
-        const timeZoneName = Intl.DateTimeFormat("ia", {
-          timeZoneName: "short",
-          timeZone,
-        })
-          .formatToParts()
-          .find((i) => i.type === "timeZoneName").value;
-        const offset = timeZoneName.slice(3);
-        if (!offset) return 0;
+    // const convertToUTCOffset = (timeZone) => {
+    //     if (timezone === 0) {return 0}
+    //     const timeZoneName = Intl.DateTimeFormat("ia", {
+    //       timeZoneName: "short",
+    //       timeZone,
+    //     })
+    //       .formatToParts()
+    //       .find((i) => i.type === "timeZoneName").value;
+    //     const offset = timeZoneName.slice(3);
+    //     if (!offset) return 0;
       
-        const matchData = offset.match(/([+-])(\d+)(?::(\d+))?/);
-        if (!matchData) throw `cannot parse timezone name: ${timeZoneName}`;
+    //     const matchData = offset.match(/([+-])(\d+)(?::(\d+))?/);
+    //     if (!matchData) throw `cannot parse timezone name: ${timeZoneName}`;
       
-        const [, sign, hour, minute] = matchData;
-        let result = parseInt(hour) * 60;
-        if (sign === "+") result *= -1;
-        if (minute) result += parseInt(minute);
+    //     const [, sign, hour, minute] = matchData;
+    //     let result = parseInt(hour) * 60;
+    //     if (sign === "+") result *= -1;
+    //     if (minute) result += parseInt(minute);
       
-        return result;
-    };
+    //     return result;
+    // };
 
     const submitHandler = async (e) => {
         e.preventDefault()
-        toast.info("submitting")
+        
+        // unwrapping lists
+        // console.log(Object.prototype.toString.call(guildSelection))
+        if (guildSelection instanceof Array){
+            guildSelection = guildSelection[0]
+        }
+        if (note instanceof Array){
+            note = note[0]
+        } 
+        if (timezone instanceof Array){
+            timezone = timezone[0]
+        } 
+        if (role instanceof Array){
+            role = role[0]
+        }                        
+
         try{
             await UpdateProfile({
                 id: userInfo.id,
-                timezone: convertToUTCOffset(timezone),
+                timezone: timezone,
                 role: role,
-                guild: guildSelection[0],
+                guild: guildSelection,
                 note: note,})
                 .then(res => {
                     toast.info(`${res.data.global_name}'s profile has been updated`)
@@ -149,10 +163,13 @@ const ProfileScreen = () => {
                 </Form.Group>                     
             <Form.Group className='my-2' controlId="timezone">
                 <Form.Label>Select Timezone</Form.Label>  
-                <Form.Select>
+                <Form.Select 
+                    onChange={(event) => handleTimezone(event)}
+                    defaultValue={timezone[0]}
+                    >
                     {Array.isArray(timezoneList) && timezoneList.map((item, index) => (
-                        <option key={index} action onClick={(event) => handleTimezone(event, item)} >
-                            {timezoneList[index]} UTC
+                        <option key={index} value={item} >
+                            {item} UTC
                         </option>
                     ))}                    
                 </Form.Select>
@@ -162,10 +179,10 @@ const ProfileScreen = () => {
                 <Form.Select 
                     aria-label="Select one"
                     onChange={handleRoleChange}
-                    defaultValue={role}
+                    defaultValue={role[0]}
                     >
-                    <option value="user">User</option>
-                    <option value="breeder">Breeder</option>
+                        <option value="user">User</option>
+                        <option value="breeder">Breeder</option>
                 </Form.Select>                              
             </Form.Group> 
             <Form.Group className='my-2' controlId="userNote">
@@ -176,7 +193,8 @@ const ProfileScreen = () => {
                     onChange={handleNoteChange}
                     defaultValue={note}
                 />                          
-            </Form.Group>              
+            </Form.Group>           
+            I know there is some funk going on with refreshing this page, known bug.   
             <br/>   
             <Button type='submit' variant="primary" className="mt-3">
                 Update 

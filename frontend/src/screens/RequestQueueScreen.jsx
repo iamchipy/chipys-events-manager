@@ -111,18 +111,18 @@ function RequestQueueScreen() {
     <>
         <Modal show={show} onHide={handleClose}>
             <Modal.Header closeButton>
-            <Modal.Title>Confirm Deletion</Modal.Title>
+                <Modal.Title>Confirm Deletion</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-            {`${selectedRequest.dino} requested by ${selectedRequest.global_name}, done?`}
+                {`${selectedRequest.dino} requested by ${selectedRequest.global_name}, done?`}
             </Modal.Body>
             <Modal.Footer>
-            <Button variant="secondary" onClick={handleClose}>
-                Cancel
-            </Button>
-            <Button variant="success" onClick={handleDelete}>
-                Completed
-            </Button>
+                <Button variant="secondary" onClick={handleClose}>
+                    Cancel
+                </Button>
+                <Button variant="success" disabled={true} onClick={handleDelete}>
+                    Completed
+                </Button>
             </Modal.Footer>
         </Modal>
     

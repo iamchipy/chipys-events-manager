@@ -101,6 +101,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
 // @access      Private
 const updateUserProfile = asyncHandler(async (req, res) => {
     // console.warn(req.body.id)
+    // console.warn("RECEIVED PROFILE UPDATE VALUES")
     // console.warn(req.body)
 
     // first fetch user
