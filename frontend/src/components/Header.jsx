@@ -54,10 +54,14 @@ const Header = () => {
                   </LinkContainer>    
                   <LinkContainer to='/request'>
                       <NavDropdown.Item>Requests</NavDropdown.Item>
-                  </LinkContainer>                                         
+                  </LinkContainer>    
+                  <LinkContainer to='/queue'>
+                      <NavDropdown.Item>Waiting List</NavDropdown.Item>
+                  </LinkContainer>                                                          
                   <LinkContainer to='/profile'>
                       <NavDropdown.Item>Profile</NavDropdown.Item>
                   </LinkContainer>
+               
                   <NavDropdown.Item onClick={logoutHandler}>Logout</NavDropdown.Item>
                   </NavDropdown>
                 </>
