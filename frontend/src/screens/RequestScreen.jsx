@@ -116,6 +116,8 @@ function RequestScreen() {
                                     </Badge>                                
                                 </div>
                                 {`Date: ${item.updatedAt.substring(0,10)} (${item.status})`}
+                                <br/>
+                                {`Tribe: ${item.guild} `}
                                 </div>
                             
                             </ListGroup.Item>

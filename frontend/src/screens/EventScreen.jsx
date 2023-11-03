@@ -28,8 +28,8 @@ const EventScreen = () => {
     // update function to keep the page dynamic
     useEffect(() => {
         async function fetchData() {
-            const result = await fetchPending({ userInfo })
-            setListItems(result.data);
+            // const result = await fetchPending({ userInfo })
+            // setListItems(result.data);
         }
         // update list
         try{
