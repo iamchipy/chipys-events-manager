@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import bcrypt from 'bcryptjs'
+
 
 // create a user schema for the noSQL DB to use
 const userSchema = mongoose.Schema({
@@ -19,7 +19,7 @@ const userSchema = mongoose.Schema({
         default: 0   
     },    
     guilds: {
-        type: Object,   
+        type: mongoose.Schema.Types.Mixed,   
         default: "none"      
     },        
     note: {

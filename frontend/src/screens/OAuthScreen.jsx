@@ -42,29 +42,51 @@ const OAuthScreen = () => {
         }).then(function (data) {
             // HERE is where we land when a user has successfully logged in and we have data
             // convert Guilds to an object instead of an unorder'd list
+            // console.warn(data)
             let guilds = data[1].reduce((obj, item) => {
                 obj[item.id] = item;
                 return obj;
             }, {});
+            
             // now combind them into a new user obj
-            const fetchedUser = {...data[0], guilds:guilds}
-            console.log("fetchedUser:")
+            const fetchedUser = {...data[0], guilds: guilds}
+            console.log("Discord User Info:")
             console.info(fetchedUser)
             toast.success(`Welcome ${fetchedUser.global_name}`)
+
             
             registerUser(fetchedUser).then(res=>{
                 toast.info(`Fetching profile data . . . `)
+                // rename for readability
+                const profile = res.data
                 // console.warn(JSON.stringify(res.data))
                 dispatch(setCredentials(res.data))
-                // console.log(res.data.guild)
-                // console.log(typeof res.data.guild)
-                if ("guild" in res.data  && 
-                    res.data.guild !== undefined && 
-                    res.data.guild !== 0 &&
-                    res.data.guild in res.data.guilds) {
-                    console.warn(res.data.guild)
-                    console.info(res.data.guilds[res.data.guild])
-                    toast.success(`${res.data.guilds[res.data.guild].name}`)
+                // currently working here to first verify if we are loading guild from DB
+
+                console.log("Full Profile")
+                console.info(profile)
+
+                // // report guild's info
+                // console.log(`"guild" in profile  ${"guild" in profile  }`)
+                // console.log(`profile.guild !== 0  ${profile.guild !== 0 }`)
+                // console.log(`profile.guild: ${profile.guild} (${typeof profile.guild})`)  
+
+                // // report guilds's info
+                // console.log(`"guilds" in profile  ${"guilds" in profile  }`)
+                // console.log(`profile.guilds: ${profile.guilds} (${typeof profile.guilds})`)  
+
+                // // how to access in future
+                // console.log(`profile.guild in profile.guilds  ${profile.guild in profile.guilds  }`)
+                // console.log(`profile.guilds[profile.guild]  ${profile.guilds[profile.guild]  }`)
+                // console.log(`profile.guilds[profile.guild].name  ${profile.guilds[profile.guild].name  }`)
+
+
+     
+                if ("guild" in res.data  &&  
+                    profile.guild !== "0" &&
+                    profile.guild in profile.guilds) {
+                    // console.info(res.data.guilds[res.data.guild])
+                    toast.success(`Server: ${profile.guilds[profile.guild].name}`)
                 }else{
                     toast.warn("Please go to PROFILE and select a Discord Server", {autoClose: 10000})
                 }

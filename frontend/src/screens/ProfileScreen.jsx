@@ -11,16 +11,22 @@ import { Typeahead } from "react-bootstrap-typeahead"
 const ProfileScreen = () => {
     const dispatch = useDispatch()
     const [UpdateProfile] = useUpdateUserMutation()
-
     const { userInfo } = useSelector((state) => state.auth)
-    let [timezone, setTimezone] = useState([userInfo.timezone]);
-    let [role, setRole] = useState([userInfo.role])
-    let [note, setNote] = useState([userInfo.note])
-    
-    let hasRun = false
-
+    console.warn(userInfo)
     const timezoneList = [-12,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,11,12]
 
+    const [guildSelection,setGuildSelection] = useState(userInfo.guilds)
+    const [formData, setFormData] = useState({
+        timezone:userInfo.timezone,
+        role:userInfo.role,
+        note:userInfo.note
+    })
+
+    // used for making sure we can do a run only once op
+    let hasRun = false
+
+
+    // here we build the list of guildIDs to build list of guildNames
     let guildNames = []
     let guildIds = Object.keys(userInfo.guilds)
     for (let i = 0; i < guildIds.length; i++){
@@ -30,29 +36,34 @@ const ProfileScreen = () => {
         guildNames.push(userInfo.guilds[guildIds[i]].name)
     }
 
-    // Manually setting this to avoid the delay in the setState tool
-    let guildIDSelection = userInfo.guild
-    console.log(guildIDSelection)
-    let [guildSelection, setGuildSelection] = useState([(userInfo.guild in userInfo.guilds)? userInfo.guilds[userInfo.guild].name : ""])
-    // Manually setting this to avoid the delay in the setState tool
-    if (userInfo.guild in userInfo.guilds){
-        guildSelection = userInfo.guilds[userInfo.guild].name
-    }else{
-        console.warn(Object.keys(userInfo.guilds))
-    }
-    console.log(guildSelection)
+    console.warn([...userInfo.guilds])
+    console.warn(typeof userInfo.guilds)
+
+    // let guildList = guildIds.map((item,index)=>{
+    //     return {id:item, name:guildNames[index]}
+    // })
+    // console.log(guildList)
+
+    // let [guildSelection, setGuildSelection] = useState([(userInfo.guild in userInfo.guilds)? userInfo.guilds[userInfo.guild].name : ""])
+    // // Manually setting this to avoid the delay in the setState tool
+    // if (userInfo.guild in userInfo.guilds){
+    //     guildSelection = userInfo.guilds[userInfo.guild].name
+    // }else{
+    //     console.warn(Object.keys(userInfo.guilds))
+    // }
+    // console.log(guildSelection)
     
-    const handleRoleChange = async (event) => {
-        setRole(event.target.value)
-    }
+    // const handleRoleChange = async (event) => {
+    //     setRole(event.target.value)
+    // }
 
-    const handleNoteChange = async (event) => {
-        setNote(event.target.value)
-    }  
+    // const handleNoteChange = async (event) => {
+    //     setNote(event.target.value)
+    // }  
 
-    const handleTimezone = async (event) => {
-        setTimezone(event.target.value)
-    }        
+    // const handleTimezone = async (event) => {
+    //     setTimezone(event.target.value)
+    // }        
 
     // const handleGuildSelection = async (selected) => {
         // // we are doing this menually for guilds to be able to 
@@ -101,57 +112,76 @@ const ProfileScreen = () => {
         // }
     }
 
+    const handleChangeEvents = (inputValue, event) => {
+        // check if we were provided both or just an event object
+        if (inputValue instanceof(Object)) {
+            event = inputValue
+        }
+        console.log(`Event name: ${event}`)
+        console.log(`Event name: ${event.target}`)
+        console.log(`Event name: ${event.target.name}`)
+        console.log(`Event value: ${event.target.value}`)
+        setFormData({
+            ...formData,
+            [event.target.name]: event.target.value
+        })
+    }
+
     const submitHandler = async (e) => {
         e.preventDefault()
+
+        console.warn("FORM DATA")
+        console.log(formData)
+        console.log(guildSelection)
+
         
         // unwrapping lists
         // console.log(Object.prototype.toString.call(guildSelection))
-        if (guildSelection instanceof Array){
-            guildSelection = guildSelection[0]
-        }
-        // look up the index of the name then match the ID
-        guildIDSelection = guildIds[guildNames.indexOf(guildSelection)]
-        if (note instanceof Array){
-            note = note[0]
-        } 
-        if (timezone instanceof Array){
-            timezone = timezone[0]
-        } 
-        if (role instanceof Array){
-            role = role[0]
-        }                        
-        console.log(`submitHandler ${guildIDSelection}`)
-        console.log(guildSelection)
-        console.log(guildIDSelection)
-        try{
-            await UpdateProfile({
-                id: userInfo.id,
-                timezone: timezone,
-                role: role,
-                guild: guildIDSelection,
-                note: note,})
-                .then(res => {
-                    toast.info(`${res.data.global_name}'s profile has been updated`)
+        // if (guildSelection instanceof Array){
+        //     guildSelection = guildSelection[0]
+        // }
+        // // look up the index of the name then match the ID
+        // guildIDSelection = guildIds[guildNames.indexOf(guildSelection)]
+        // if (note instanceof Array){
+        //     note = note[0]
+        // } 
+        // if (timezone instanceof Array){
+        //     timezone = timezone[0]
+        // } 
+        // if (role instanceof Array){
+        //     role = role[0]
+        // }                        
+        // console.log(`submitHandler ${guildIDSelection}`)
+        // console.log(guildSelection)
+        // console.log(guildIDSelection)
+        // try{
+        //     await UpdateProfile({
+        //         id: userInfo.id,
+        //         timezone: timezone,
+        //         role: role,
+        //         guild: guildIDSelection,
+        //         note: note,})
+        //         .then(res => {
+        //             toast.info(`${res.data.global_name}'s profile has been updated`)
 
-                    dispatch(setCredentials(res.data))
-                    // SOMETHING is funky here causing AUTH Redux maybe to fail being over written
-                    // console.warn("Response value")
-                    // console.log(res.data)
-                })
-        }catch (err){
-            toast.error((err?.data?.message || err.error))
-        }
-
+        //             dispatch(setCredentials(res.data))
+        //             // SOMETHING is funky here causing AUTH Redux maybe to fail being over written
+        //             // console.warn("Response value")
+        //             // console.log(res.data)
+        //         })
+        // }catch (err){
+        //     toast.error((err?.data?.message || err.error))
+        // }
     }
 
-    useEffect(()=>{
-        if (!hasRun) {
-            loadFormValues()
-        }
-        console.log(`useEffect>> ${guildSelection}`)
+    // useEffect(()=>{
+    //     if (!hasRun) {
+    //         loadFormValues()
+    //     }
+    //     console.log(`useEffect>> ${guildSelection}`)
 
 
-    },[hasRun, guildSelection])
+    // },[hasRun, guildSelection])
 
     return (
     <FormContainer>
@@ -177,19 +207,22 @@ const ProfileScreen = () => {
                 <Form.Label>Select Discord Server</Form.Label>
                     <Typeahead
                         id="guild-selector"
-                        labelKey="guildSearch"
+                        labelKey="name"
                         onChange={setGuildSelection}
                         highlightOnlyResult={false}
-                        options={guildNames}
+                        options={userInfo.guilds}
                         placeholder="Select Discord Server"
-                        selected={guildSelection}
+                        // defaultSelected={[guildSelection]}
+                        selected={[guildSelection]}
+                        clearButton
                     />
                 </Form.Group>                     
             <Form.Group className='my-2' controlId="timezone">
                 <Form.Label>Select Timezone</Form.Label>  
                 <Form.Select 
-                    onChange={(event) => handleTimezone(event)}
-                    defaultValue={timezone[0]}
+                    onChange={handleChangeEvents}
+                    defaultValue={formData.timezone}
+                    name="timezone"
                     >
                     {Array.isArray(timezoneList) && timezoneList.map((item, index) => (
                         <option key={index} value={item} >
@@ -202,8 +235,9 @@ const ProfileScreen = () => {
                 <Form.Label>Role</Form.Label>
                 <Form.Select 
                     aria-label="Select one"
-                    onChange={handleRoleChange}
-                    defaultValue={role[0]}
+                    name="role"
+                    onChange={handleChangeEvents}
+                    defaultValue={formData.role}
                     >
                         <option value="user">User</option>
                         <option value="breeder">Breeder</option>
@@ -214,8 +248,9 @@ const ProfileScreen = () => {
                 <Form.Control 
                     aria-label="Leave a note"
                     type="text"
-                    onChange={handleNoteChange}
-                    defaultValue={note}
+                    name="note"
+                    onChange={handleChangeEvents}
+                    defaultValue={formData.note}
                 />                          
             </Form.Group>           
             I know there is some funk going on with refreshing this page, known bug. 
