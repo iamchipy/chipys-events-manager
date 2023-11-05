@@ -101,7 +101,7 @@ function RequestScreen() {
     
         <FormContainer>  
             <h1>Request Dinos</h1>
-            <h5>{userInfo.guild}</h5>
+            <h5>{userInfo.guilds[userInfo.guild].name}</h5>
             <Form >
                 <Form.Group className='my-2' controlId="previously-requested">
                     <ListGroup>
@@ -118,7 +118,7 @@ function RequestScreen() {
                                 </div>
                                 {`Date: ${item.updatedAt.substring(0,10)} (${item.status})`}
                                 <br/>
-                                {`Tribe: ${item.guild} `}
+                                {`Tribe: ${item.guild.name} `}
                                 </div>
                             
                             </ListGroup.Item>

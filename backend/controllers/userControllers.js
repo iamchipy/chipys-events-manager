@@ -144,7 +144,7 @@ const requestDino = asyncHandler(async (req, res) => {
             status: INCOMPLETE_STATES,
             dino: dino,
             id: req.body.userInfo.id,
-            guild: req.body.userInfo.guild
+            guild: req.body.userInfo.guilds[req.body.userInfo.guild]
         }
         // run query for the data
         const requestExists = await DinoRequest.find(filter)
@@ -156,12 +156,12 @@ const requestDino = asyncHandler(async (req, res) => {
         }else {
             // submit new dino request entry
             console.log(`Creating ${dino} for ${userName}`)
-            console.log(req.body.userInfo)
+            // console.log(req.body.userInfo)
             await DinoRequest.create({
                 id: req.body.userInfo.id,
                 dino: dino,
                 status: "Pending",
-                guild: req.body.userInfo.guild,
+                guild: req.body.userInfo.guilds[req.body.userInfo.guild],
                 global_name: req.body.userInfo.global_name
             })
         }

@@ -58,7 +58,7 @@ function RequestQueueScreen() {
         // Set the filter baseline
         let filter = {
             status: {$nin:["Completed","DeletedByUser"]},
-            guild: userInfo.guild,
+            guild: userInfo.guilds[userInfo.guild],
             global_name: userInfo.global_name
         }
 
@@ -130,7 +130,7 @@ function RequestQueueScreen() {
     
         <FormContainer>  
             <h1>Waiting List</h1>
-            <h5>{userInfo.guild}</h5>
+            <h5>{userInfo.guilds[userInfo.guild].name}</h5>
             <Form.Group className="mt-3">
                 <Form.Label>Filter</Form.Label>
                 <Typeahead
