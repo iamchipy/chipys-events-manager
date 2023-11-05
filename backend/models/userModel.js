@@ -15,7 +15,7 @@ const userSchema = mongoose.Schema({
         default: "user",     
     },
     guild: {
-        type: Number,    
+        type: String,    
         default: 0   
     },    
     guilds: {
