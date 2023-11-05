@@ -58,8 +58,13 @@ const OAuthScreen = () => {
                 dispatch(setCredentials(res.data))
                 // console.log(res.data.guild)
                 // console.log(typeof res.data.guild)
-                if ("guild" in res.data  && res.data.guild !== undefined && res.data.guild !== 0) {
-                    toast.success(`${res.data.guild}`)
+                if ("guild" in res.data  && 
+                    res.data.guild !== undefined && 
+                    res.data.guild !== 0 &&
+                    res.data.guild in res.data.guilds) {
+                    console.warn(res.data.guild)
+                    console.info(res.data.guilds[res.data.guild])
+                    toast.success(`${res.data.guilds[res.data.guild].name}`)
                 }else{
                     toast.warn("Please go to PROFILE and select a Discord Server", {autoClose: 10000})
                 }
