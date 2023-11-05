@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Form, Button, ListGroup, Badge, Modal } from "react-bootstrap";
 import FormContainer from "../components/FormContainer";
 import { useSelector} from 'react-redux'
@@ -20,37 +20,7 @@ function RequestQueueScreen() {
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);    
     
-    // // update function to keep the page dynamic
-    // useEffect(() => {
-    //     async function fetchData() {
-    //         const result = await fetchPendingByFilter({ userInfo, filter }).unwrap()
-    //         setListItems(result.data);
-    //     }
-    //     // update list
-    //     try{
-    //         fetchData()
-    //     }catch (err){
-    //         console.warn("Trouble fetching pending dino request history:")
-    //         console.warn(err)
-    //     }        
-    // },[filter, fetchPendingByFilter]);
-
-
-    // // update function to keep the page dynamic
-    // useEffect(() => {
-    //     async function fetchData() {
-    //         const result = await fetchPendingByFilter({ userInfo })
-    //         setListItems(result.data);
-    //     }
-    //     // update list
-    //     try{
-    //         fetchData()
-    //     }catch (err){
-    //         console.warn("Trouble fetching pending dino request history:")
-    //         console.warn(err)
-    //     }        
-    // }, [fetchPendingByFilter, userInfo]);    
-
+ 
   // response to new request button
     const refreshFiltered = async (e) => {
         e.preventDefault()
@@ -82,9 +52,7 @@ function RequestQueueScreen() {
         }catch (e) {
             toast.warn("No matching items found!")
 
-        }
-
-                  
+        }                  
     }
 
     // Click options 
