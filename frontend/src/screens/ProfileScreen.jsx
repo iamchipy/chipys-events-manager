@@ -12,106 +12,25 @@ const ProfileScreen = () => {
     const dispatch = useDispatch()
     const [UpdateProfile] = useUpdateUserMutation()
     const { userInfo } = useSelector((state) => state.auth)
-    console.warn(userInfo)
     const timezoneList = [-12,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,11,12]
 
-    const [guildSelection,setGuildSelection] = useState(userInfo.guilds)
+    const [guildSelection,setGuildSelection] = useState([userInfo.guilds[userInfo.guild]])
     const [formData, setFormData] = useState({
         timezone:userInfo.timezone,
         role:userInfo.role,
         note:userInfo.note
     })
 
-    // used for making sure we can do a run only once op
-    let hasRun = false
+    let guildsList = []
+    for (let tempId in userInfo.guilds) {
+        guildsList.push(userInfo.guilds[tempId])
 
-
-    // here we build the list of guildIDs to build list of guildNames
-    let guildNames = []
-    let guildIds = Object.keys(userInfo.guilds)
-    for (let i = 0; i < guildIds.length; i++){
-        // console.log(i)        
-        // console.log(userInfo.guilds[guildIds[i]])        
-        // console.log(userInfo.guilds[guildIds[i]].name)        
-        guildNames.push(userInfo.guilds[guildIds[i]].name)
     }
-
-    console.warn([...userInfo.guilds])
-    console.warn(typeof userInfo.guilds)
-
-    // let guildList = guildIds.map((item,index)=>{
-    //     return {id:item, name:guildNames[index]}
-    // })
-    // console.log(guildList)
-
-    // let [guildSelection, setGuildSelection] = useState([(userInfo.guild in userInfo.guilds)? userInfo.guilds[userInfo.guild].name : ""])
-    // // Manually setting this to avoid the delay in the setState tool
-    // if (userInfo.guild in userInfo.guilds){
-    //     guildSelection = userInfo.guilds[userInfo.guild].name
-    // }else{
-    //     console.warn(Object.keys(userInfo.guilds))
-    // }
-    // console.log(guildSelection)
-    
-    // const handleRoleChange = async (event) => {
-    //     setRole(event.target.value)
-    // }
-
-    // const handleNoteChange = async (event) => {
-    //     setNote(event.target.value)
-    // }  
-
-    // const handleTimezone = async (event) => {
-    //     setTimezone(event.target.value)
-    // }        
-
-    // const handleGuildSelection = async (selected) => {
-        // // we are doing this menually for guilds to be able to 
-        // // track the guild id manually
-        // console.warn("setting GuildSelection to:")
-        // console.log(selected)
-        // guildSelection = selected[0]
-        // setGuildSelection(guildSelection)
-        // console.log(guildSelection)
-
-
-        // console.warn("setting GuildIDSelection to:")
-        // console.log(guildIds[guildNames.indexOf(guildSelection)])        
-        // guildIDSelection = guildIds[guildNames.indexOf(guildSelection)]
-        // console.log(guildIDSelection)   
-
-        // console.log(`Guild ${userInfo.guilds[guildIDSelection].name} selected (${guildIDSelection})`)
-    // }
-
-    // console.log(userInfo)
-    const loadFormValues = async () => {
-        // set the run once to true
-        hasRun = true
-        console.log("Running once...")
-        // try{
-        //     const user = await GetProfile(userInfo.id)
-        //         .then(res => {
-        //             console.warn("received user:")
-        //             console.warn(res)
-        //         })
-        //     console.info(user)
-            
-        // }catch (e){
-        //     console.error(e)
-        // }
-
-        // try{
-        //     setRole(userInfo.role)
-        //     setNote(userInfo.note)
-        //     setGuildSelection(userInfo.guild)
-        //     setTimezone(userInfo.timezone)
-        //     toast.info("Profile loaded")
-        // }catch (e) {
-        //     toast.error("Failed to load profile values")
-        //     console.error(e)
-        // }
-    }
-
+    // console.warn(guildsList)
+    // console.warn(typeof guildsList)
+ 
+    // custom handler that pumps out setStates as needed by overwriting
+    // existing form date with whatever the new input was
     const handleChangeEvents = (inputValue, event) => {
         // check if we were provided both or just an event object
         if (inputValue instanceof(Object)) {
@@ -132,46 +51,25 @@ const ProfileScreen = () => {
 
         console.warn("FORM DATA")
         console.log(formData)
-        console.log(guildSelection)
+        console.log(guildSelection[0].name)
 
-        
-        // unwrapping lists
-        // console.log(Object.prototype.toString.call(guildSelection))
-        // if (guildSelection instanceof Array){
-        //     guildSelection = guildSelection[0]
-        // }
-        // // look up the index of the name then match the ID
-        // guildIDSelection = guildIds[guildNames.indexOf(guildSelection)]
-        // if (note instanceof Array){
-        //     note = note[0]
-        // } 
-        // if (timezone instanceof Array){
-        //     timezone = timezone[0]
-        // } 
-        // if (role instanceof Array){
-        //     role = role[0]
-        // }                        
-        // console.log(`submitHandler ${guildIDSelection}`)
-        // console.log(guildSelection)
-        // console.log(guildIDSelection)
-        // try{
-        //     await UpdateProfile({
-        //         id: userInfo.id,
-        //         timezone: timezone,
-        //         role: role,
-        //         guild: guildIDSelection,
-        //         note: note,})
-        //         .then(res => {
-        //             toast.info(`${res.data.global_name}'s profile has been updated`)
+        // submit formData for upser update
+        try{
+            await UpdateProfile({
+                id: userInfo.id,
+                guild: guildSelection[0].id,
+                ...formData,})
+                .then(res => {
+                    toast.info(`${res.data.global_name}'s profile has been updated`)
 
-        //             dispatch(setCredentials(res.data))
-        //             // SOMETHING is funky here causing AUTH Redux maybe to fail being over written
-        //             // console.warn("Response value")
-        //             // console.log(res.data)
-        //         })
-        // }catch (err){
-        //     toast.error((err?.data?.message || err.error))
-        // }
+                    dispatch(setCredentials(res.data))
+                    // SOMETHING is funky here causing AUTH Redux maybe to fail being over written
+                    console.warn("Response value")
+                    console.log(res.data)
+                })
+        }catch (err){
+            toast.error((err?.data?.message || err.error))
+        }
     }
 
     // useEffect(()=>{
@@ -210,10 +108,10 @@ const ProfileScreen = () => {
                         labelKey="name"
                         onChange={setGuildSelection}
                         highlightOnlyResult={false}
-                        options={userInfo.guilds}
+                        options={guildsList}
                         placeholder="Select Discord Server"
                         // defaultSelected={[guildSelection]}
-                        selected={[guildSelection]}
+                        selected={guildSelection}
                         clearButton
                     />
                 </Form.Group>                     
