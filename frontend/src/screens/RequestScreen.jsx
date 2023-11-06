@@ -8,6 +8,7 @@ import Loader from "../components/Loader";
 import dinoNames from "../assets/dinoNames";
 import { Typeahead } from "react-bootstrap-typeahead"
 import { Link } from "react-router-dom";
+import GuildDisplayName from "../components/DiscordGuildName"
 
 
 function RequestScreen() {
@@ -22,6 +23,7 @@ function RequestScreen() {
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);    
+    const guildDisplayName = GuildDisplayName(userInfo)
 
     // update function to keep the page dynamic
     useEffect(() => {
@@ -101,7 +103,7 @@ function RequestScreen() {
     
         <FormContainer>  
             <h1>Request Dinos</h1>
-            <h5>{userInfo.guilds[userInfo.guild].name}</h5>
+            <h5>{guildDisplayName}</h5>
             <Form >
                 <Form.Group className='my-2' controlId="previously-requested">
                     <ListGroup>

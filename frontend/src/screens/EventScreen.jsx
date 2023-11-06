@@ -10,10 +10,12 @@ import dinoNames from "../assets/dinoNames";
 import { Typeahead } from "react-bootstrap-typeahead"
 import moment from "moment";
 import Loader from "../components/Loader";
+import GuildDisplayName from "../components/DiscordGuildName";
 
 const EventScreen = () => {
 
     // Define constants for later
+    const guildDisplayName = GuildDisplayName(userInfo)
     const [eventUpdate, {isUpdating}] = useEventUpdateMutation()
     const [eventCreate, {isCreating}] = useEventCreateMutation()
     const [eventsByFilter, {isLoading}] = useEventsByFilterMutation()
@@ -160,7 +162,7 @@ const EventScreen = () => {
     
         <FormContainer>  
             <h1>Events</h1>
-            <h5>{userInfo.guilds[userInfo.guild].name}</h5>
+            <h5>{guildDisplayName}</h5>
             <Form.Group className="mt-3">
                 <Form.Label>Filter</Form.Label>
                 <Typeahead

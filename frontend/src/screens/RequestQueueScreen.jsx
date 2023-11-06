@@ -7,6 +7,7 @@ import { useFetchPendingByFilterMutation, useUpdateRequestMutation } from "../sl
 import Loader from "../components/Loader";
 import dinoNames from "../assets/dinoNames";
 import { Typeahead } from "react-bootstrap-typeahead"
+import GuildDisplayName from "../components/DiscordGuildName";
 
 function RequestQueueScreen() {
     // Define constants for later
@@ -19,6 +20,7 @@ function RequestQueueScreen() {
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);    
+    const guildDisplayName = GuildDisplayName(userInfo)
     
  
   // response to new request button
@@ -102,7 +104,7 @@ function RequestQueueScreen() {
     
         <FormContainer>  
             <h1>Waiting List</h1>
-            <h5>{userInfo.guilds[userInfo.guild].name}</h5>
+            <h5>{guildDisplayName}</h5>
             <Form.Group className="mt-3">
                 <Form.Label>Filter</Form.Label>
                 <Typeahead
