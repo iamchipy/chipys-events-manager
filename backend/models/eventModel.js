@@ -24,7 +24,6 @@ const eventSchema = mongoose.Schema({
     },    
     guild: {
         type: Object,     
-        required: [true, "Required"],
         index: true          
     }, 
     status: {

@@ -15,7 +15,7 @@ function RequestQueueScreen() {
     const [updateRequest, {isWaiting}] = useUpdateRequestMutation() 
     const { userInfo } = useSelector((state) => state.auth)
     const [multiSelections, setMultiSelections] = useState([]);
-    const [selectedRequest, setselectedRequest] = useState([]);
+    const [selectedRequest, setSelectedRequest] = useState([]);
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);    
@@ -64,7 +64,7 @@ function RequestQueueScreen() {
         event.preventDefault()
 
         // toast.info(`${clickedItem.dino} was clicked`)
-        setselectedRequest(clickedRequest)
+        setSelectedRequest(clickedRequest)
         handleShow()
     }
     

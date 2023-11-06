@@ -7,13 +7,13 @@ import { setCredentials } from "../slices/authSlice";
 import { useUpdateUserMutation } from "../slices/userApiSlice";
 import { Typeahead } from "react-bootstrap-typeahead"
 import moment from "moment";
-
+import Loader from "../components/Loader";
 
 const ProfileScreen = () => {
 
 
     const dispatch = useDispatch()
-    const [UpdateProfile] = useUpdateUserMutation()
+    const [updateProfile, {isUpdating}] = useUpdateUserMutation()
     const { userInfo } = useSelector((state) => state.auth)
     const timezoneList = [-12,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,11,12]
     const fillerGuild = (userInfo.guilds[userInfo.guild])?userInfo.guilds[userInfo.guild]:{
@@ -62,7 +62,7 @@ const ProfileScreen = () => {
 
         // submit formData for upser update
         try{
-            await UpdateProfile({
+            await updateProfile({
                 id: userInfo.id,
                 guild: guildSelection[0].id,
                 timeOpen: moment(formData.timeOpen, 'HH:mm').valueOf(),
@@ -182,6 +182,7 @@ const ProfileScreen = () => {
             <br/> 
             <b>PLEASE double click the Update button to SAVE</b>  
               
+            {isUpdating && <Loader />}  
             <Button type='submit' variant="primary" className="mt-3">
                 Update 
             </Button>     

@@ -65,7 +65,27 @@ export const usersApliSplice = apiSlice.injectEndpoints({
                 body: data
             })                 
         }),             
-                                
+        eventCreate: builder.mutation({
+            query: (data) => ({
+                url: `${USERS_URL}/eventCreate`,
+                method: 'POST',
+                body: data
+            })                 
+        }),  
+        eventUpdate: builder.mutation({
+            query: (data) => ({
+                url: `${USERS_URL}/eventUpdate`,
+                method: 'PUT',
+                body: data
+            })                 
+        }),  
+        eventsByFilter: builder.mutation({
+            query: (data) => ({
+                url: `${USERS_URL}/eventsByFilter`,
+                method: 'PUT',
+                body: data
+            })                 
+        }),                                                               
     })
 })
 
@@ -78,4 +98,7 @@ export const {
     useFetchPendingMutation,
     useUpdateRequestMutation,
     useGetProfileMutation,
+    useEventUpdateMutation,
+    useEventCreateMutation,
+    useEventsByFilterMutation,
     useFetchPendingByFilterMutation } = usersApliSplice

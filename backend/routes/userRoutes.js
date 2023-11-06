@@ -8,6 +8,9 @@ import { authUser,
     requestDino,
     fetchPending,
     updateRequest,
+    eventCreate,
+    eventUpdate,
+    eventsByFilter,
     fetchPendingByFilter } from "../controllers/userControllers.js"
 import { protect } from "../middleware/authMiddleware.js"
 
@@ -20,6 +23,9 @@ router.post("/request", requestDino)
 router.put("/fetchPending", fetchPending)
 router.put("/fetchPendingByFilter", fetchPendingByFilter)
 router.put("/updateRequest", updateRequest)
+router.post("/eventCreate", eventCreate)
+router.put("/eventUpdate", eventUpdate)
+router.put("/eventsByFilter", eventsByFilter)
 router.route('/profile').get(protect, getUserProfile).put(updateUserProfile)
 // TODO ADD PROTECT back in
 

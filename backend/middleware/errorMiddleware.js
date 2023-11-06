@@ -13,7 +13,7 @@ const errorHandler = (err, req, res, next) => {
     // If you look for an Object by ID that doesn't exist
     if (err.name === "CastError" && err.kind === 'ObjectId') {
         statusCode = 404
-        message = 'Resource not found'
+        message = 'Resource not found (src:Middleware)'
     }
 
     // IF ? Then : Else

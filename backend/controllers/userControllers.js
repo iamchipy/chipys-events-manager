@@ -2,7 +2,7 @@ import asyncHandler from 'express-async-handler'
 import User from '../models/userModel.js'
 import DinoRequest from '../models/requestModel.js'
 import generateToken from '../utils/generateToken.js'
-import e from 'express'
+import Event from '../models/eventModel.js'
 
 // variables for standard
 const INCOMPLETE_STATES = {$nin:["Completed","DeletedByUser"]}
@@ -81,6 +81,62 @@ const registerUser = asyncHandler(async (req, res) => {
                 res.status(201).json(result)      
             }).catch( e=> {console.error(e)})
     }
+})
+
+// @desc        Fetches all events and applies a filter
+// route        PUT /api/users/eventsByFilter
+// @access      Private
+const eventsByFilter = asyncHandler(async (req, res) => {
+    console.log(`eventsByFilter: ${req.body.filter}`)
+    console.log(req.body.filter)
+
+    // filter 
+    const filter = req.body.filter
+
+    // console.log(`fetchPending: ${req.body.userInfo.global_name}`)
+    // lookup pending and completed requests matching user
+    const eventsScheduled = await Event.find(filter)
+    // console.log(`results: ${requestPending}`)
+
+
+    // return requests
+    if (eventsScheduled[0] === undefined){
+        res.status(404).json(`Message: No requests matching filter`)
+    } else {
+        res.status(200).json(eventsScheduled)
+    }
+})
+
+// @desc        Update existing event
+// route        PUT /api/users/eventUpdate
+// @access      Private
+const eventUpdate = asyncHandler(async (req, res) => {
+
+})
+
+// @desc        Creates a new event
+// route        POST /api/users/eventCreate
+// @access      Private
+const eventCreate = asyncHandler(async (req, res) => {
+    // console.warn(JSON.stringify(req.body))
+    console.log("eventCreate initiated")
+    // const userFilter = {id: req.body.id}
+    // let newUser = null
+    // let updatedUserValues = null
+
+    createdEvent = await Event.create(req.body)
+        .then(result=>{
+            console.log(result)
+            if (result.error){
+                console.log("result.error")
+                console.log(result.error)
+                result.status(400)
+                throw new Error(`Failed to create event ${req.body.id}`)     
+            }
+            // console.log(result)
+            console.log(`Event Created`)
+            res.status(201).json(result)      
+        }).catch( e=> {console.error(e)})
 })
 
 // @desc        Logout user/clear tokens?
@@ -253,5 +309,8 @@ export {
     requestDino,
     fetchPending,
     updateRequest,
-    fetchPendingByFilter
+    fetchPendingByFilter,
+    eventCreate,
+    eventUpdate,
+    eventsByFilter
 }
