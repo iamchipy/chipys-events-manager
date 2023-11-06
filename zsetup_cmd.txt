@@ -25,7 +25,9 @@ npm i
 
 (in root)
 npm i -D concurrently
+npm i moment
 npm run dev     (to run back and front ends together)
+
 
 (front end)
 npm i bootstrap react-bootstrap react-icons

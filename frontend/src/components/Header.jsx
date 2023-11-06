@@ -50,19 +50,24 @@ const Header = () => {
                   {/* </LinkContainer> */}
                   <NavDropdown title={userInfo.global_name} id="username">
                   <LinkContainer to='/event'>
-                      <NavDropdown.Item>Events</NavDropdown.Item>
-                  </LinkContainer>    
-                  <LinkContainer to='/request'>
-                      <NavDropdown.Item>Requests</NavDropdown.Item>
-                  </LinkContainer>    
-                  <LinkContainer to='/queue'>
-                      <NavDropdown.Item>Waiting List</NavDropdown.Item>
-                  </LinkContainer>                                                          
-                  <LinkContainer to='/profile'>
-                      <NavDropdown.Item>Profile</NavDropdown.Item>
-                  </LinkContainer>
-               
-                  <NavDropdown.Item onClick={logoutHandler}>Logout</NavDropdown.Item>
+                        <NavDropdown.Item>Events</NavDropdown.Item>
+                    </LinkContainer>  
+                    <LinkContainer to='/'>
+                        <NavDropdown.Item></NavDropdown.Item>
+                    </LinkContainer>                        
+                    <LinkContainer to='/request'>
+                        <NavDropdown.Item>Requests</NavDropdown.Item>
+                    </LinkContainer>    
+                    <LinkContainer to='/queue'>
+                        <NavDropdown.Item>Waiting List</NavDropdown.Item>
+                    </LinkContainer>                                                          
+                    <LinkContainer to='/'>
+                        <NavDropdown.Item></NavDropdown.Item>
+                    </LinkContainer>
+                    <LinkContainer to='/profile'>
+                        <NavDropdown.Item>Profile</NavDropdown.Item>
+                    </LinkContainer>               
+                    <NavDropdown.Item onClick={logoutHandler}>Logout</NavDropdown.Item>
                   </NavDropdown>
                 </>
               ) : (

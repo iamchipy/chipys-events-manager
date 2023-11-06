@@ -39,10 +39,14 @@ const userSchema = mongoose.Schema({
     locale: {
         type: String,       
     },     
-    username: {
-        type: String,   
-        default: "unregistered"    
-    },   
+    timeOpen: {
+        type: String,
+        default: "1700"
+    },  
+    timeClose: {
+        type: String,
+        default: "2000"
+    },       
     timezone: {
         type: Number,
         default: 0   

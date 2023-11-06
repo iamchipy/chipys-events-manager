@@ -6,21 +6,28 @@ import { toast } from "react-toastify";
 import { setCredentials } from "../slices/authSlice";
 import { useUpdateUserMutation } from "../slices/userApiSlice";
 import { Typeahead } from "react-bootstrap-typeahead"
+import moment from "moment";
 
 
 const ProfileScreen = () => {
+
+
     const dispatch = useDispatch()
     const [UpdateProfile] = useUpdateUserMutation()
     const { userInfo } = useSelector((state) => state.auth)
     const timezoneList = [-12,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,11,12]
-
-    const [guildSelection,setGuildSelection] = useState([userInfo.guilds[userInfo.guild]])
+    const fillerGuild = (userInfo.guilds[userInfo.guild])?userInfo.guilds[userInfo.guild]:{
+                            name: "Unknown",
+                            id: 1
+                        }    
+    const [guildSelection,setGuildSelection] = useState([fillerGuild])
     const [formData, setFormData] = useState({
         timezone:userInfo.timezone,
         role:userInfo.role,
-        note:userInfo.note
+        note:userInfo.note,
+        timeOpen:userInfo.timeOpen,
+        timeClose:userInfo.timeClose,
     })
-
     let guildsList = []
     for (let tempId in userInfo.guilds) {
         guildsList.push(userInfo.guilds[tempId])
@@ -39,7 +46,7 @@ const ProfileScreen = () => {
         console.log(`Event name: ${event}`)
         console.log(`Event name: ${event.target}`)
         console.log(`Event name: ${event.target.name}`)
-        console.log(`Event value: ${event.target.value}`)
+        console.log(`Event value: ${event.target.value} (${typeof event.target.value})`)
         setFormData({
             ...formData,
             [event.target.name]: event.target.value
@@ -58,6 +65,8 @@ const ProfileScreen = () => {
             await UpdateProfile({
                 id: userInfo.id,
                 guild: guildSelection[0].id,
+                timeOpen: moment(formData.timeOpen, 'HH:mm').valueOf(),
+                timeClose: moment(formData.timeClose, 'HH:mm').valueOf(),
                 ...formData,})
                 .then(res => {
                     toast.info(`${res.data.global_name}'s profile has been updated`)
@@ -86,22 +95,22 @@ const ProfileScreen = () => {
         <h1>Update Profile</h1>
         <Form onSubmit={submitHandler}>
             <Form.Group className='my-2' controlId="discordGlobalName">
-                <Form.Label>Discord Name</Form.Label>
+                <Form.Label>Discord Name (linked to Discord)</Form.Label>
                 <Form.Control 
                     type="text"
                     disabled={true}
                     value={userInfo.global_name}
                 ></Form.Control>
             </Form.Group>
-            <Form.Group className='my-2' controlId="discordId">
+            {/* <Form.Group className='my-2' controlId="discordId">
                 <Form.Label>Discord ID</Form.Label>
                 <Form.Control 
                     type="text"
                     disabled={true}
                     value={userInfo.id}
                 ></Form.Control>
-            </Form.Group>     
-            <Form.Group className="mt-3">
+            </Form.Group>      */}
+            <Form.Group className="mt-4">
                 <Form.Label>Select Discord Server</Form.Label>
                     <Typeahead
                         id="guild-selector"
@@ -114,8 +123,26 @@ const ProfileScreen = () => {
                         selected={guildSelection}
                         clearButton
                     />
-                </Form.Group>                     
-            <Form.Group className='my-2' controlId="timezone">
+                </Form.Group>      
+            <Form.Group className='my-2' >
+            <Form.Label>Available Hours</Form.Label>
+                <Form.Control 
+                    name="timeOpen"
+                    type="time"
+                    onChange={handleChangeEvents}
+                    defaultValue={formData.timeOpen}
+                />
+            </Form.Group>    
+            <Form.Label>to</Form.Label>     
+            <Form.Group className='my-0' >
+                <Form.Control 
+                    name="timeClose"
+                    type="time"
+                    onChange={handleChangeEvents}
+                    defaultValue={formData.timeClose}
+                />
+            </Form.Group>                           
+            <Form.Group className='my-4'>
                 <Form.Label>Select Timezone</Form.Label>  
                 <Form.Select 
                     onChange={handleChangeEvents}
@@ -151,9 +178,9 @@ const ProfileScreen = () => {
                     defaultValue={formData.note}
                 />                          
             </Form.Group>           
-            I know there is some funk going on with refreshing this page, known bug. 
+            Known bug. 
             <br/> 
-            <b>PLEASE double click the Update button</b>  
+            <b>PLEASE double click the Update button to SAVE</b>  
               
             <Button type='submit' variant="primary" className="mt-3">
                 Update 
