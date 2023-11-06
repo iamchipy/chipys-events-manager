@@ -28,7 +28,7 @@ function RequestQueueScreen() {
         // Set the filter baseline
         let filter = {
             status: {$nin:["Completed","DeletedByUser"]},
-            guild: userInfo.guilds[userInfo.guild],
+            "guild.id":  userInfo.guild,
             global_name: userInfo.global_name
         }
 
@@ -45,14 +45,18 @@ function RequestQueueScreen() {
             }            
         }
 
-        try{
-            console.info(filter)
-            const result = await fetchPendingByFilter({ filter })            
-            setListItems(result.data);   
-        }catch (e) {
-            toast.warn("No matching items found!")
-
-        }                  
+        console.info("Filter:")
+        console.info(filter)
+        fetchPendingByFilter({ filter }).then(res => {
+            if ("error" in res && res.error.status === 404){
+                toast.error(`Waiting list appears to be empty`)
+            }else{
+                setListItems(res.data); 
+            }
+        }).catch(err=>{
+            console.error(err)
+        })
+            
     }
 
     // Click options 
@@ -137,6 +141,8 @@ function RequestQueueScreen() {
                                 {`Date: ${item.updatedAt.substring(0,10)} (${item.status})`}
                                 <br/>
                                 {`User: ${item.global_name} `}
+                                {(userInfo.role === "breeder")?<br/> :"" }
+                                {(userInfo.role === "breeder")?`Note: ${item.note}`:"" }
                                 </div>
                             
                             </ListGroup.Item>
