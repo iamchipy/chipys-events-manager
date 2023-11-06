@@ -4,130 +4,79 @@ import FormContainer from "../components/FormContainer";
 import { useSelector} from 'react-redux'
 import { toast } from "react-toastify";
 import { useRequestMutation, useFetchPendingMutation, useUpdateRequestMutation } from "../slices/userApiSlice";
-import Loader from "../components/Loader";
 import dinoNames from "../assets/dinoNames";
 import { Typeahead } from "react-bootstrap-typeahead"
-import { Link } from "react-router-dom";
-import TimezonePicker from 'react-bootstrap-timezone-picker';
+import moment from "moment";
+
 
 const EventScreen = () => {
 
     // Define constants for later
-    const [listItems, setListItems] = useState([]);
-    const [fetchPending] = useFetchPendingMutation() 
-    const { userInfo } = useSelector((state) => state.auth)
-    const [multiSelections, setMultiSelections] = useState([]);
-    const [selectedRequest, setselectedRequest] = useState([]);
-    const [timezone, setTimezone] = useState('Europe/Moscow');
-    const [requestDino, { isLoading }] = useRequestMutation()
-    const [updateRequest, { isUpdating }] = useUpdateRequestMutation()
+    const [dinoSelection, setDinoSelection] = useState([]);
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);    
+    const { userInfo } = useSelector((state) => state.auth)
+    const timezoneList = [-12,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,11,12]
+    const [formData, setFormData] = useState({
+        timezone:userInfo.timezone,
+        note:"Event notes...",
+        startTime:userInfo.timeOpen,
+        date:"today",
+        host:userInfo.global_name
+    })
 
-    // update function to keep the page dynamic
-    useEffect(() => {
-        async function fetchData() {
-            // const result = await fetchPending({ userInfo })
-            // setListItems(result.data);
+
+    // custom handler that pumps out setStates as needed by overwriting
+    // existing form date with whatever the new input was
+    const handleChangeEvents = (inputValue, event) => {
+        // check if we were provided both or just an event object
+        if (inputValue instanceof(Object)) {
+            event = inputValue
         }
-        // update list
-        try{
-            fetchData()
-        }catch (err){
-            console.warn("Trouble fetching pending dino request history:")
-            console.warn(err)
-        }        
-    }, [fetchPending,userInfo]);
-
-  // response to new request button
-    const requestHandler = async (e) => {
-        e.preventDefault()
-        // if user isn't logged in
-        
-        if (!userInfo.id) {
-            toast.error("Please log in")
-        }else{
-            // if we have something selected to add
-            if (multiSelections !== ""){
-                toast.info(`Requesting... ${multiSelections}`)
-                // console.log(typeof multiSelections)
-                await requestDino({ multiSelections, userInfo })
-            }            
-        }  
-        const result = await fetchPending({ userInfo })
-        setListItems(result.data);             
+        console.log(`Event name: ${event}`)
+        console.log(`Event name: ${event.target}`)
+        console.log(`Event name: ${event.target.name}`)
+        console.log(`Event value: ${event.target.value} (${typeof event.target.value})`)
+        setFormData({
+            ...formData,
+            [event.target.name]: event.target.value
+        })
     }
-
-    // Click options 
-    const optionsHandler = async (event, clickedRequest) => {
-        event.preventDefault()
-
-        // toast.info(`${clickedItem.dino} was clicked`)
-        setselectedRequest(clickedRequest)
-        handleShow()
-    }
-    
-    // delete handler
-    const handleDelete = async () => {
-        // Handle the delete operation here
-        toast.success(`${selectedRequest.dino} request deleted`);
-        handleClose();
-        const updatedValue = {
-            status: "DeletedByUser"
-        }
-        await updateRequest({ selectedRequest, updatedValue })
-        const result = await fetchPending({ userInfo })
-        setListItems(result.data);      
-    };
 
     const submitHandler = async (e) => {
+        e.preventDefault()
 
+        console.warn("FORM DATA")
+        console.log(formData)
+
+        let dateTime = moment(formData.date+" "+formData.startTime, 'YYYY-MM-DD HH:mm').valueOf()
+
+        console.warn(dateTime)
+
+        // submit formData for upser update
+        // try{
+        //     await UpdateProfile({
+        //         id: userInfo.id,
+        //         guild: guildSelection[0].id,
+        //         timeOpen: moment(formData.timeOpen, 'HH:mm').valueOf(),
+        //         timeClose: moment(formData.timeClose, 'HH:mm').valueOf(),
+        //         ...formData,})
+        //         .then(res => {
+        //             toast.info(`${res.data.global_name}'s profile has been updated`)
+
+        //             dispatch(setCredentials(res.data))
+        //             // SOMETHING is funky here causing AUTH Redux maybe to fail being over written
+        //             console.warn("Response value")
+        //             console.log(res.data)
+        //         })
+        // }catch (err){
+        //     toast.error((err?.data?.message || err.error))
+        // }
     }
 
     return (
     <>
-        <Modal show={show} onHide={handleClose}>
-            <Modal.Header closeButton>
-            <Modal.Title>Confirm Deletion</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-            {`${selectedRequest.dino} requested on ${selectedRequest.updatedAt}, delete?`}
-            </Modal.Body>
-            <Modal.Footer>
-            <Button variant="secondary" onClick={handleClose}>
-                Cancel
-            </Button>
-            <Button variant="danger" onClick={handleDelete}>
-                Delete
-            </Button>
-            </Modal.Footer>
-        </Modal>
-
-        <FormContainer>
-            <h1>Upcoming</h1>
-            <Form onSubmit={submitHandler}>
-                <Form.Group className='my-2' controlId="previously-requested">
-                    <Form.Label>Scheduled Events</Form.Label>
-                    <ListGroup>
-                        {Array.isArray(listItems) && listItems.map((item, index) => (
-                            <ListGroup.Item key={index} action onClick={(event) => optionsHandler(event,item)} >
-                                <div className="ms-2 me-auto">
-                                <div className="fw-bold">
-                                    <img width="55" src={`https://www.dododex.com/media/creature/${item.dino.toLowerCase()}.png`} />
-                                    {item.dino}
-                                    <Badge bg="primary" pill>
-                                    1
-                                    </Badge>                                
-                                </div>
-                                {`Date: ${item.updatedAt.substring(0,10)} (${item.status})`}
-                                </div>                            
-                            </ListGroup.Item>
-                        ))}
-                    </ListGroup>
-                </Form.Group>                
-            </Form>
-        </FormContainer>        
         <FormContainer>
             <h1>Create Event</h1>
             <Form onSubmit={submitHandler}>
@@ -136,32 +85,54 @@ const EventScreen = () => {
                     <Typeahead
                         id="Dino-Selector"
                         labelKey="dinoSearch"
-                        multiple
-                        onChange={setMultiSelections}
+
+                        onChange={setDinoSelection}
                         highlightOnlyResult={false}
                         options={dinoNames}
                         placeholder="Select multiple"
-                        selected={multiSelections}
+                        selected={dinoSelection}
                     />
-                </Form.Group>     
-                <Form.Group className='my-2' controlId="dino">
                     <Form.Label>Select Day</Form.Label>
                     <Form.Control
+                        name="date"
                         type="date"
+                        onChange={handleChangeEvents}
                         placeholder="Select a date"
                     />
                     <Form.Label>Select Time</Form.Label>
-                    <Form.Control
+                    <Form.Control 
+                        name="startTime"
                         type="time"
-                        placeholder="Select a time"
-                    />     
+                        onChange={handleChangeEvents}
+                        defaultValue={formData.startTime}
+                    />    
+
                     <Form.Label>Select Timezone</Form.Label>  
-                    <TimezonePicker
-                        absolute={false}
-                        defaultValue="Europe/Moscow"
-                        placeholder="Select timezone..."
-                        onChange={(tz) => setTimezone(tz)}
-                    />                                                
+                    <Form.Select 
+                        onChange={handleChangeEvents}
+                        defaultValue={formData.timezone}
+                        name="timezone"
+                        >
+                        {Array.isArray(timezoneList) && timezoneList.map((item, index) => (
+                            <option key={index} value={item} >
+                                {item} UTC
+                            </option>
+                        ))}                    
+                    </Form.Select>
+                    <Form.Label>Host: </Form.Label>
+                    <Form.Control 
+                        type="text"
+                        name="host"
+                        onChange={handleChangeEvents}
+                        defaultValue={formData.host}
+                    />                      
+                    <Form.Label>Note \ Comment</Form.Label>
+                    <Form.Control 
+                        type="text"
+                        name="note"
+                        onChange={handleChangeEvents}
+                        defaultValue={formData.note}
+                    />                                           
                 </Form.Group>                            
                 
                 <Button type='submit' variant="primary" className="mt-3">

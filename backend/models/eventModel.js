@@ -19,23 +19,26 @@ const eventSchema = mongoose.Schema({
         type: Number,
         lowercase: true,         
     },
-    time: {
-        type: time,
-        lowercase: true,         
-    },
-    date: {
-        type: date,
-        lowercase: true,         
-    },        
+    startTime: {
+        type: Number   
+    },    
     guild: {
-        type: String,       
+        type: Object,     
+        required: [true, "Required"],
+        index: true          
     }, 
     status: {
-        type: String,       
+        type: String,     
+        default: "Scheduled"  
     },        
     note: {
-        type: String,       
-    },                
+        type: String,    
+        default: "Just a normal day"   
+    },   
+    capacity: {
+        type: Number,
+        default: 1
+    }             
 },{
     // Enables time stamping
     timestamps: true

@@ -31,7 +31,7 @@ const ProfileScreen = () => {
     let guildsList = []
     for (let tempId in userInfo.guilds) {
         guildsList.push(userInfo.guilds[tempId])
-
+ 
     }
     // console.warn(guildsList)
     // console.warn(typeof guildsList)
