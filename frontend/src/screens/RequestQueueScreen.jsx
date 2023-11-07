@@ -32,11 +32,12 @@ function RequestQueueScreen() {
 
     useEffect(()=>{
         refreshFiltered()
-        console.info("refreshing")
+        // console.info("refreshing")
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [filterDinoSelections, filterUserSelection])
  
   // response to new request button
-    const refreshFiltered = async (e) => {
+    const refreshFiltered = async () => {
         // e.preventDefault()
 
         // Set the filter baseline
@@ -149,16 +150,18 @@ function RequestQueueScreen() {
         updateRequest({selectedRequest, updatedValue}).then(res=>{
             if ("error" in res){
                 toast.error("Something went wrong")
+                
             }else{
                 toast.success("Request note saved!")
+                handleClose();
+                refreshFiltered()                   
             }
         })
         
         // console.log("saving note")
         // console.log(selectedRequestNote.target.value)
 
-        handleClose();
-        refreshFiltered()    
+ 
     };    
 
   return (
@@ -234,11 +237,12 @@ function RequestQueueScreen() {
             <Form >
 
                 {isLoading && <Loader />}                  
-                {isWaiting && <Loader />}                  
+                {isWaiting && <Loader />} 
+{/*             DISABLED IN FAVOUR OF AUTO REFRESH                        
                 <Button onClick={refreshFiltered} variant="primary" className="mt-3">
                     Refresh Queue 
                 </Button>                  
-   
+    */}
                 <Form.Group className='my-2' controlId="previously-requested">
                     <ListGroup>
                         <Form.Label>Pending Requests</Form.Label>

@@ -27,6 +27,7 @@ This MERN Stack webapp is designed to help ARK mega-tribe breeders manager the d
 - - [X] Waiting List page
 - - - [X] Filter by Dino
 - - - [X] Filter by User (if you are a breeder)
+- - - [X] Realtime/auto refresh tested and working
 - [ ] Breeder features
 - - [ ] System for breeders to add new dinos
 - - [ ] System for breeders to manage a breeding event
