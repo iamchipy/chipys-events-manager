@@ -23,10 +23,12 @@ const requestSchema = mongoose.Schema({
         type: Object,       
     }, 
     status: {
-        type: String,       
+        type: String,     
+        default: "Pending"    
     },        
     note: {
-        type: String,       
+        type: String,    
+        default: ""   
     },                
 },{
     // Enables time stamping

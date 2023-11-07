@@ -327,20 +327,26 @@ const fetchPendingByFilter = asyncHandler(async (req, res) => {
 // @desc        Update a dino request
 // route        PUT /api/users/updateRequest
 // @access      Private
+// requires     selectedRequest should be in the body (type DinoRequest Model Obj)
 const updateRequest = asyncHandler(async (req, res) => {    
-    // console.warn(JSON.stringify(req.body))
-    const filter = {
-        _id: req.body.selectedRequest._id
-    }
-    const updatedValue = req.body.updatedValue
-    const verification = await DinoRequest.findOneAndUpdate(filter, updatedValue)
+    try{
+        console.warn(req.body)
+        const filter = {
+            _id: req.body.selectedRequest._id
+        }
+        const updatedValue = req.body.updatedValue
+        const verification = await DinoRequest.findOneAndUpdate(filter, updatedValue)
 
-    // console.warn(JSON.stringify(verification))
-    // return requests
-    if (verification === undefined){
-        res.status(400).json(`Message: No requests found for ${req.body.userInfo.global_name} :: ${filter}`)
-    } else {
-        res.status(200).json(verification)
+        // console.warn(JSON.stringify(verification))
+        // return requests
+        if (verification === undefined){
+            res.status(400).json(`Message: No requests found for ${req.body.userInfo.global_name} :: ${filter}`)
+        } else {
+            res.status(200).json(verification)
+        }
+    }catch (err){
+        console.error("updateRequest:")
+        console.error(err)
     }
 })
 

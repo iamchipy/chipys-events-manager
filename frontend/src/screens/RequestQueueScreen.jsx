@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Form, Button, ListGroup, Badge, Modal } from "react-bootstrap";
 import FormContainer from "../components/FormContainer";
 import { useSelector} from 'react-redux'
@@ -27,7 +27,13 @@ function RequestQueueScreen() {
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);    
     const guildDisplayName = GuildDisplayName(userInfo)
+    const [selectedRequestNote, setSelectedRequestNote] = useState('');
     
+
+    useEffect(()=>{
+        refreshFiltered()
+        console.info("refreshing")
+    }, [filterDinoSelections, filterUserSelection])
  
   // response to new request button
     const refreshFiltered = async (e) => {
@@ -61,8 +67,8 @@ function RequestQueueScreen() {
             }            
         }        
 
-        console.info("Filter:")
-        console.info(filter)
+        // console.info("Filter:")
+        // console.info(filter)
         fetchPendingByFilter({ filter }).then(res => {
             if ("error" in res && res.error.status === 404){
                 toast.warn(`Waiting list appears to be empty`)
@@ -82,7 +88,7 @@ function RequestQueueScreen() {
 
     const handleUserSearch = (query) => {
         setUserSearching(true)
-        console.info(`userSearch('${query}')`)
+        // console.info(`userSearch('${query}')`)
         
         fetch(`api/users/profiles/${query}`)
             .then(response => response.json())
@@ -107,6 +113,10 @@ function RequestQueueScreen() {
 
         // toast.info(`${clickedItem.dino} was clicked`)
         setSelectedRequest(clickedRequest)
+        setSelectedRequestNote(clickedRequest.note)
+        // console.warn("clickedRequest")
+        // console.warn(clickedRequest)
+        // console.warn(clickedRequest.note)
         handleShow()
     }
     
@@ -131,21 +141,49 @@ function RequestQueueScreen() {
         refreshFiltered()    
     };
 
+    const handleSave = async () => {
+        const updatedValue = {
+            note : selectedRequestNote.target.value,
+        }
+
+        updateRequest({selectedRequest, updatedValue}).then(res=>{
+            if ("error" in res){
+                toast.error("Something went wrong")
+            }else{
+                toast.success("Request note saved!")
+            }
+        })
+        
+        // console.log("saving note")
+        // console.log(selectedRequestNote.target.value)
+
+        handleClose();
+        refreshFiltered()    
+    };    
+
   return (
     <>
         <Modal show={show} onHide={handleClose}>
             <Modal.Header closeButton>
-                <Modal.Title>Confirm Deletion</Modal.Title>
+                <Modal.Title>Modify Request</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                {`${selectedRequest.dino} requested by ${selectedRequest.global_name}, done?`}
+                {`Dino: ${selectedRequest.dino}`}
+                <br/>
+                {`User: ${selectedRequest.global_name}`}
+                <br/>
+                {`Note:`}    
+                <Form.Control type="text" onChange={setSelectedRequestNote} defaultValue={selectedRequestNote} />          
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="secondary" onClick={handleClose}>
+            <Button variant="secondary" onClick={handleClose}>
                     Cancel
                 </Button>
-                <Button variant="success" onClick={handleDelete}>
-                    Completed
+                <Button variant="success" onClick={handleSave}>
+                    Save
+                </Button>                
+                <Button variant="danger" onClick={handleDelete}>
+                    Delete
                 </Button>
             </Modal.Footer>
         </Modal>
