@@ -183,6 +183,7 @@ const ProfileScreen = () => {
             <b>PLEASE double click the Update button to SAVE</b>  
               
             {isUpdating && <Loader />}  
+            <br/>
             <Button type='submit' variant="primary" className="mt-3">
                 Update 
             </Button>     

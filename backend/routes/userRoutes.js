@@ -3,7 +3,6 @@ const router = express.Router()
 import { authUser,
     registerUser,
     logoutUser,
-    getUserProfile,
     updateUserProfile,
     requestDino,
     fetchPending,
@@ -11,6 +10,7 @@ import { authUser,
     eventCreate,
     eventUpdate,
     eventsByFilter,
+    getUserProfiles,
     fetchPendingByFilter } from "../controllers/userControllers.js"
 import { protect } from "../middleware/authMiddleware.js"
 
@@ -26,7 +26,8 @@ router.put("/updateRequest", updateRequest)
 router.post("/eventCreate", eventCreate)
 router.put("/eventUpdate", eventUpdate)
 router.put("/eventsByFilter", eventsByFilter)
-router.route('/profile').get(protect, getUserProfile).put(updateUserProfile)
+router.get("/profiles/:global_name", getUserProfiles)
+router.route('/profile').put(updateUserProfile)
 // TODO ADD PROTECT back in
 
 

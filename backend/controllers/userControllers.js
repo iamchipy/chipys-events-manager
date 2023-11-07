@@ -5,7 +5,9 @@ import generateToken from '../utils/generateToken.js'
 import Event from '../models/eventModel.js'
 
 // variables for standard
-const INCOMPLETE_STATES = {$nin:["Completed","DeletedByUser"]}
+// Is is stored here AND a frontend copy in "FilterPresets.jsx"
+const INCOMPLETE_STATES = {$nin:["Completed","DeletedByUser","DeletedByBreeder"]}
+
 
 // @desc        Auth user get/set token
 // route        POST /api/users/auth
@@ -111,7 +113,22 @@ const eventsByFilter = asyncHandler(async (req, res) => {
 // route        PUT /api/users/eventUpdate
 // @access      Private
 const eventUpdate = asyncHandler(async (req, res) => {
+    console.warn(req.body._id)
+    console.warn("RECEIVED EVENT UPDATE VALUES")
+    console.warn(req.body)
 
+    // first fetch user
+    await Event.findOneAndUpdate({_id:req.body._id},req.body.updatedValue)
+        .then(result=>{
+            // console.warn(result)
+            if ("error" in result) {
+                res.status(400).json("unknown error when updating event ")
+            }else{
+                res.status(202).json(result)
+            }
+        }).catch(err => {
+            res.status(501).json(err)
+        })
 })
 
 // @desc        Creates a new event
@@ -150,13 +167,40 @@ const logoutUser = asyncHandler(async (req, res) => {
     res.status(200).json({message: "Logout successful"})
 })
 
-// @desc        Get user profile
-// route        GET /api/users/profile
+// @desc        Get multiple user profiles
+// route        GET /api/users/profiles/:global_name
 // @access      Private
-const getUserProfile = asyncHandler(async (req, res) => {
-    console.log(req.body.userInfo)
-    const user = await User.findOne({id:req.body.id})
-    res.status(200).json(user)
+const getUserProfiles = asyncHandler(async (req, res) => {
+    console.warn("userSEARCHING:")
+    try {
+        const filter = {global_name: RegExp(req.params.global_name, "i")}
+        console.info(filter)
+
+    
+    
+        await User.find(filter)
+            .then(result => {
+                // console.log("result:")
+                // console.log(result)
+                if ("error" in result){
+                    console.error("getUserProfiles ERROR")
+                    console.error(result.error)
+                    res.status(501).json(result.error)
+                }
+                // console.log("result")
+                // console.log(result)
+                // console.log(result[0])
+                if (result.length < 1){
+                    console.log("404")
+                    res.status(404).json("Message: No matching users found.")
+                }else{
+                    console.log(`Found ${result.length} matches`)
+                    res.status(200).json({data:result, error: null})
+                }
+            })
+    }catch (err) {
+        console.error(err)
+    }
 })
 
 // @desc        Update/change profile
@@ -304,7 +348,6 @@ export {
     authUser,
     registerUser,
     logoutUser,
-    getUserProfile,
     updateUserProfile,
     requestDino,
     fetchPending,
@@ -312,5 +355,7 @@ export {
     fetchPendingByFilter,
     eventCreate,
     eventUpdate,
-    eventsByFilter
+    eventsByFilter,
+    getUserProfiles,
+
 }

@@ -23,14 +23,7 @@ export const usersApliSplice = apiSlice.injectEndpoints({
                 method: 'PUT',
                 body: data
             })
-        }), 
-        getProfile: builder.mutation({
-            query: () => ({
-                url: `${USERS_URL}/profile`,
-                method: 'GET'
-            })
-        }),          
-              
+        }),               
         logout: builder.mutation({
             query: () => ({
                 url: `${USERS_URL}/logout`,
@@ -85,7 +78,19 @@ export const usersApliSplice = apiSlice.injectEndpoints({
                 method: 'PUT',
                 body: data
             })                 
-        }),                                                               
+        }),
+        // getProfile: builder.mutation({
+        //     query: () => ({
+        //         url: `${USERS_URL}/profile`,
+        //         method: 'GET'
+        //     })
+        // }),   
+        getProfiles: builder.query({
+            query: (global_name) => ({
+                url: `${USERS_URL}/profiles/${global_name}`,
+                method: 'GET',
+            }) 
+        }),                                                                           
     })
 })
 
@@ -97,7 +102,7 @@ export const {
     useRequestMutation,
     useFetchPendingMutation,
     useUpdateRequestMutation,
-    useGetProfileMutation,
+    // useGetProfilesQuery,
     useEventUpdateMutation,
     useEventCreateMutation,
     useEventsByFilterMutation,

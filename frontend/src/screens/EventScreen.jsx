@@ -5,24 +5,28 @@ import { useSelector} from 'react-redux'
 import { toast } from "react-toastify";
 import { useEventUpdateMutation,
          useEventCreateMutation, 
-         useEventsByFilterMutation } from "../slices/userApiSlice";
+         useEventsByFilterMutation,
+         useFetchPendingByFilterMutation } from "../slices/userApiSlice";
 import dinoNames from "../assets/dinoNames";
 import { Typeahead } from "react-bootstrap-typeahead"
 import moment from "moment";
 import Loader from "../components/Loader";
 import GuildDisplayName from "../components/DiscordGuildName";
+import {INCOMPLETE_STATES} from "../components/FilterPresets"
 
 const EventScreen = () => {
 
     // Define constants for later
-    const guildDisplayName = GuildDisplayName(userInfo)
+    
     const [eventUpdate, {isUpdating}] = useEventUpdateMutation()
+    const [fetchPendingByFilter] = useFetchPendingByFilterMutation()     
     const [eventCreate, {isCreating}] = useEventCreateMutation()
     const [eventsByFilter, {isLoading}] = useEventsByFilterMutation()
     const [listItems, setListItems] = useState([]);    
     const [selectedEvent, setSelectedEvent] = useState([]);    
     const [dinoSelection, setDinoSelection] = useState([]);
     const [multiSelections, setMultiSelections] = useState([]);    
+    const [totalPendingCount, setTotalPendingCount] = useState([0]);  
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);    
@@ -33,38 +37,35 @@ const EventScreen = () => {
         note:"Event notes...",
         time:userInfo.timeOpen,
         date:"today",
-        host:userInfo.global_name
+        host:userInfo.global_name,
+        capacity:1,
     })
+    const guildDisplayName = GuildDisplayName(userInfo)
+    
 
   // response to new request button
     const refreshFiltered = async (e) => {
-        e.preventDefault()
+        // e.preventDefault()
 
         // Set the filter baseline
-        let filter = {
-            status: {$nin:["Completed","DeletedByUser"]},
+        let filterForPendingEvents = {
+            status: INCOMPLETE_STATES,
             "guild.id":  userInfo.guild,
-            global_name: userInfo.global_name
-        }
-
-        // if the user is a breeder we remove the user limit
-        if (userInfo.role === "breeder") {
-            delete filter.global_name
         }
 
         // if the user is selecting mutliple dinos we add in the dino filter
         if (multiSelections.length > 0){
-            filter = {
-                ...filter,
+            filterForPendingEvents = {
+                ...filterForPendingEvents,
                 dino:multiSelections,
             }            
         }
 
-        console.info("Filter:")
-        console.info(filter)
-        eventsByFilter({ filter }).then(res => {
+        console.info("filterForPendingEvents:")
+        console.info(filterForPendingEvents)
+        eventsByFilter({ filter: filterForPendingEvents}).then(res => {
             if ("error" in res && res.error.status === 404){
-                toast.error(`Waiting list appears to be empty`)
+                toast.warn(`No sheduled events`)
             }else{
                 setListItems(res.data); 
             }
@@ -86,19 +87,67 @@ const EventScreen = () => {
     // delete handler
     const handleDelete = async () => {
         // Handle the delete operation here
-        toast.success(`${selectedEvent.global_name} has received ${selectedEvent.dino}`);
+
+        if (userInfo.role !== "breeder"){
+            toast.warn("Sorry only breeders can delete Events")
+            return
+        }
+        
         handleClose();
         const updatedValue = {
-            status: "Completed"
+            status: "DeletedByBreeder"
         }
-        await updateRequest({ selectedRequest: selectedEvent, updatedValue })
-        refreshFiltered()    
+        console.warn("selectedEvent._id")
+        console.info(selectedEvent._id)
+
+        await eventUpdate({ _id: selectedEvent._id, updatedValue }).then(res=>{
+            console.log(res.data)
+            toast.success(`${selectedEvent._id} has been deleted.`);
+            refreshFiltered() 
+        }).catch(err=>{toast.error(err)})
+        
+           
     };
 
 
     useEffect(() => {
         console.log("THIS SHOULD TRIGGER ONCE")
     }, [])
+
+    // Here we update the badge with a count of pending dinos of selected type
+    useEffect(() => {
+        console.log("THIS RUNS WHEN DINO CHANGES")
+        // Set the filter
+        let filterForPendingCheck = {
+            status: INCOMPLETE_STATES,
+            "guild.id":  userInfo.guild,
+        }
+
+        // if the user is selecting mutliple dinos we add in the dino filter
+        if (dinoSelection.length > 0){
+            filterForPendingCheck = {
+                ...filterForPendingCheck,
+                dino:dinoSelection[0],
+            }            
+        }
+
+        console.info("filterForPendingCheck:")
+        console.info(filterForPendingCheck)
+        fetchPendingByFilter({filter:filterForPendingCheck} ).then(res => {
+            if ("error" in res && res.error.status === 404){
+                toast.warn(`No dinos of that type have been requested`)
+                setTotalPendingCount("0")
+            }else{
+                // console.warn("res.data"); 
+                // console.log(res.data); 
+                setTotalPendingCount(res.data.length)
+            }
+        }).catch(err=>{
+            console.error(err)
+        })
+        
+    }, [dinoSelection])    
+    
 
     // custom handler that pumps out setStates as needed by overwriting
     // existing form date with whatever the new input was
@@ -120,12 +169,21 @@ const EventScreen = () => {
     const submitHandler = async (e) => {
         e.preventDefault()
 
+        // Debug
         console.warn("FORM DATA")
-        console.log(formData)
+        console.log(formData)        
+
+        // if the user is a breeder we remove the user limit
+        if (userInfo.role !== "breeder"){
+            toast.error("Only breeders can make events!")
+            return
+        }
+
 
         let dateTime = moment(formData.date+" "+formData.startTime, 'YYYY-MM-DD HH:mm').valueOf()
         const data = {
             id: userInfo.id,
+            global_name: userInfo.global_name,
             guild: userInfo.guilds[userInfo.guild],
             startTime: dateTime,
             dino: dinoSelection[0],
@@ -154,7 +212,7 @@ const EventScreen = () => {
                 <Button variant="secondary" onClick={handleClose}>
                     Cancel
                 </Button>
-                <Button variant="success" disabled={true} onClick={handleDelete}>
+                <Button variant="success" onClick={handleDelete}>
                     Completed
                 </Button>
             </Modal.Footer>
@@ -192,8 +250,8 @@ const EventScreen = () => {
                                 <div className="fw-bold">
                                     <img width="55" src={`https://www.dododex.com/media/creature/${item.dino.toLowerCase()}.png`} />
                                     {item.dino}
-                                    <Badge bg="primary" pill>
-                                    1
+                                    <Badge bg="secondary" pill>
+                                        {item.capacity}
                                     </Badge>                                
                                 </div>
                                 {`Date: ${item.updatedAt.substring(0,10)} (${item.status})`}
@@ -214,7 +272,12 @@ const EventScreen = () => {
             <h1>Create Event</h1>
             <Form onSubmit={submitHandler}>
                 <Form.Group className="mt-3">
-                    <Form.Label>Select Dino</Form.Label>
+                    <Form.Label>
+                        Select Dino 
+                        <Badge bg="primary" pill>
+                            {totalPendingCount}
+                        </Badge>     
+                    </Form.Label>                 
                     <Typeahead
                         id="Dino-Selector"
                         labelKey="dinoSearch"
@@ -223,6 +286,7 @@ const EventScreen = () => {
                         options={dinoNames}
                         placeholder="Select Dino"
                         selected={dinoSelection}
+                        clearButton
                     />
                     <Form.Label>Select Day</Form.Label>
                     <Form.Control
@@ -258,13 +322,20 @@ const EventScreen = () => {
                         onChange={handleChangeEvents}
                         defaultValue={formData.host}
                     />                      
+                    <Form.Label>Claim Capacity</Form.Label>
+                    <Form.Control 
+                        type="number"
+                        name="capacity"
+                        onChange={handleChangeEvents}
+                        defaultValue={formData.capacity}
+                    />    
                     <Form.Label>Note \ Comment</Form.Label>
                     <Form.Control 
                         type="text"
                         name="note"
                         onChange={handleChangeEvents}
                         defaultValue={formData.note}
-                    />                                           
+                    />                                                               
                 </Form.Group>                            
                 {isCreating && <Loader />}  
                 {isUpdating && <Loader />}  
