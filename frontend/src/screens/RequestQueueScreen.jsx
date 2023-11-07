@@ -112,16 +112,24 @@ function RequestQueueScreen() {
     
     // delete handler
     const handleDelete = async () => {
-        // Handle the delete operation here
-        toast.success(`${selectedRequest.global_name} has received ${selectedRequest.dino}`);
         handleClose();
+        // Handle the delete operation here
+        
+        if (selectedRequest.id !== userInfo.id && userInfo.role !== "Breeder"){
+            toast.warn("Sorry only breeders can delete other's requests")
+            return
+        }
+
         const updatedValue = {
             status: "Completed"
         }
-        await updateRequest({ selectedRequest, updatedValue })
+        await updateRequest({ selectedRequest, updatedValue }).then(result=>{
+            if (result.error === null){
+                toast.success(`${selectedRequest.global_name} has received ${selectedRequest.dino}`);
+            }
+        })
         refreshFiltered()    
     };
-
 
   return (
     <>
@@ -144,7 +152,7 @@ function RequestQueueScreen() {
     
         <FormContainer>  
             <h1>Waiting List</h1>
-            <h5>{guildDisplayName}</h5>
+            <h5>{guildDisplayName} ({userInfo.role})</h5>
             <Form.Group className="mt-3">
                 <Typeahead
                     id="Dino-Selector"
@@ -156,31 +164,33 @@ function RequestQueueScreen() {
                     placeholder="Filter By Dino"
                     selected={filterDinoSelections}
                 />
-                <AsyncTypeahead
-                    filterBy={filterBypass}
-                    id="User-Selector"
-                    isLoading={userSearching}
-                    labelKey="global_name"
-                    minLength={3}
-                    onSearch={handleUserSearch}
-                    onChange={setFilterUserSelection}
-                    options={userList}
-                    placeholder="Filter By User"
-                    renderMenuItemChildren={(userItem) => (
-                        <>
-                        <img
-                            alt={userItem.global_name}
-                            src={`https://cdn.discordapp.com/avatars/${userItem.id}/${userItem.avatar}`}
-                            style={{
-                            height: '24px',
-                            marginRight: '10px',
-                            width: '24px',
-                            }}
-                        />
-                        <span>{userItem.global_name}</span>
-                        </>
-                    )}                    
-                />                
+                {userInfo.role === "breeder" &&
+                    <AsyncTypeahead
+                        filterBy={filterBypass}
+                        id="User-Selector"
+                        isLoading={userSearching}
+                        labelKey="global_name"
+                        minLength={3}
+                        onSearch={handleUserSearch}
+                        onChange={setFilterUserSelection}
+                        options={userList}
+                        placeholder="Filter By User"
+                        renderMenuItemChildren={(userItem) => (
+                            <>
+                            <img
+                                alt={userItem.global_name}
+                                src={`https://cdn.discordapp.com/avatars/${userItem.id}/${userItem.avatar}`}
+                                style={{
+                                height: '24px',
+                                marginRight: '10px',
+                                width: '24px',
+                                }}
+                            />
+                            <span>{userItem.global_name}</span>
+                            </>
+                        )}                    
+                    /> 
+                }               
             </Form.Group>             
             
             <Form >

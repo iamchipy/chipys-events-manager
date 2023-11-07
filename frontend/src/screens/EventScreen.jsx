@@ -87,13 +87,13 @@ const EventScreen = () => {
     // delete handler
     const handleDelete = async () => {
         // Handle the delete operation here
+        handleClose();
 
         if (userInfo.role !== "breeder"){
             toast.warn("Sorry only breeders can delete Events")
             return
         }
         
-        handleClose();
         const updatedValue = {
             status: "DeletedByBreeder"
         }
