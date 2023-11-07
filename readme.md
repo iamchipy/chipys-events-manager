@@ -11,7 +11,8 @@ This MERN Stack webapp is designed to help ARK mega-tribe breeders manager the d
 
 3. Once you've done that you are ready to request Dinos (from the Requests page)!
 ![image](https://github.com/iamchipy/chipys-breeding-manager/assets/1663877/0ee2b50d-56d8-4ef8-a684-6fd8d8c79e00)
-
+4. Waiting List then shows you pending dinos and you can filter the list by user/dino
+![image](https://github.com/iamchipy/chipys-breeding-manager/assets/1663877/f81240d1-81ac-4c71-80d1-ec82c5e217bc)
 
 
 # Roadmap
