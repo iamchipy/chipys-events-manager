@@ -27,18 +27,8 @@ function RequestScreen() {
 
     // update function to keep the page dynamic
     useEffect(() => {
-        async function fetchData() {
-            const result = await fetchPending({ userInfo })
-            setListItems(result.data);
-        }
-        // update list
-        try{
-            fetchData()
-        }catch (err){
-            console.warn("Trouble fetching pending dino request history:")
-            console.warn(err)
-        }        
-    }, [fetchPending,userInfo]);
+        refreshList()
+    }, [multiSelections]);
 
   // response to new request button
     const requestHandler = async (e) => {
@@ -49,16 +39,50 @@ function RequestScreen() {
             toast.error("Please log in")
         }else{
             // if we have something selected to add
-            if (multiSelections !== ""){
+            if (multiSelections != ""){
                 toast.info(`Requesting... ${multiSelections}`)
                 // console.log(typeof multiSelections)
-                await requestDino({ multiSelections, userInfo })
-            }            
-        }  
-        const result = await fetchPending({ userInfo })
-        setListItems(result.data);             
+                requestDino({ multiSelections, userInfo })
+                    .then(result=>{
+                        refreshList()
+                        // console.warn(result)
+                        if ("error" in result){
+                            if (result.error.status === 412){
+                                console.log("duplicate request made, no action to take")
+                                console.warn(result?.error?.data?.message)
+                                toast.warn(result?.error?.data?.message)
+                                return
+                            // }else if (result.error.status === 400){ REMOVED IN FAVOUR OF CATCHING EARLIER
+                            //     console.log("blank request made, no action to take")
+                            //     toast.info("Blank request list")
+                            //     return
+                            }                            
+                            console.error("requestHandler>requestDino>")
+                        }
+                    }).catch(error=>console.error(error))
+            }else{
+                toast.info("Blank request list")
+                refreshList()
+            }     
+        }             
     }
 
+    const refreshList = () => {
+        console.info("refreshing")
+        fetchPending({ userInfo })
+            .then(result=>{
+                // console.warn(result)
+                if ("error" in result){
+                    if (result.error.status === 404){
+                        toast.warn("No pending requests found")
+                        return
+                    }
+                    console.error("refreshList>fetchPending>")
+                }else{
+                    setListItems(result.data); 
+                }
+            }).catch(error=>console.error(error))
+    }
     // Click options 
     const optionsHandler = async (event, clickedRequest) => {
         event.preventDefault()
@@ -70,15 +94,18 @@ function RequestScreen() {
     
     // delete handler
     const handleDelete = async () => {
-      // Handle the delete operation here
-      toast.success(`${selectedRequest.dino} request deleted`);
-      handleClose();
-      const updatedValue = {
-        status: "DeletedByUser"
-      }
-      await updateRequest({ selectedRequest, updatedValue })
-      const result = await fetchPending({ userInfo })
-      setListItems(result.data);      
+        // Handle the delete operation here
+        toast.success(`${selectedRequest.dino} request deleted`);
+        handleClose();
+        const updatedValue = {
+            status: "DeletedByUser"
+        }
+        updateRequest({ selectedRequest, updatedValue })
+            .then(result=>{
+                if (!("error" in result)){
+                    refreshList()
+                }
+            })
     };
 
 
@@ -120,7 +147,7 @@ function RequestScreen() {
                                 </div>
                                 {`Date: ${item.updatedAt.substring(0,10)} (${item.status})`}
                                 <br/>
-                                {`Tribe: ${item.guild.name} `}
+                                {`Tribe: ${item.guild.name}`}
                                 </div>
                             
                             </ListGroup.Item>

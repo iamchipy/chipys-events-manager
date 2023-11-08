@@ -23,21 +23,21 @@ const OAuthScreen = () => {
 
     // once we have tokens this function does a double promise to get user AND guilds info
     // We then safe the info and register the user
-    const fetchUserAll = (tokenType,accessToken) => {
+    const fetchDiscordInfo = (tokenType,accessToken) => {
         if (tokenType === undefined || accessToken === undefined) {
             console.log(`Invalid Token/Access skipping discord fetch`);
             return false
         }else{
             console.log(`${tokenType} -- ${accessToken}`);
-            console.log(`Fetching All Started`);
+            console.log(`Fetching Discord Info Started`);
         }
         
         const headers = {authorization: `${tokenType} ${accessToken}`}
         Promise.all([fetch('https://discord.com/api/users/@me', {headers}),
                      fetch('https://discord.com/api/users/@me/guilds', {headers})])
         .then(function (responses) {
-            return Promise.all(responses.map(function (res) {
-                return res.json()
+            return Promise.all(responses.map(function (result) {
+                return result.json()
             }))
         }).then(function (data) {
             // HERE is where we land when a user has successfully logged in and we have data
@@ -55,16 +55,17 @@ const OAuthScreen = () => {
             toast.success(`Welcome ${fetchedUser.global_name}`)
 
             
-            registerUser(fetchedUser).then(res=>{
+            registerUser(fetchedUser).then(result=>{
+
                 toast.info(`Fetching profile data . . . `)
                 // rename for readability
-                const profile = res.data
-                // console.warn(JSON.stringify(res.data))
-                dispatch(setCredentials(res.data))
-                // currently working here to first verify if we are loading guild from DB
+                const profile = result.data.user
+                console.warn(result)
 
                 console.log("Full Profile")
                 console.info(profile)
+
+                dispatch(setCredentials(profile))
 
                 // // report guild's info
                 // console.log(`"guild" in profile  ${"guild" in profile  }`)
@@ -79,10 +80,8 @@ const OAuthScreen = () => {
                 // console.log(`profile.guild in profile.guilds  ${profile.guild in profile.guilds  }`)
                 // console.log(`profile.guilds[profile.guild]  ${profile.guilds[profile.guild]  }`)
                 // console.log(`profile.guilds[profile.guild].name  ${profile.guilds[profile.guild].name  }`)
-
-
      
-                if ("guild" in res.data  &&  
+                if ("guild" in profile  &&  
                     profile.guild !== "0" &&
                     profile.guild in profile.guilds) {
                     // console.info(res.data.guilds[res.data.guild])
@@ -100,7 +99,7 @@ const OAuthScreen = () => {
     // Handle the initial sign in request but only run once
     useEffect(() => {
         if (!hasRunOnce.current){
-            fetchUserAll(tokenType, accessToken)
+            fetchDiscordInfo(tokenType, accessToken)
             hasRunOnce.current = true
         }
 
@@ -110,9 +109,9 @@ const OAuthScreen = () => {
     // Handle redirects once we have user info
     useEffect(() => {
         // redirect if signed in
-        if (userInfo) {
-            navigate('/home')
-        }
+        // if (userInfo) {
+        //     navigate('/home')
+        // }
     }, [navigate, userInfo])    
 
     return (

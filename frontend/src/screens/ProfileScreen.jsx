@@ -69,15 +69,23 @@ const ProfileScreen = () => {
                 timeClose: moment(formData.timeClose, 'HH:mm').valueOf(),
                 ...formData,})
                 .then(res => {
-                    toast.info(`${res.data.global_name}'s profile has been updated`)
+                    if (res.data.error ===null){
+                        const profile = res.data.user
+                        console.warn("Modified profile:")
+                        console.log(profile)
+                        toast.info(`${profile.global_name}'s profile has been updated`)
 
-                    dispatch(setCredentials(res.data))
-                    // SOMETHING is funky here causing AUTH Redux maybe to fail being over written
-                    console.warn("Response value")
-                    console.log(res.data)
+                        dispatch(setCredentials(profile))
+                        // SOMETHING is funky here causing AUTH Redux maybe to fail being over written
+
+                    }else{
+                        console.error((res.error?.data?.message || res.error.error))
+                    }
+
                 })
         }catch (err){
             toast.error((err?.data?.message || err.error))
+            console.error((err?.data?.message || err.error))
         }
     }
 

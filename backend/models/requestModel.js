@@ -13,7 +13,11 @@ const requestSchema = mongoose.Schema({
     dino: {
         type: String,
         required: [true, "Required"],
-        index: true
+        index: true,
+        default: {
+            name: "default",
+            id: ""
+        }
     },        
     timezone: {
         type: Number,

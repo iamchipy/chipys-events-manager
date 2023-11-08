@@ -70,15 +70,23 @@ function RequestQueueScreen() {
 
         // console.info("Filter:")
         // console.info(filter)
-        fetchPendingByFilter({ filter }).then(res => {
-            if ("error" in res && res.error.status === 404){
-                toast.warn(`Waiting list appears to be empty`)
-                setListItems([]); 
-            }else{
-                setListItems(res.data); 
+        fetchPendingByFilter({ filter }).then(result => {
+            // console.warn(result)
+            if ("error" in result){
+                // console.warn(result)
+                // console.warn(result.error.status)
+                if ("error" in result && result.error.status === 404){
+                    toast.warn(`Waiting list appears to be empty`)
+                    setListItems([]); 
+                    return
+                }else{
+                    console.warn("THIS SHOULD NEVER HAPPEN #1")
+                    return
+                }
             }
+            setListItems(result.data); 
         }).catch(err=>{
-            console.error(err)
+            console.error(`unknown error 2:${err}`)
         })
             
     }
@@ -91,19 +99,22 @@ function RequestQueueScreen() {
         setUserSearching(true)
         // console.info(`userSearch('${query}')`)
         
+        // since this is using "fetch()" it'll pull data a little differently to other APIs
         fetch(`api/users/profiles/${query}`)
             .then(response => response.json())
             .then(result => {
+                //TODO UPDATE HERE MAYBE
                 // console.warn("result")
-                // console.info(result.data)
-                if (result.error !== null || result.data.length < 1){
+                // console.info(result)
+                if ("error" in result || result.length < 1){
                     // do nothing and keep console clear for clutter sake
                     // console.error("result.error")
                     // console.error(result.error)
                     setUserList([])
                 }else{
+                    // console.warn("HERE")
                     setUserSearching(false)    
-                    setUserList(result.data)
+                    setUserList(result)
                 }
             }).catch(e=>console.error(e))
     }
@@ -111,7 +122,6 @@ function RequestQueueScreen() {
     // Click options 
     const optionsHandler = async (event, clickedRequest) => {
         event.preventDefault()
-
         // toast.info(`${clickedItem.dino} was clicked`)
         setSelectedRequest(clickedRequest)
         setSelectedRequestNote(clickedRequest.note)
@@ -135,7 +145,7 @@ function RequestQueueScreen() {
             status: "Completed"
         }
         await updateRequest({ selectedRequest, updatedValue }).then(result=>{
-            if (result.error === null){
+            if ("error" in result){
                 toast.success(`${selectedRequest.global_name} has received ${selectedRequest.dino}`);
             }
         })
@@ -147,14 +157,13 @@ function RequestQueueScreen() {
             note : selectedRequestNote.target.value,
         }
 
-        updateRequest({selectedRequest, updatedValue}).then(res=>{
-            if ("error" in res){
-                toast.error("Something went wrong")
-                
-            }else{
+        updateRequest({selectedRequest, updatedValue}).then(result=>{
+            if ("error" in result){
                 toast.success("Request note saved!")
                 handleClose();
-                refreshFiltered()                   
+                refreshFiltered()  
+            }else{
+                toast.error("Something went wrong")
             }
         })
         

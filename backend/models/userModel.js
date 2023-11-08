@@ -16,7 +16,7 @@ const userSchema = mongoose.Schema({
     },
     guild: {
         type: String,    
-        default: 0   
+        default: ""   
     },    
     guilds: {
         type: mongoose.Schema.Types.Mixed,   
