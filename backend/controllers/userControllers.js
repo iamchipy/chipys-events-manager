@@ -56,7 +56,7 @@ const registerUser = asyncHandler(async (req, res) => {
         console.log("Attempting to update user")
         updatedUserValues = await User.findOneAndUpdate(userFilter, req.body)
             .then(result => {
-                if (result.error){
+                if ("error" in result){
                     console.log("result.error")
                     console.log(result.error)
                     result.status(400)
@@ -65,7 +65,7 @@ const registerUser = asyncHandler(async (req, res) => {
                 console.log(`${result.global_name} profile updated`)
                   
                 generateToken(res, result.id)  
-                res.status(200).json(user)            
+                res.status(200).json(result)            
             }).catch( e=> {console.error(e)})
     }else{
         console.log("Attempting to create new user")

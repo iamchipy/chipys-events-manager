@@ -59,7 +59,7 @@ const OAuthScreen = () => {
 
                 toast.info(`Fetching profile data . . . `)
                 // rename for readability
-                const profile = result.data.user
+                const profile = result.data
                 console.warn(result)
 
                 console.log("Full Profile")

@@ -35,7 +35,11 @@ const userSchema = mongoose.Schema({
     global_name: {
         type: String,     
         default: "unregistered"     
-    },       
+    },    
+    username: {
+        type: String,     
+        default: "unregistered"     
+    },           
     locale: {
         type: String,       
     },     
