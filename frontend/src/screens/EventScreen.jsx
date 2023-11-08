@@ -27,6 +27,7 @@ const EventScreen = () => {
     const [dinoSelection, setDinoSelection] = useState([]);
     const [multiSelections, setMultiSelections] = useState([]);    
     const [totalPendingCount, setTotalPendingCount] = useState([0]);  
+    const [selectedEventNote, setSelectedEventNote] = useState();  
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);    
@@ -42,9 +43,48 @@ const EventScreen = () => {
     })
     const guildDisplayName = GuildDisplayName(userInfo)
     
+    // trigger update on filter change
+    useEffect(() => {
+        refreshFiltered()
+    }, [multiSelections]);
 
-  // response to new request button
-    const refreshFiltered = async (e) => {
+    // Here we update the badge with a count of pending dinos of selected type
+    useEffect(() => {
+        // console.log("THIS RUNS WHEN DINO CHANGES")
+        // Set the filter
+        let filterForPendingCheck = {
+            status: INCOMPLETE_STATES,
+            "guild.id":  userInfo.guild,
+        }
+
+        // if the user is selecting mutliple dinos we add in the dino filter
+        if (dinoSelection.length > 0){
+            filterForPendingCheck = {
+                ...filterForPendingCheck,
+                dino:dinoSelection[0],
+            }            
+        }
+
+        // console.info("filterForPendingCheck:")
+        // console.info(filterForPendingCheck)
+        fetchPendingByFilter({filter:filterForPendingCheck} ).then(res => {
+            if ("error" in res && res.error.status === 404){
+                toast.warn(`No dinos of that type have been requested`)
+                setTotalPendingCount("0")
+            }else{
+                // console.warn("res.data"); 
+                // console.log(res.data); 
+                setTotalPendingCount(res.data.length)
+            }
+        }).catch(err=>{
+            console.error(err)
+        })
+        
+    }, [dinoSelection])    
+
+
+    // refresh the list of events
+    const refreshFiltered = async () => {
         // e.preventDefault()
 
         // Set the filter baseline
@@ -61,93 +101,21 @@ const EventScreen = () => {
             }            
         }
 
-        console.info("filterForPendingEvents:")
-        console.info(filterForPendingEvents)
-        eventsByFilter({ filter: filterForPendingEvents}).then(res => {
-            if ("error" in res && res.error.status === 404){
-                toast.warn(`No sheduled events`)
-            }else{
-                setListItems(res.data); 
-            }
-        }).catch(err=>{
-            console.error(err)
-        })
+        // console.info("filterForPendingEvents:")
+        // console.info(filterForPendingEvents)
+        eventsByFilter({ filter: filterForPendingEvents})
+            .then(res => {
+                if ("error" in res && res.error.status === 404){
+                    toast.warn(`No sheduled events`)
+                    setListItems([]); 
+                }else{
+                    setListItems(res.data); 
+                }
+            }).catch(err=>{
+                console.error(err)
+            })
             
     }
-
-    // Click options 
-    const optionsHandler = async (event, clickedRequest) => {
-        event.preventDefault()
-
-        // toast.info(`${clickedItem.dino} was clicked`)
-        setSelectedEvent(clickedRequest)
-        handleShow()
-    }
-    
-    // delete handler
-    const handleDelete = async () => {
-        // Handle the delete operation here
-        handleClose();
-
-        if (userInfo.role !== "breeder"){
-            toast.warn("Sorry only breeders can delete Events")
-            return
-        }
-        
-        const updatedValue = {
-            status: "DeletedByBreeder"
-        }
-        console.warn("selectedEvent._id")
-        console.info(selectedEvent._id)
-
-        await eventUpdate({ _id: selectedEvent._id, updatedValue }).then(res=>{
-            console.log(res.data)
-            toast.success(`${selectedEvent._id} has been deleted.`);
-            refreshFiltered() 
-        }).catch(err=>{toast.error(err)})
-        
-           
-    };
-
-
-    useEffect(() => {
-        console.log("THIS SHOULD TRIGGER ONCE")
-    }, [])
-
-    // Here we update the badge with a count of pending dinos of selected type
-    useEffect(() => {
-        console.log("THIS RUNS WHEN DINO CHANGES")
-        // Set the filter
-        let filterForPendingCheck = {
-            status: INCOMPLETE_STATES,
-            "guild.id":  userInfo.guild,
-        }
-
-        // if the user is selecting mutliple dinos we add in the dino filter
-        if (dinoSelection.length > 0){
-            filterForPendingCheck = {
-                ...filterForPendingCheck,
-                dino:dinoSelection[0],
-            }            
-        }
-
-        console.info("filterForPendingCheck:")
-        console.info(filterForPendingCheck)
-        fetchPendingByFilter({filter:filterForPendingCheck} ).then(res => {
-            if ("error" in res && res.error.status === 404){
-                toast.warn(`No dinos of that type have been requested`)
-                setTotalPendingCount("0")
-            }else{
-                // console.warn("res.data"); 
-                // console.log(res.data); 
-                setTotalPendingCount(res.data.length)
-            }
-        }).catch(err=>{
-            console.error(err)
-        })
-        
-    }, [dinoSelection])    
-    
 
     // custom handler that pumps out setStates as needed by overwriting
     // existing form date with whatever the new input was
@@ -165,6 +133,48 @@ const EventScreen = () => {
             [event.target.name]: event.target.value
         })
     }
+
+    // show the selected item info/options 
+    const optionsHandler = async (event, clickedEvent) => {
+        event.preventDefault()
+
+        // console.log(clickedEvent)
+        // toast.info(`${clickedItem.dino} was clicked`)
+        setSelectedEvent(clickedEvent)
+        setSelectedEventNote(clickedEvent.note)
+        handleShow()
+    }
+    
+    // delete handler
+    const handleDelete = async () => {
+        // Handle the delete operation here
+        
+
+        if (userInfo.role !== "breeder"){
+            toast.warn("Sorry only breeders can delete Events")
+            return
+        }
+        
+        const updatedValue = {
+            status: "DeletedByBreeder"
+        }
+        console.warn("selectedEvent._id")
+        console.info(selectedEvent._id)
+
+        await eventUpdate({ _id: selectedEvent._id, updatedValue })
+            .then(result=>{
+                if ("error" in result){
+                    toast.error("Something went wrong!")
+                }else{
+                    console.log("eventUpdate=>res.data")
+                    console.log(result.data)
+                    toast.success(`${selectedEvent._id} has been deleted.`);
+                }
+                refreshFiltered() 
+            }).catch(err=>{toast.error(err)})
+        
+        handleClose();
+    };
 
     const submitHandler = async (e) => {
         e.preventDefault()
@@ -196,24 +206,52 @@ const EventScreen = () => {
         await eventCreate(data).then(res=>{
                 toast.success(`${res.data.dino} event created`)
                 console.warn(res)
+                refreshFiltered()
             })
     }
+
+    const handleSave = async () => {
+        const updatedValue = {
+            note : selectedEventNote.target.value,
+        }
+
+        console.warn(selectedEvent)
+        console.warn(updatedValue)
+
+        eventUpdate({event:selectedEvent, updatedValue}).then(result=>{
+            if ("error" in result){
+                toast.error("Something went wrong")
+            }else{
+                toast.success("Event note saved!")
+                handleClose();
+                refreshFiltered()  
+            }
+        })
+    };  
 
     return (
     <>
         <Modal show={show} onHide={handleClose}>
             <Modal.Header closeButton>
-                <Modal.Title>Confirm Deletion</Modal.Title>
+                <Modal.Title>Modify Request</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                {`${selectedEvent.dino} requested by ${selectedEvent.global_name}, done?`}
+                {`Dino: ${selectedEvent.dino}`}
+                <br/>
+                {`User: ${selectedEvent.global_name}`}
+                <br/>
+                {`Note:`}    
+                <Form.Control type="text" onChange={setSelectedEventNote} defaultValue={selectedEventNote} />          
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="secondary" onClick={handleClose}>
+            <Button variant="secondary" onClick={handleClose}>
                     Cancel
                 </Button>
-                <Button variant="success" onClick={handleDelete}>
-                    Completed
+                <Button variant="success" onClick={handleSave}>
+                    Save
+                </Button>                
+                <Button variant="danger" onClick={handleDelete}>
+                    Delete
                 </Button>
             </Modal.Footer>
         </Modal>
@@ -237,13 +275,13 @@ const EventScreen = () => {
             
             <Form >
                 {isLoading && <Loader />}                                  
-                <Button onClick={refreshFiltered} variant="primary" className="mt-3">
+                {/* <Button onClick={refreshFiltered} variant="primary" className="mt-3">
                     Refresh Queue 
-                </Button>                  
+                </Button>                   */}
    
                 <Form.Group className='my-2' controlId="previously-requested">
                     <ListGroup>
-                        <Form.Label>Pending Requests</Form.Label>
+                        <Form.Label>Scheduled Events</Form.Label>
                         {Array.isArray(listItems) && listItems.map((item, index) => (
                             <ListGroup.Item key={index} action onClick={(event) => optionsHandler(event,item)} >
                                 <div className="ms-2 me-auto">
@@ -273,10 +311,10 @@ const EventScreen = () => {
             <Form onSubmit={submitHandler}>
                 <Form.Group className="mt-3">
                     <Form.Label>
-                        Select Dino 
-                        <Badge bg="primary" pill>
-                            {totalPendingCount}
-                        </Badge>     
+                        Select Dino (pending requests 
+                        <Badge bg="primary" pill>{totalPendingCount}</Badge>
+                        )
+                             
                     </Form.Label>                 
                     <Typeahead
                         id="Dino-Selector"

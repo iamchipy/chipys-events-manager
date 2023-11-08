@@ -156,8 +156,8 @@ const logoutUser = asyncHandler(async (req, res) => {
 // route        PUT /api/users/eventsByFilter
 // @access      Private
 const eventsByFilter = asyncHandler(async (req, res) => {
-    console.log(`eventsByFilter: ${req.body.filter}`)
-    console.log(req.body.filter)
+    // console.log(`eventsByFilter: ${req.body.filter}`)
+    // console.log(req.body.filter)
 
     // filter 
     const filter = req.body.filter
@@ -179,13 +179,17 @@ const eventsByFilter = asyncHandler(async (req, res) => {
 // @desc        Update existing event
 // route        PUT /api/users/eventUpdate
 // @access      Private
+// Accepts      Single object with ._id & .updatedValue {obj}
 const eventUpdate = asyncHandler(async (req, res) => {
-    console.warn(req.body._id)
     console.warn("RECEIVED EVENT UPDATE VALUES")
-    console.warn(req.body)
+    // console.warn(req.body)
+    
+    const filter={_id:req.body._id}
+    console.warn(filter)
+    console.warn(req.body.updatedValue)
 
     // first fetch user
-    await Event.findOneAndUpdate({_id:req.body._id},req.body.updatedValue)
+    await Event.findOneAndUpdate(filter,req.body.updatedValue)
         .then(result=>{
             // console.warn(result)
             if ("error" in result) {
@@ -194,6 +198,7 @@ const eventUpdate = asyncHandler(async (req, res) => {
                 res.status(202).json(result)
             }
         }).catch(error => {
+            console.error(error)
             res.status(501).json(error)
         })
 })
@@ -212,8 +217,8 @@ const eventCreate = asyncHandler(async (req, res) => {
             if (result.error){
                 console.log("result.error")
                 console.log(result.error)
-                result.status(400)
-                throw new Error(`Failed to create event ${req.body.id}`)     
+                result.status(400) 
+                return   
             }
             // console.log(result)
             console.log(`Event Created`)
