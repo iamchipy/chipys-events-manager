@@ -109,9 +109,9 @@ const OAuthScreen = () => {
     // Handle redirects once we have user info
     useEffect(() => {
         // redirect if signed in
-        // if (userInfo) {
-        //     navigate('/home')
-        // }
+        if (userInfo) {
+            navigate('/home')
+        }
     }, [navigate, userInfo])    
 
     return (

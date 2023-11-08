@@ -49,6 +49,7 @@ This MERN Stack webapp is designed to help ARK mega-tribe breeders manager the d
 - - [X] Token hashing and salting
 - - [ ] Secure/Private pages locked behind tokens
 - - [ ] Create additional perivilage levels
+- - [ ] Token TTL/invalidation
 - [X] Hosting
 - - [X] Database
 - - [X] DNS

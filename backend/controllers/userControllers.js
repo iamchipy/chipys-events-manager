@@ -137,6 +137,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
                 res.status(202).json(result)
             }
         }).catch(error => {
+            console.error(error)
             res.status(501).json(error)
         })
 })
