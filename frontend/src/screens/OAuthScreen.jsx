@@ -46,20 +46,20 @@ const OAuthScreen = () => {
             let guilds = data[1].reduce((obj, item) => {
                 obj[item.id] = item;
                 return obj;
-            }, {});
-            
+            }, {});         
+
             // now combind them into a new user obj
             const fetchedUser = {...data[0], guilds: guilds}
             console.log("Discord User Info:")
             console.info(fetchedUser)
             toast.success(`Welcome ${fetchedUser.global_name}`)
 
-            
-            registerUser(fetchedUser).then(result=>{
+            registerUser(fetchedUser)
+            .then(result=>{
 
                 toast.info(`Fetching profile data . . . `)
                 // rename for readability
-                const profile = result.data
+                const profile = {...result.data, token: accessToken}
                 console.warn(result)
 
                 console.log("Full Profile")
@@ -80,7 +80,7 @@ const OAuthScreen = () => {
                 // console.log(`profile.guild in profile.guilds  ${profile.guild in profile.guilds  }`)
                 // console.log(`profile.guilds[profile.guild]  ${profile.guilds[profile.guild]  }`)
                 // console.log(`profile.guilds[profile.guild].name  ${profile.guilds[profile.guild].name  }`)
-     
+    
                 if ("guild" in profile  &&  
                     profile.guild !== "0" &&
                     profile.guild in profile.guilds) {
@@ -90,7 +90,9 @@ const OAuthScreen = () => {
                     toast.warn("Please go to PROFILE and select a Discord Server", {autoClose: 10000})
                 }
                 
-            }).catch(error => console.warn(`Failed to fetch UserData e:${error}`))        
+            }).catch(error => console.warn(`Failed to register NewUserData e:${error}`))           
+
+     
         }).catch(function (err) {
             console.error(`DiscordError406: ${err}`)
         })
