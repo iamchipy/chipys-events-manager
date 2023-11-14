@@ -28,7 +28,7 @@ const LogoutScreen = () => {
 
   return (
     <FormContainer>
-      <h1>Logging Out</h1>
+      <h1>Session Timeout</h1>
       {<Loader />}
     </FormContainer>
   )
