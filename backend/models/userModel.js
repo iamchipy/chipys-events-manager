@@ -22,9 +22,17 @@ const userSchema = mongoose.Schema({
         type: mongoose.Schema.Types.Mixed,   
         default: "none"      
     },        
+    guildRoles: {
+        type: mongoose.Schema.Types.Mixed,
+        default: null
+    },
+    guildAdmins: {
+        type: mongoose.Schema.Types.Mixed,
+        default: null
+    },    
     note: {
         type: String,   
-        default: "none"       
+        default: "none"    
     },  
     avatar: {
         type: String,       
@@ -39,7 +47,11 @@ const userSchema = mongoose.Schema({
     username: {
         type: String,     
         default: "unregistered"     
-    },           
+    }, 
+    token: {
+        type: String,     
+        default: null
+    },               
     locale: {
         type: String,       
     },     

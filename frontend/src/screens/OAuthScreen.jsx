@@ -27,12 +27,11 @@ const OAuthScreen = () => {
         if (tokenType === undefined || accessToken === undefined) {
             console.log(`Invalid Token/Access skipping discord fetch`);
             return false
-        }else{
-            console.log(`${tokenType} -- ${accessToken}`);
-            console.log(`Fetching Discord Info Started`);
         }
-        
+
+        console.log(`Fetching Discord Info Started`);
         const headers = {authorization: `${tokenType} ${accessToken}`}
+        console.warn(headers)
         Promise.all([fetch('https://discord.com/api/users/@me', {headers}),
                      fetch('https://discord.com/api/users/@me/guilds', {headers})])
         .then(function (responses) {

@@ -18,16 +18,17 @@ import RequestScreen from './screens/RequestScreen'
 import EventScreen from './screens/EventScreen'
 import OAuthScreen from './screens/OAuthScreen'
 import RequestQueueScreen from './screens/RequestQueueScreen'
+import LogoutScreen from './screens/LogoutScreen.jsx'
 
 {/* ALL ROUTES LIVES HERE */}
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path = '/' element= {<App />}>
-      <Route index={true} path = '/' element={<HomeScreen />} />
+      <Route path = '/' element={<HomeScreen />} index={true}/>
       <Route path = '/*' element={<HomeScreen />} />
-      {/* <Route path='/login' element={<LoginScreen />} /> */}
       <Route path='/register' element={<RegisterScreen />} />
       <Route path='/oauth' element={<OAuthScreen />} />
+      <Route path='/logout' element={<LogoutScreen />} />
       {/* CONTROLED/PRIVATE routes */}
       <Route path='' element={<PrivateRoute />}>
         <Route path='/profile' element={<ProfileScreen />} />

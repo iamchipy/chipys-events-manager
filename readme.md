@@ -31,6 +31,7 @@ This MERN Stack webapp is designed to help ARK mega-tribe breeders manager the d
 - - - [X] Realtime/auto refresh tested and working
 - [ ] Breeder features
 - - [ ] System for breeders to add new dinos
+- - [X] System for breeders permission management by Server
 - - [X] System for breeders to manage a breeding event
 - - - [X] Event Creation
 - - - [X] Event Deletion
@@ -73,6 +74,7 @@ This MERN Stack webapp is designed to help ARK mega-tribe breeders manager the d
 
 
 ### Feature Request
+- [ ] Breeder rank needs to be something we can pull from Server Role (960385132194324500 example)
 - [ ] Breeders would need to be able to change other user's entries
 - - [ ] possibly in bulk, say 50x people all ask for unreleased dinos ahead of time
 

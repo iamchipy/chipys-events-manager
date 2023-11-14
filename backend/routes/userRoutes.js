@@ -11,6 +11,8 @@ import { authUser,
     eventUpdate,
     eventsByFilter,
     getUserProfiles,
+    getGuildMeta,
+    updateGuildMeta,
     fetchPendingByFilter } from "../controllers/userControllers.js"
 import { protect } from "../middleware/authMiddleware.js"
 
@@ -28,6 +30,8 @@ router.put("/eventUpdate", eventUpdate)
 router.put("/eventsByFilter", eventsByFilter)
 router.get("/profiles/:global_name", getUserProfiles)
 router.route('/profile').put(updateUserProfile)
+router.route('/guild/:guildID').get(getGuildMeta)
+router.route('/guild').put(updateGuildMeta)
 // TODO ADD PROTECT back in
 
 

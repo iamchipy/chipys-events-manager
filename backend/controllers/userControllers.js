@@ -3,6 +3,7 @@ import User from '../models/userModel.js'
 import DinoRequest from '../models/requestModel.js'
 import generateToken from '../utils/generateToken.js'
 import Event from '../models/eventModel.js'
+import GuildMeta from '../models/guildModel.js'
 
 // variables for standard
 // Is is stored here AND a frontend copy in "FilterPresets.jsx"
@@ -89,7 +90,7 @@ const registerUser = asyncHandler(async (req, res) => {
 // route        GET /api/users/profiles/:global_name
 // @access      Private
 const getUserProfiles = asyncHandler(async (req, res) => {
-    console.warn("userSEARCHING:")
+    console.warn("getUserProfiles:")
     try {
         const filter = {global_name: RegExp(req.params.global_name, "i")}
         console.info(filter)
@@ -379,6 +380,88 @@ const updateRequest = asyncHandler(async (req, res) => {
     }
 })
 
+// @desc        Update/change guild meta data
+// route        PUT /api/users/updateGuild
+// @access      Private
+const updateGuildMeta = asyncHandler(async (req, res) => {
+    // we handle create/update/query of guilds all here in one
+    // query only has a filter in the body
+    // others will have more
+    let toCreateGuild = false
+    const filter = req.body.filter
+    const updatedValues = req.body.updatedValues
+    console.warn("updateGuildMeta")
+    console.info(req.body)
+
+    // case where we have no updatedValues 
+    if (updatedValues === null || updatedValues == undefined){
+        console.log("Searching for guild...")
+        const foundGuild = await GuildMeta.findOne(filter)
+        // if no guild is found create one or return the results found
+        if (foundGuild===null || "error" in foundGuild){
+            console.log("Creating guild")
+            const createdGuild = await GuildMeta.create(filter)
+            console.log(createdGuild)
+            res.status(201).json(createdGuild)
+            return
+        }else{
+            console.log("Returning guild info")
+            console.log(foundGuild)
+            res.status(200).json(foundGuild)
+            return
+        }
+    }
+    
+    // have a updatedValues and nothing is found 
+    const updatedGuild = await GuildMeta.findOneAndUpdate(filter,updatedValues)
+    if (updatedGuild == null || "error" in updatedGuild){
+        console.log("Creating guild")
+        const createdGuild = await GuildMeta.create({...filter,...updatedValues})
+        console.log(createdGuild)
+        res.status(201).json(createdGuild)
+        return
+    }else{
+        console.log("ModifiedResult:")
+        console.log(updatedGuild)
+        res.status(202).json(updatedGuild)
+        return
+    }
+})
+
+// @desc        get the info of a guild
+// route        PUT /api/users/updateGuild
+// @access      Private
+const getGuildMeta= asyncHandler(async (req, res) => {
+    console.warn("getGuildMeta:")
+    try {
+        const filter = {global_name: RegExp(req.params.global_name, "i")}
+        console.info(filter)
+    
+        await GuildMeta.find(filter)
+        .then(result => {
+            // console.log("result:")
+            // console.log(result)
+            if ("error" in result){
+                console.error("getGuildMeta ERROR")
+                console.error(result.error)
+                res.status(501).json(result.error)
+            }
+            // console.log("result")
+            // console.log(result)
+            // console.log(result[0])
+            if (result.length < 1){
+                console.log("404")
+                res.status(404).json({error:404,Message: "No matching guild found."})
+            }else{
+                console.log(`Found ${result.length} matches`)
+                res.status(200).json(result)
+            }
+        })
+    }catch (err) {
+        console.error(err)
+    }
+})
+
 export {
     authUser,
     registerUser,
@@ -392,5 +475,7 @@ export {
     eventUpdate,
     eventsByFilter,
     getUserProfiles,
+    updateGuildMeta,
+    getGuildMeta,
 
 }

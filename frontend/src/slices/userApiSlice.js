@@ -79,6 +79,13 @@ export const usersApliSplice = apiSlice.injectEndpoints({
                 body: data
             })                 
         }),
+        updateGuildMeta: builder.mutation({
+            query: (data) => ({
+                url: `${USERS_URL}/guild`,
+                method: 'PUT',
+                body: data
+            })                 
+        }),
         // getProfile: builder.mutation({
         //     query: () => ({
         //         url: `${USERS_URL}/profile`,
@@ -106,4 +113,5 @@ export const {
     useEventUpdateMutation,
     useEventCreateMutation,
     useEventsByFilterMutation,
+    useUpdateGuildMetaMutation,
     useFetchPendingByFilterMutation } = usersApliSplice
