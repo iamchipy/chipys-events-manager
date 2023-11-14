@@ -79,6 +79,9 @@ const ProfileScreen = () => {
 
     // check for and update isAdmin status
     const isGuildAdmin = () => {
+        if (guildSelection[0] ==undefined){
+            return false
+        }
         console.log("Checking Admin")
         if ("guildAdmins" in userInfo) {
             if (userInfo.guildAdmins.includes(guildSelection[0].id ||
@@ -186,7 +189,6 @@ const ProfileScreen = () => {
             [event.target.name]: event.target.value
         })
     }
-
     const submitHandler = async (e) => {
         e.preventDefault()
 
@@ -197,7 +199,7 @@ const ProfileScreen = () => {
         // submit formData for upser update
         try {
             // verbose way to overwite user when admin has been revoked and breeder was selected
-            const newValues = isBreeder ? {
+            const newValues = isBreeder||isGuildAdmin() ? {
                 ...formData,
                 id: userInfo.id,
                 guild: guildSelection[0].id,
@@ -333,7 +335,7 @@ const ProfileScreen = () => {
                             name="role"
                             onChange={handleChangeEvents}
                             defaultValue={formData.role}
-                            disabled={!isBreeder}
+                            disabled={!isBreeder&&!isGuildAdmin()}
                         >
                             <option value="user">User</option>
                             <option value="breeder">Breeder</option>

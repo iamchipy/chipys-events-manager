@@ -212,7 +212,7 @@ const eventCreate = asyncHandler(async (req, res) => {
     // console.warn(JSON.stringify(req.body))
     console.log("eventCreate initiated")
     // const userFilter = {id: req.body.id}
-
+    //TODO somewhere in this function we are double setting HTTPS Request Headers after they are sent
     createdEvent = await Event.create(req.body)
         .then(result=>{
             console.log(result)
