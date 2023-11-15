@@ -132,8 +132,8 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     await User.findOneAndUpdate({id:req.body.id},req.body)
         .then(result=>{
             // console.warn(result)
-            if ("error" in result) {
-                res.status(400).json("unknown error when updating user ")
+            if (result == null || "error" in result) {
+                res.status(400).json(`No user matching '${req.body.id}' found`)
             }else{
                 res.status(202).json(result)
             }
