@@ -56,12 +56,12 @@ const userSchema = mongoose.Schema({
         type: String,       
     },     
     timeOpen: {
-        type: String,
-        default: "1700"
+        type: Object,
+        default: null
     },  
     timeClose: {
-        type: String,
-        default: "2000"
+        type: Object,
+        default: null
     },       
     timezone: {
         type: Number,
