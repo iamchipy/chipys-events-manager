@@ -29,11 +29,11 @@ const ProfileScreen = () => {
     const [guildRoleIDs, setGuildRoleIDs] = useState([]);
     const [cachedPermissions, setCachedPermissions] = useState({});
     const [formData, setFormData] = useState({
-        timezone:   userInfo.timezone,
-        role:       userInfo.role,
-        note:       userInfo.note,
-        timeOpen:   userInfo.timeOpen,
-        timeClose:  userInfo.timeClose,
+        timezone: userInfo.timezone,
+        role: userInfo.role,
+        note: userInfo.note,
+        timeOpen: moment(userInfo.timeOpen).format("HH:mm"),
+        timeClose: moment(userInfo.timeClose).format("HH:mm"),
     })
     const headers = { authorization: `Bearer ${userInfo.token}` }
     let guildsList = []
@@ -79,18 +79,17 @@ const ProfileScreen = () => {
 
     // check for and update isAdmin status
     const isGuildAdmin = () => {
-        if (guildSelection[0] ==undefined){
+        if (guildSelection[0] == undefined) {
             return false
         }
         console.log("Checking Admin")
         if ("guildAdmins" in userInfo) {
             if (userInfo.guildAdmins.includes(guildSelection[0].id ||
-                userInfo.guildAdmins == guildSelection[0].id)) 
-                {
+                userInfo.guildAdmins == guildSelection[0].id)) {
                 console.log("ADMIN detected")
                 return true
             }
-        } 
+        }
         return false
     }
 
@@ -196,31 +195,27 @@ const ProfileScreen = () => {
         console.log(formData)
         console.log(guildSelection[0].name)
 
-        // submit formData for upser update
+        // new Date(Date.UTC(1970, 0, 1, 1, 25, 0, 0))
+        // console.warn(new Date(0, 0, 0, formData.timeOpen.substr(0,2), formData.timeOpen.substr(3,5), 0, 0))
+
+         // submit formData for upser update
         try {
             // verbose way to overwite user when admin has been revoked and breeder was selected
-            const newValues = isBreeder||isGuildAdmin() ? {
+            let newValues = {
                 ...formData,
                 id: userInfo.id,
                 guild: guildSelection[0].id,
                 guildRoles: guildRoleIDs,
                 token: userInfo.token,
-                // timeOpen: moment(formData.timeOpen, 'HH:mm').valueOf(),
-                // timeClose: moment(formData.timeClose, 'HH:mm').valueOf(),
-                timeOpen: formData.timeOpen,
-                timeClose: formData.timeClose,                
-            } : {
-                ...formData,
-                id: userInfo.id,
-                guild: guildSelection[0].id,
-                guildRoles: guildRoleIDs,
-                token: userInfo.token,
-                // timeOpen: moment(formData.timeOpen, 'HH:mm').valueOf(),
-                // timeClose: moment(formData.timeClose, 'HH:mm').valueOf(),
-                timeOpen: formData.timeOpen,
-                timeClose: formData.timeClose,                 
-                role: "user",
+                timeOpen: new Date(0, 0, 0, formData.timeOpen.substr(0,2), formData.timeOpen.substr(3,5), 0, 0),
+                timeClose: new Date(0, 0, 0, formData.timeClose.substr(0,2), formData.timeClose.substr(3,5), 0, 0),
+                // timeOpen: formData.timeOpen,
+                // timeClose: formData.timeClose,                
             }
+            if (!isBreeder && !isGuildAdmin()) {
+                newValues = { ...newValues, role: "user" }
+            }
+
 
             await updateProfile(newValues)
                 .then(result => {
@@ -249,9 +244,9 @@ const ProfileScreen = () => {
         if (!isGuildAdmin()) {
             toast.warn("You do not have permissions to change that.")
             return
-        }else{
+        } else {
             handleShow()
-        }        
+        }
     }
 
     const handleSave = async () => {
@@ -264,7 +259,7 @@ const ProfileScreen = () => {
         console.warn(guildBreederRoleChange)
         const result = await updateGuildMeta({ filter: filter, updatedValues: updatedValues })
         toast(result.name)
-        
+
         updateGuildDetails()
         handleClose()
     }
@@ -335,7 +330,7 @@ const ProfileScreen = () => {
                             name="role"
                             onChange={handleChangeEvents}
                             defaultValue={formData.role}
-                            disabled={!isBreeder&&!isGuildAdmin()}
+                            disabled={!isBreeder && !isGuildAdmin()}
                         >
                             <option value="user">User</option>
                             <option value="breeder">Breeder</option>
