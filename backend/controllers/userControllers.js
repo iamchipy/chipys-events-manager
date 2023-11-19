@@ -214,18 +214,20 @@ const eventCreate = asyncHandler(async (req, res) => {
     // const userFilter = {id: req.body.id}
     //TODO somewhere in this function we are double setting HTTPS Request Headers after they are sent
     createdEvent = await Event.create(req.body)
-        .then(result=>{
-            console.log(result)
-            if (result.error){
-                console.log("result.error")
-                console.log(result.error)
-                result.status(400) 
-                return   
-            }
-            // console.log(result)
-            console.log(`Event Created`)
-            res.status(201).json(result)      
-        }).catch( e=> {console.error(e)})
+    .then(result=>{
+        console.log(result)
+        if (result == null || "error" in result){
+            console.log("result.error")
+            console.log(result.error)
+            result.status(400) 
+            return   
+        }
+        // console.log(result)
+        console.log(`Event Created`)
+        res.status(201).json(result)   
+        return   
+    }).catch( e=> {console.error(e)})
+    res.status(599).json("Unknown error")
 })
 
 // @desc        Request dino for user
