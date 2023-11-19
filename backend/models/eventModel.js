@@ -15,12 +15,11 @@ const eventSchema = mongoose.Schema({
         required: [true, "Required"],
         index: true
     },        
-    timezone: {
-        type: Number,
-        lowercase: true,         
+    timezoneOffset: {
+        type: Number,       
     },
     startTime: {
-        type: Number   
+        type: mongoose.Schema.Types.Mixed   
     },    
     guild: {
         type: Object,     
