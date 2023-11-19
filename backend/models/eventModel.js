@@ -19,7 +19,7 @@ const eventSchema = mongoose.Schema({
         type: Number,       
     },
     startTime: {
-        type: mongoose.Schema.Types.Mixed   
+        type: Number,
     },    
     guild: {
         type: Object,     

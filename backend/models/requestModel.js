@@ -19,9 +19,8 @@ const requestSchema = mongoose.Schema({
             id: ""
         }
     },        
-    timezone: {
-        type: Number,
-        lowercase: true,         
+    timezoneOffset: {
+        type: Number,       
     },
     guild: {
         type: Object,       

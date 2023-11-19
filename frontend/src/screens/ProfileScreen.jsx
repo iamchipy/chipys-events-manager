@@ -29,7 +29,7 @@ const ProfileScreen = () => {
     const [guildRoleIDs, setGuildRoleIDs] = useState([]);
     const [cachedPermissions, setCachedPermissions] = useState({});
     const [formData, setFormData] = useState({
-        timezone: userInfo.timezone,
+        timezone: userInfo.timezoneOffset,
         role: userInfo.role,
         note: userInfo.note,
         timeOpen: moment(userInfo.timeOpen).format("HH:mm"),
@@ -207,15 +207,16 @@ const ProfileScreen = () => {
                 guild: guildSelection[0].id,
                 guildRoles: guildRoleIDs,
                 token: userInfo.token,
-                timeOpen: new Date(0, 0, 0, formData.timeOpen.substr(0,2), formData.timeOpen.substr(3,5), 0, 0),
-                timeClose: new Date(0, 0, 0, formData.timeClose.substr(0,2), formData.timeClose.substr(3,5), 0, 0),
-                // timeOpen: formData.timeOpen,
-                // timeClose: formData.timeClose,                
+                timeOpen: new Date(0, 0, 0, formData.timeOpen.substring(0,2), formData.timeOpen.substring(3,5), 0, 0).valueOf(),
+                timeClose: new Date(0, 0, 0, formData.timeClose.substring(0,2), formData.timeClose.substring(3,5), 0, 0).valueOf(),
+                timezoneOffset:new Date().getTimezoneOffset()             
             }
             if (!isBreeder && !isGuildAdmin()) {
                 newValues = { ...newValues, role: "user" }
             }
 
+            console.warn("newValues for updateProfile()")
+            console.log(newValues)
 
             await updateProfile(newValues)
                 .then(result => {

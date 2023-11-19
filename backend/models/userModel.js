@@ -56,17 +56,19 @@ const userSchema = mongoose.Schema({
         type: String,       
     },     
     timeOpen: {
-        type: Object,
+        type: Number,
         default: null
     },  
     timeClose: {
-        type: Object,
+        type: Number,
         default: null
     },       
-    timezone: {
-        type: Number,
-        default: 0   
-    }        
+    timezoneOffset: {
+        type: Number,       
+    },
+    startTime: {
+        type: Number
+    },        
 },{
     // Enables time stamping
     timestamps: true
