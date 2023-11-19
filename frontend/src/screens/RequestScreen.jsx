@@ -48,7 +48,7 @@ function RequestScreen() {
                         // console.warn(result)
                         if ("error" in result){
                             if (result.error.status === 412){
-                                console.log("duplicate request made, no action to take")
+                                // console.log("duplicate request made, no action to take")
                                 console.warn(result?.error?.data?.message)
                                 toast.warn(result?.error?.data?.message)
                                 return

@@ -157,13 +157,15 @@ function RequestQueueScreen() {
             note : selectedRequestNote.target.value,
         }
 
-        updateRequest({selectedRequest, updatedValue}).then(result=>{
+        updateRequest({selectedRequest, updatedValue})
+        .then(result=>{
             if ("error" in result){
+                toast.error("Something went wrong")
+            }else{
+                
                 toast.success("Request note saved!")
                 handleClose();
-                refreshFiltered()  
-            }else{
-                toast.error("Something went wrong")
+                refreshFiltered()                 
             }
         })
         
@@ -202,7 +204,7 @@ function RequestQueueScreen() {
     
         <FormContainer>  
             <h1>Waiting List</h1>
-            <h5>{guildDisplayName} ({userInfo.role})</h5>
+            <h5>{guildDisplayName} ({`${userInfo.role}:${userInfo.global_name}`})</h5>
             <Form.Group className="mt-3">
                 <Typeahead
                     id="Dino-Selector"

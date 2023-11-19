@@ -23,12 +23,14 @@ const userSchema = mongoose.Schema({
         default: "none"      
     },        
     guildRoles: {
-        type: mongoose.Schema.Types.Mixed,
-        default: null
+        // list of roles in currently selected guild
+        type: Array,
+        default:  [""]
     },
     guildAdmins: {
-        type: mongoose.Schema.Types.Mixed,
-        default: null
+        // list of guilds that user has been given super admin to
+        type: Array,
+        default: [""]
     },    
     note: {
         type: String,   
@@ -57,17 +59,15 @@ const userSchema = mongoose.Schema({
     },     
     timeOpen: {
         type: Number,
-        default: null
+        default: 0
     },  
     timeClose: {
         type: Number,
-        default: null
+        default: 0
     },       
     timezoneOffset: {
-        type: Number,       
-    },
-    startTime: {
-        type: Number
+        type: Number,    
+        default: 0   
     },        
 },{
     // Enables time stamping

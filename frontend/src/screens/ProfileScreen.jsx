@@ -44,7 +44,10 @@ const ProfileScreen = () => {
 
     // Triggers once on initial load to help form load data
     useEffect(() => {
-        setGuildSelection([userInfo.guilds[userInfo.guild]])
+        if (userInfo.guild != "" && 
+        userInfo.guild in userInfo.guilds){
+            setGuildSelection([userInfo.guilds[userInfo.guild]])
+        }
         // console.log(`Setting guildSelection to ${userInfo.guilds[userInfo.guild].name}`)
     }, [])
 
@@ -63,7 +66,7 @@ const ProfileScreen = () => {
     // Triggers when we update the server's details and user info
     useEffect(() => {
         // break if we don't have the needed info
-        if (guildBreederRole[0] == undefined || userInfo.guildRoles == undefined) {
+        if (guildBreederRole[0] == undefined || userInfo.guildRoles == null) {
             // console.log("guildSelection[0] || userInfo.guildRoleIDs still undefined")
             return
         }
@@ -82,11 +85,11 @@ const ProfileScreen = () => {
         if (guildSelection[0] == undefined) {
             return false
         }
-        console.log("Checking Admin")
+        // console.log("Checking Admin")
         if ("guildAdmins" in userInfo) {
             if (userInfo.guildAdmins.includes(guildSelection[0].id ||
                 userInfo.guildAdmins == guildSelection[0].id)) {
-                console.log("ADMIN detected")
+                console.log("guild ADMIN detected")
                 return true
             }
         }
@@ -310,7 +313,7 @@ const ProfileScreen = () => {
                             defaultValue={formData.timeClose}
                         />
                     </Form.Group>
-                    <Form.Group className='my-4'>
+                    {/* <Form.Group className='my-4'>
                         <Form.Label>Select Timezone</Form.Label>
                         <Form.Select
                             onChange={handleChangeEvents}
@@ -323,7 +326,7 @@ const ProfileScreen = () => {
                                 </option>
                             ))}
                         </Form.Select>
-                    </Form.Group>
+                    </Form.Group> */}
                     <Form.Group className='my-2' controlId="userRole">
                         <Form.Label>Role</Form.Label>
                         <Form.Select
