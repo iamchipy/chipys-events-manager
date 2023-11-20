@@ -52,10 +52,6 @@ function RequestScreen() {
                                 console.warn(result?.error?.data?.message)
                                 toast.warn(result?.error?.data?.message)
                                 return
-                            // }else if (result.error.status === 400){ REMOVED IN FAVOUR OF CATCHING EARLIER
-                            //     console.log("blank request made, no action to take")
-                            //     toast.info("Blank request list")
-                            //     return
                             }                            
                             console.error("requestHandler>requestDino>")
                         }

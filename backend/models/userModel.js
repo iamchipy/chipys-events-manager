@@ -52,7 +52,7 @@ const userSchema = mongoose.Schema({
     }, 
     token: {
         type: String,     
-        default: null
+        default: ""
     },               
     locale: {
         type: String,       

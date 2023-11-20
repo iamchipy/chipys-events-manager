@@ -92,7 +92,7 @@ function RequestQueueScreen() {
     }
 
     // Bypass client-side filtering by returning `true`. Results are already
-    // filtered by the search endpoint, so no need to do it again.
+    // filtered by the search endpoint, so no need to do it again. *for user search*
     const filterBypass = () => true;
 
     const handleUserSearch = (query) => {

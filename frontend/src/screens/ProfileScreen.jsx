@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import { Form, Button, Badge, Modal, ListGroup } from "react-bootstrap";
 import FormContainer from "../components/FormContainer";
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch, 
+         useSelector, } from 'react-redux'
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { setCredentials } from "../slices/authSlice";
 import {
     useUpdateUserMutation,
-    useUpdateGuildMetaMutation
+    useUpdateGuildMetaMutation,
+    useRegisterMutation
 } from "../slices/userApiSlice";
 import { Typeahead } from "react-bootstrap-typeahead"
 import moment from "moment";
@@ -17,9 +20,11 @@ const ProfileScreen = () => {
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
-    const dispatch = useDispatch()
+    const navigate = useNavigate()
+    const dispatch = useDispatch() 
     const [updateProfile, { isUpdating }] = useUpdateUserMutation()
     const [updateGuildMeta, { isFetching }] = useUpdateGuildMetaMutation()
+    const [registerUser, { isLoading }] = useRegisterMutation()
     const { userInfo } = useSelector((state) => state.auth)
     const timezoneList = [-12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
     const [guildSelection, setGuildSelection] = useState([])
@@ -42,14 +47,37 @@ const ProfileScreen = () => {
 
     }
 
-    // Triggers once on initial load to help form load data
+    // Run once to fetch user's latest profile every time the page refreshes
+    useEffect(()=>{
+        // redirect to logout if token isn't valid
+        if (!("token" in userInfo) || userInfo.token == "" || userInfo.token == null){
+            navigate("/logout")
+        }
+
+        // if token exists we hope it's valid and fetch user info
+        registerUser({id:userInfo.id})
+        .then(result=>{
+            if ("error" in result){
+                console.error(result)
+                return
+            }
+            if (result.data == userInfo){
+                console.warn("MATCHING")
+                console.info(result.data)
+
+            }
+            dispatch(setCredentials(result.data))
+        })
+    }, [])
+
+    // Trigger anytime UserInfo updates and populate the guild/Server
     useEffect(() => {
         if (userInfo.guild != "" && 
         userInfo.guild in userInfo.guilds){
             setGuildSelection([userInfo.guilds[userInfo.guild]])
         }
         // console.log(`Setting guildSelection to ${userInfo.guilds[userInfo.guild].name}`)
-    }, [])
+    }, [userInfo])
 
     // triggers when user change their Discord Server
     useEffect(() => {

@@ -27,7 +27,7 @@ const EventScreen = () => {
     const [eventsByFilter, { isLoading }] = useEventsByFilterMutation()
     const [updateUserProfile] = useUpdateUserMutation()
     const [isBuildingRecommendation, setIsBuildingRecommendation] = useState(false);
-    const [recommendationList, setRecommendationList] = useState([]);
+    const [recommendationList, setRecommendationList] = useState((<>None</>));
     const [listItems, setListItems] = useState([]);
     const [selectedEvent, setSelectedEvent] = useState([]);
     const [dinoSelection, setDinoSelection] = useState([]);
@@ -80,7 +80,7 @@ const EventScreen = () => {
         fetchPendingByFilter({ filter: filterForPendingCheck })
             .then(res => {
                 if ("error" in res && res.error.status === 404) {
-                    toast.warn(`No dinos of that type have been requested`)
+                    toast.info(`No pending '${dinoSelection[0]}' requests in ${userInfo.guilds[userInfo.guild].name}`)
                     setTotalPendingCount("0")
                 } else {
                     // console.warn("res.data"); 
@@ -149,25 +149,25 @@ const EventScreen = () => {
         }
     }
 
-    // returns the time difference in HH:MM format
-    const timeDifference = (currentTime, targetTime) => {
-        // split strings into hour/minute arrays
-        currentTime = currentTime.split(":")
-        targetTime = targetTime.split(":")
-        // create Date objects from those string/arrays
-        const startDate = new Date(0, 0, 0, currentTime[0], currentTime[1], 0)
-        const endDate = new Date(0, 0, 0, targetTime[0], targetTime[1], 0)
-        // run the Date math on them
-        let timeSplit = endDate.getTime() - startDate.getTime()
-        // calc the hours (in ms) from the difference value
-        const hours = Math.floor(timeSplit / 1000 / 60 / 60)
-        // extract those hours from the difference to leave only minutes
-        timeSplit -= hours * 1000 * 60 * 60
-        // floor out the ms into minutes
-        const minutes = Math.floor(timeSplit / 1000 / 60)
-        // return the HH:MM formatted time
-        return (hours <= 9 ? "0" : "") + hours + ":" + (minutes <= 9 ? "0" : "") + minutes
-    }
+    // // returns the time difference in HH:MM format
+    // const timeDifference = (currentTime, targetTime) => {
+    //     // split strings into hour/minute arrays
+    //     currentTime = currentTime.split(":")
+    //     targetTime = targetTime.split(":")
+    //     // create Date objects from those string/arrays
+    //     const startDate = new Date(0, 0, 0, currentTime[0], currentTime[1], 0)
+    //     const endDate = new Date(0, 0, 0, targetTime[0], targetTime[1], 0)
+    //     // run the Date math on them
+    //     let timeSplit = endDate.getTime() - startDate.getTime()
+    //     // calc the hours (in ms) from the difference value
+    //     const hours = Math.floor(timeSplit / 1000 / 60 / 60)
+    //     // extract those hours from the difference to leave only minutes
+    //     timeSplit -= hours * 1000 * 60 * 60
+    //     // floor out the ms into minutes
+    //     const minutes = Math.floor(timeSplit / 1000 / 60)
+    //     // return the HH:MM formatted time
+    //     return (hours <= 9 ? "0" : "") + hours + ":" + (minutes <= 9 ? "0" : "") + minutes
+    // }
 
     // returns true if target time is within timzone+window
     const isUserAvailable = (eventObject, userRequestMergeObject) => {
@@ -209,10 +209,11 @@ const EventScreen = () => {
                                             userRequestMergeObject.timeOpen,
                                             userRequestMergeObject.timeClose)
             console.log(`Event is during ${userRequestMergeObject.global_name}'s window? ${inWindow}`)
-            // TODO DO SOMETHING WITH THE CHECKED INFO
+            return inWindow
 
         } catch (e) {
             console.error(e)
+            return false
         }
     }
 
@@ -220,6 +221,7 @@ const EventScreen = () => {
     // Gather list of all matching requests and return slice with names
     const fetchRecommendedRecipients = async (clickedEvent) => {
         let cachedRequests = []
+        let recommendedRequests  =[]
         setIsBuildingRecommendation(true)
 
         // Set the filter
@@ -232,36 +234,68 @@ const EventScreen = () => {
         // get the list of all matching requests 
         const allMatchingRequests = await fetchPendingByFilter({ filter: filterForRecommended })
 
+        console.log(allMatchingRequests)
+        // catch no case of no requests for event
+        if ("error" in allMatchingRequests || allMatchingRequests == null)
+        {
+            toast.info("No pending requests for selected Event")
+            setIsBuildingRecommendation(false)
+            return
+        }
+
         // build the promises to get user info for each of the pending requests
         const allMatchingRequestsPromises = allMatchingRequests.data.map(request => updateUserProfile({ id: request.id }))
 
         // launch the promise to fetch user data
         Promise.all(allMatchingRequestsPromises)
-            .then(results => {
-                // loop for each returned prompise
-                results.forEach((result, index) => {
-                    const thisRequest = result.data
-                    console.warn(index)
-                    cachedRequests.push({ ...thisRequest, ...allMatchingRequests.data[index] })
-                    // console.log(cachedRequests[index])
-                    // console.log(cachedRequests[index].timezone)
-                    // console.log(clickedEvent.timezone)
-                    // console.log(syncTimezones(clickedEvent.timezone,cachedRequests[index].timezone))
-                    isUserAvailable(clickedEvent, cachedRequests[index])
-                    // check to be sure the result is useable
-                    // if valid results cache them
-
-                })
-                // take cached results and sort by matching time and age
-                console.log(cachedRequests)
-
-                setIsBuildingRecommendation(false)
+        .then(results => {
+            // loop for each returned prompise
+            results.forEach((result, index) => {
+                const thisRequest = result.data
+                console.warn(index)
+                cachedRequests.push({ ...thisRequest, ...allMatchingRequests.data[index] })
+                if (isUserAvailable(clickedEvent, cachedRequests[index])==true){
+                    console.log(`${cachedRequests[index].global_name} has been added to the list`)
+                    recommendedRequests.push(cachedRequests[index])
+                }
             })
-            .catch(error => {
-                // LOG ERRORS 
-                console.warn("Promise stack error")
-                console.error(error)
-            })
+
+            // take cached results and sort by matching time and age
+            setIsBuildingRecommendation(false)
+            console.warn("RETURNING:")
+            console.info(cachedRequests)
+            const recommendationListHTML = (
+                <>
+                    <ListGroup>
+                        <Form.Label>Recommended requests for this event:</Form.Label>
+                        {Array.isArray(recommendedRequests) && recommendedRequests.map((item, index) => (
+                            <ListGroup.Item key={index} disabled={true} onClick={(event) => optionsHandler(event, item)} >
+                                <div className="ms-2 me-auto">
+                                    <img src={`https://cdn.discordapp.com/avatars/${item.id}/${item.avatar}`} 
+                                         style={{width:34, height:34}} 
+                                         alt="avatar" />                                    
+                                    <div className="fw-bold d-inline">
+                                        {`${item.global_name} `}
+                                    </div>
+                                    <br /> 
+                                    {`Date: ${item.updatedAt.substring(0, 10)} (${item.status})`}                                    
+                                    <br /> 
+                                    {`Note: ${item.note}`}
+                                </div>
+
+                            </ListGroup.Item>
+                        ))}
+                    </ListGroup>
+                </>
+            )      
+            setRecommendationList(recommendationListHTML)       
+        })
+        .catch(error => {
+            // LOG ERRORS 
+            console.warn("Promise stack error")
+            console.error(error)
+            return (<>ERR</>)
+        })
     }
 
     // custom handler that pumps out setStates as needed by overwriting
@@ -289,7 +323,7 @@ const EventScreen = () => {
         // toast.info(`${clickedItem.dino} was clicked`)
         setSelectedEvent(clickedEvent)
         setSelectedEventNote(clickedEvent.note)
-        await fetchRecommendedRecipients(clickedEvent)
+        fetchRecommendedRecipients(clickedEvent)
         handleShow()
     }
 
@@ -343,9 +377,9 @@ const EventScreen = () => {
             formData.startTime.substring(0, 2),
             formData.startTime.substring(3, 5))
 
-        console.warn(dateTime)
-        console.log(dateTime.valueOf())
-        console.log(new Date(dateTime.valueOf()))
+        // console.warn(dateTime)
+        // console.log(dateTime.valueOf())
+        // console.log(new Date(dateTime.valueOf()))
 
         // Wed Dec 06 2023 06:06:00 GMT-0500 (Eastern Standard Time)
         // 1701860760000
@@ -397,7 +431,7 @@ const EventScreen = () => {
         <>
             <Modal show={show} onHide={handleClose}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Modify Request</Modal.Title>
+                    <Modal.Title>Modify Event</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {`Dino: ${selectedEvent.dino}`}
