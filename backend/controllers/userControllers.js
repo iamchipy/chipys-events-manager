@@ -273,24 +273,23 @@ const requestDino = asyncHandler(async (req, res) => {
 
     // console.log("building promise array")
     // Map those with the function
-    let promises = listOfRequestedDinos.map(dino => checkForDuplicate(dino));
+    let promisesOfRequestedDions = listOfRequestedDinos.map(dino => checkForDuplicate(dino));
 
     // console.log(promises)
     // console.log("starting promise stack")
 
     // Now run the promises together and wait for all to resolve
-    Promise.all(promises)
-        .then(results => {
-            // DO THINGS WITH ALL RESULTS
-
+    Promise.all(promisesOfRequestedDions)
+        .then(isDuplicateCheckResults => {
             // Check for empty objects (confirm if duplicated found)
-            results.forEach((result, index) => {
-                // console.log(result)
-
-                if (result[0] !== undefined && "dino" in result[0]) {
-                    const warningString = `Duplicated ${result[0].dino} request!`
+            isDuplicateCheckResults.forEach((listOfMatchingRequests, index) => {
+                // console.log("idDuplicateResult")
+                // console.log(listOfMatchingRequests)
+                // we get back a list of dinos that match this dino name/user/guild/pending so might be more
+                if (listOfMatchingRequests[0] !== undefined && "dino" in listOfMatchingRequests[0]) {
+                    const warningString = `Duplicated ${listOfMatchingRequests[0].dino} request!`
                     console.warn(warningString)
-                    duplicates.push(result[0].dino)
+                    duplicates.push(listOfMatchingRequests[index].dino)
                     // res.status(400).json({message: warningString})
                 } else {
                     // else if not a duplicate we create this request
@@ -307,10 +306,10 @@ const requestDino = asyncHandler(async (req, res) => {
                 }
             })
 
-            if (duplicates.length < listOfRequestedDinos) {
+            if (duplicates.length < listOfRequestedDinos.length ) {
                 res.status(201).json({ message: `Duplicates ${duplicates}` })
             } else {
-                console.log(duplicates)
+                
                 res.status(412).json({ message: `Duplicate request(s) ${duplicates}` })
             }
         })
