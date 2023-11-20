@@ -7,7 +7,7 @@ import GuildMeta from '../models/guildModel.js'
 
 // variables for standard
 // Is is stored here AND a frontend copy in "FilterPresets.jsx"
-const INCOMPLETE_STATES = {$nin:["Completed","DeletedByUser","DeletedByBreeder"]}
+const INCOMPLETE_STATES = { $nin: ["Completed", "DeletedByUser", "DeletedByBreeder"] }
 
 
 // @desc        Auth user get/set token
@@ -18,7 +18,7 @@ const authUser = asyncHandler(async (req, res) => {
     // const {discord, password} = req.body
 
     // const user = await User.findOne({discord: discord})
-    
+
     // if (user && (await user.matchPassword(password))) {
     //     generateToken(res, user.id)
     //     res.status(201).json({
@@ -47,42 +47,54 @@ const authUser = asyncHandler(async (req, res) => {
 const registerUser = asyncHandler(async (req, res) => {
     // console.warn(JSON.stringify(req.body))
     console.warn("registerUser initiated")
-    const userFilter = {id: req.body.id}
+    const userFilter = { id: req.body.id }
     let newUser = null
     let updatedUserValues = null
 
-    // Check if user is new (if not update user)
+    // handle our three cases
+    // 1 - new user
+    // 2 - update user
+    // 3 - get user (info only)
     const userExists = await User.findOne(userFilter)
-    if (userExists) {
+    if (userExists != null) {
+        // console.log(Object.keys(req.body))
+        // console.log(Object.keys(req.body).length)
+        // console.log(Object.keys(req.body).length <= 1)
+
+        if (Object.keys(req.body).length <= 1) {
+            // then we are only returning the existing user's info
+            console.log(`Returning ${userExists.global_name}'s info`)
+            res.status(200).json(userExists)
+            return
+        }
         console.log("Attempting to update user")
         updatedUserValues = await User.findOneAndUpdate(userFilter, req.body)
             .then(result => {
-                if ("error" in result){
+                if ("error" in result) {
                     console.log("result.error")
                     console.log(result.error)
                     result.status(400)
-                    throw new Error(`Failed to update user ${req.body.id}`)                    
+                    throw new Error(`Failed to update user ${req.body.id}`)
                 }
                 console.log(`${result.global_name} profile updated`)
-                  
-                generateToken(res, result.id)  
-                res.status(200).json(result)            
-            }).catch( e=> {console.error(e)})
-    }else{
+                generateToken(res, result.id + result.token)
+                res.status(200).json(result)
+            }).catch(e => { console.error(e) })
+    } else {
         console.log("Attempting to create new user")
         newUser = await User.create(req.body)
-            .then(result=>{
-                if (result.error){
+            .then(result => {
+                if (result.error) {
                     console.log("result.error")
                     console.log(result.error)
                     result.status(400)
-                    throw new Error(`Failed to create user ${req.body.id}`)     
+                    throw new Error(`Failed to create user ${req.body.id}`)
                 }
                 // console.log(result)
                 console.log(`${result.global_name} profile created`)
-                generateToken(res, result.id)  
-                res.status(201).json(result)      
-            }).catch( e=> {console.error(e)})
+                generateToken(res, result.id + result.token)
+                res.status(201).json(result)
+            }).catch(e => { console.error(e) })
     }
 })
 
@@ -92,14 +104,14 @@ const registerUser = asyncHandler(async (req, res) => {
 const getUserProfiles = asyncHandler(async (req, res) => {
     console.warn("getUserProfiles:")
     try {
-        const filter = {global_name: RegExp(req.params.global_name, "i")}
+        const filter = { global_name: RegExp(req.params.global_name, "i") }
         console.info(filter)
-    
+
         await User.find(filter)
             .then(result => {
                 // console.log("result:")
                 // console.log(result)
-                if ("error" in result){
+                if ("error" in result) {
                     console.error("getUserProfiles ERROR")
                     console.error(result.error)
                     res.status(501).json(result.error)
@@ -107,15 +119,15 @@ const getUserProfiles = asyncHandler(async (req, res) => {
                 // console.log("result")
                 // console.log(result)
                 // console.log(result[0])
-                if (result.length < 1){
+                if (result.length < 1) {
                     console.log("404")
-                    res.status(404).json({error:404,Message: "No matching users found."})
-                }else{
+                    res.status(404).json({ error: 404, Message: "No matching users found." })
+                } else {
                     console.log(`Found ${result.length} matches`)
                     res.status(200).json(result)
                 }
             })
-    }catch (err) {
+    } catch (err) {
         console.error(err)
     }
 })
@@ -129,12 +141,12 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     // console.warn(req.body)
 
     // first fetch user
-    await User.findOneAndUpdate({id:req.body.id},req.body)
-        .then(result=>{
+    await User.findOneAndUpdate({ id: req.body.id }, req.body)
+        .then(result => {
             // console.warn(result)
             if (result == null || "error" in result) {
                 res.status(400).json(`No user matching '${req.body.id}' found`)
-            }else{
+            } else {
                 res.status(202).json(result)
             }
         }).catch(error => {
@@ -151,7 +163,7 @@ const logoutUser = asyncHandler(async (req, res) => {
         httpOnly: true,
         expires: new Date(0)
     })
-    res.status(200).json({message: "Logout successful"})
+    res.status(200).json({ message: "Logout successful" })
 })
 
 // @desc        Fetches all events and applies a filter
@@ -171,7 +183,7 @@ const eventsByFilter = asyncHandler(async (req, res) => {
 
 
     // return requests
-    if (eventsScheduled[0] === undefined){
+    if (eventsScheduled[0] === undefined) {
         res.status(404).json(`Message: No requests matching filter`)
     } else {
         res.status(200).json(eventsScheduled)
@@ -185,18 +197,18 @@ const eventsByFilter = asyncHandler(async (req, res) => {
 const eventUpdate = asyncHandler(async (req, res) => {
     console.warn("RECEIVED EVENT UPDATE VALUES")
     // console.warn(req.body)
-    
-    const filter={_id:req.body._id}
+
+    const filter = { _id: req.body._id }
     console.warn(filter)
     console.warn(req.body.updatedValue)
 
     // first fetch user
-    await Event.findOneAndUpdate(filter,req.body.updatedValue)
-        .then(result=>{
+    await Event.findOneAndUpdate(filter, req.body.updatedValue)
+        .then(result => {
             // console.warn(result)
             if ("error" in result) {
                 res.status(400).json("unknown error when updating event ")
-            }else{
+            } else {
                 res.status(202).json(result)
             }
         }).catch(error => {
@@ -214,19 +226,19 @@ const eventCreate = asyncHandler(async (req, res) => {
     // const userFilter = {id: req.body.id}
     //TODO somewhere in this function we are double setting HTTPS Request Headers after they are sent
     createdEvent = await Event.create(req.body)
-    .then(result=>{
-        console.log(result)
-        if (result == null || "error" in result){
-            console.log("result.error")
-            console.log(result.error)
-            result.status(400) 
-            return   
-        }
-        // console.log(result)
-        console.log(`Event Created`)
-        res.status(201).json(result)   
-        return   
-    }).catch( e=> {console.error(e)})
+        .then(result => {
+            console.log(result)
+            if (result == null || "error" in result) {
+                console.log("result.error")
+                console.log(result.error)
+                result.status(400)
+                return
+            }
+            // console.log(result)
+            console.log(`Event Created`)
+            res.status(201).json(result)
+            return
+        }).catch(e => { console.error(e) })
     res.status(599).json("Unknown error")
 })
 
@@ -240,20 +252,20 @@ const requestDino = asyncHandler(async (req, res) => {
     let duplicates = []
 
     console.log(`${userName} is requesting: [${listOfRequestedDinos}]`)
-    if (listOfRequestedDinos.length <1){
+    if (listOfRequestedDinos.length < 1) {
         console.log("New request was blank")
-        res.status(400).json({Mesage: "Likely a blank dino name in the request"})
+        res.status(400).json({ Mesage: "Likely a blank dino name in the request" })
         return
     }
 
     // function for converting list of dinos into a list of promises 
-    function checkForDuplicate(dino){
+    function checkForDuplicate(dino) {
         const filter = {
             status: INCOMPLETE_STATES,
             dino: dino,
             id: req.body.userInfo.id,
             guild: req.body.userInfo.guilds[req.body.userInfo.guild]
-        }       
+        }
         // console.log(`Promise filter: "${dino}"`)
         // .exec() returns the result in a promise
         return DinoRequest.find(filter).exec()
@@ -272,7 +284,7 @@ const requestDino = asyncHandler(async (req, res) => {
             // DO THINGS WITH ALL RESULTS
 
             // Check for empty objects (confirm if duplicated found)
-            results.forEach((result, index)=>{
+            results.forEach((result, index) => {
                 // console.log(result)
 
                 if (result[0] !== undefined && "dino" in result[0]) {
@@ -280,7 +292,7 @@ const requestDino = asyncHandler(async (req, res) => {
                     console.warn(warningString)
                     duplicates.push(result[0].dino)
                     // res.status(400).json({message: warningString})
-                }else{
+                } else {
                     // else if not a duplicate we create this request
                     // we'll know which dino it is by the index of request ourder
                     DinoRequest.create({
@@ -295,38 +307,38 @@ const requestDino = asyncHandler(async (req, res) => {
                 }
             })
 
-            if (duplicates.length < listOfRequestedDinos){
-                res.status(201).json({message: `Duplicates ${duplicates}`})
-            }else {
+            if (duplicates.length < listOfRequestedDinos) {
+                res.status(201).json({ message: `Duplicates ${duplicates}` })
+            } else {
                 console.log(duplicates)
-                res.status(412).json({message: `Duplicate request(s) ${duplicates}`})
+                res.status(412).json({ message: `Duplicate request(s) ${duplicates}` })
             }
         })
-        .catch(error=> {
+        .catch(error => {
             // LOG ERRORS 
             console.error("Promise stack error")
             console.error(error)
         })
 })
- 
+
 // @desc        Get user's pending requests
 // route        PUT /api/users/fetchPending
 // @access      Private
-const fetchPending = asyncHandler(async (req, res) => {    
+const fetchPending = asyncHandler(async (req, res) => {
     // console.log(`fetchPending: ${req.body.userInfo.id}`)
     // filter 
     const filter = {
         status: INCOMPLETE_STATES,
         id: req.body.userInfo.id
-    }    
+    }
     // console.log(`fetchPending: ${req.body.userInfo.global_name}`)
     // lookup pending and completed requests matching user
     const requestPending = await DinoRequest.find(filter)
     // console.log(`results: ${requestPending}`)
 
     // return requests
-    if (requestPending[0] === undefined || requestPending.length < 1 ){
-        res.status(404).json({Message: `No requests found for ${req.body.userInfo.global_name}`})
+    if (requestPending[0] === undefined || requestPending.length < 1) {
+        res.status(404).json({ Message: `No requests found for ${req.body.userInfo.global_name}` })
     } else {
         res.status(200).json(requestPending)
     }
@@ -335,7 +347,7 @@ const fetchPending = asyncHandler(async (req, res) => {
 // @desc        Get user's pending requests for any user of a guild
 // route        PUT /api/users/fetchPendingByFilter
 // @access      Private
-const fetchPendingByFilter = asyncHandler(async (req, res) => {    
+const fetchPendingByFilter = asyncHandler(async (req, res) => {
     // console.log(`fetchPendingByFilter: ${req.body.userInfo.id}`)
     console.log(`fetchPendingByFilter: ${req.body.filter}`)
     console.log(req.body.filter)
@@ -348,7 +360,7 @@ const fetchPendingByFilter = asyncHandler(async (req, res) => {
 
 
     // return requests
-    if (request[0] === undefined){
+    if (request[0] === undefined) {
         res.status(404).json()
     } else {
         res.status(200).json(request)
@@ -359,8 +371,8 @@ const fetchPendingByFilter = asyncHandler(async (req, res) => {
 // route        PUT /api/users/updateRequest
 // @access      Private
 // requires     selectedRequest should be in the body (type DinoRequest Model Obj)
-const updateRequest = asyncHandler(async (req, res) => {    
-    try{
+const updateRequest = asyncHandler(async (req, res) => {
+    try {
         console.warn(req.body)
         const filter = {
             _id: req.body.selectedRequest._id
@@ -370,13 +382,13 @@ const updateRequest = asyncHandler(async (req, res) => {
 
         // console.warn(JSON.stringify(verification))
         // return requests
-        if (verification === undefined){
+        if (verification === undefined) {
             res.status(400).json(`Message: No requests found for ${req.body.userInfo.global_name} :: ${filter}`)
         } else {
-            
+
             res.status(200).json(verification)
         }
-    }catch (err){
+    } catch (err) {
         console.error("updateRequest:")
         console.error(err)
     }
@@ -396,33 +408,33 @@ const updateGuildMeta = asyncHandler(async (req, res) => {
     console.info(req.body)
 
     // case where we have no updatedValues 
-    if (updatedValues === null || updatedValues == undefined){
+    if (updatedValues === null || updatedValues == undefined) {
         console.log("Searching for guild...")
         const foundGuild = await GuildMeta.findOne(filter)
         // if no guild is found create one or return the results found
-        if (foundGuild===null || "error" in foundGuild){
+        if (foundGuild === null || "error" in foundGuild) {
             console.log("Creating guild")
             const createdGuild = await GuildMeta.create(filter)
             console.log(createdGuild)
             res.status(201).json(createdGuild)
             return
-        }else{
+        } else {
             console.log("Returning guild info")
             console.log(foundGuild)
             res.status(200).json(foundGuild)
             return
         }
     }
-    
+
     // have a updatedValues and nothing is found 
-    const updatedGuild = await GuildMeta.findOneAndUpdate(filter,updatedValues)
-    if (updatedGuild == null || "error" in updatedGuild){
+    const updatedGuild = await GuildMeta.findOneAndUpdate(filter, updatedValues)
+    if (updatedGuild == null || "error" in updatedGuild) {
         console.log("Creating guild")
-        const createdGuild = await GuildMeta.create({...filter,...updatedValues})
+        const createdGuild = await GuildMeta.create({ ...filter, ...updatedValues })
         console.log(createdGuild)
         res.status(201).json(createdGuild)
         return
-    }else{
+    } else {
         console.log("ModifiedResult:")
         console.log(updatedGuild)
         res.status(202).json(updatedGuild)
@@ -433,33 +445,33 @@ const updateGuildMeta = asyncHandler(async (req, res) => {
 // @desc        get the info of a guild
 // route        PUT /api/users/updateGuild
 // @access      Private
-const getGuildMeta= asyncHandler(async (req, res) => {
+const getGuildMeta = asyncHandler(async (req, res) => {
     console.warn("getGuildMeta:")
     try {
-        const filter = {global_name: RegExp(req.params.global_name, "i")}
+        const filter = { global_name: RegExp(req.params.global_name, "i") }
         console.info(filter)
-    
+
         await GuildMeta.find(filter)
-        .then(result => {
-            // console.log("result:")
-            // console.log(result)
-            if ("error" in result){
-                console.error("getGuildMeta ERROR")
-                console.error(result.error)
-                res.status(501).json(result.error)
-            }
-            // console.log("result")
-            // console.log(result)
-            // console.log(result[0])
-            if (result.length < 1){
-                console.log("404")
-                res.status(404).json({error:404,Message: "No matching guild found."})
-            }else{
-                console.log(`Found ${result.length} matches`)
-                res.status(200).json(result)
-            }
-        })
-    }catch (err) {
+            .then(result => {
+                // console.log("result:")
+                // console.log(result)
+                if ("error" in result) {
+                    console.error("getGuildMeta ERROR")
+                    console.error(result.error)
+                    res.status(501).json(result.error)
+                }
+                // console.log("result")
+                // console.log(result)
+                // console.log(result[0])
+                if (result.length < 1) {
+                    console.log("404")
+                    res.status(404).json({ error: 404, Message: "No matching guild found." })
+                } else {
+                    console.log(`Found ${result.length} matches`)
+                    res.status(200).json(result)
+                }
+            })
+    } catch (err) {
         console.error(err)
     }
 })

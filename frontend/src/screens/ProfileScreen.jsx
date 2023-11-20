@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { Form, Button, Badge, Modal, ListGroup } from "react-bootstrap";
 import FormContainer from "../components/FormContainer";
-import { useDispatch, 
-         useSelector, } from 'react-redux'
+import {
+    useDispatch,
+    useSelector,
+} from 'react-redux'
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { setCredentials } from "../slices/authSlice";
@@ -20,17 +22,17 @@ const ProfileScreen = () => {
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
-    const navigate = useNavigate()
-    const dispatch = useDispatch() 
+    // const navigate = useNavigate()
+    const dispatch = useDispatch()
     const [updateProfile, { isUpdating }] = useUpdateUserMutation()
     const [updateGuildMeta, { isFetching }] = useUpdateGuildMetaMutation()
     const [registerUser, { isLoading }] = useRegisterMutation()
     const { userInfo } = useSelector((state) => state.auth)
-    const timezoneList = [-12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+    // const timezoneList = [-12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
     const [guildSelection, setGuildSelection] = useState([])
     const [isBreeder, setIsBreeder] = useState()
-    const [guildBreederRole, setGuildBreederRole] = useState([]);
-    const [guildBreederRoleChange, setGuildBreederRoleChange] = useState([]);
+    const [guildsBreederRoleIDs, setGuildsBreederRoleIDs] = useState([]);
+    const [guildsBreederRoleIDsUpdated, setGuildsBreederRoleIDsUpdated] = useState([]);
     const [guildRoleIDs, setGuildRoleIDs] = useState([]);
     const [cachedPermissions, setCachedPermissions] = useState({});
     const [formData, setFormData] = useState({
@@ -48,7 +50,7 @@ const ProfileScreen = () => {
     }
 
     // Run once to fetch user's latest profile every time the page refreshes
-    useEffect(()=>{
+    useEffect(() => {
         // disabled for now due to it cauing logouts incorrectly
         // // redirect to logout if token isn't valid
         // if (!("token" in userInfo) || userInfo.token == "" || userInfo.token == null){
@@ -57,29 +59,24 @@ const ProfileScreen = () => {
         // }
 
         // if token exists we hope it's valid and fetch user info
-        registerUser({id:userInfo.id})
-        .then(result=>{
-            if ("error" in result){
-                console.error(result)
-                return
-            }
-            if (result.data == userInfo){
-                console.warn("MATCHING")
-                console.info(result.data)
-
-            }
-            dispatch(setCredentials(result.data))
-        })
+        registerUser({ id: userInfo.id })
+            .then(result => {
+                if ("error" in result) {
+                    console.error(result)
+                    return
+                }
+                dispatch(setCredentials(result.data))
+            })
     }, [])
 
     // Trigger anytime UserInfo updates and populate the guild/Server
     useEffect(() => {
-        if (userInfo.guild != "" && 
-        userInfo.guild in userInfo.guilds){
+        if (userInfo.guild != "" &&
+            userInfo.guild in userInfo.guilds) {
             setGuildSelection([userInfo.guilds[userInfo.guild]])
         }
         // console.log(`Setting guildSelection to ${userInfo.guilds[userInfo.guild].name}`)
-    }, [userInfo])
+    }, [])
 
     // triggers when user change their Discord Server
     useEffect(() => {
@@ -95,20 +92,37 @@ const ProfileScreen = () => {
 
     // Triggers when we update the server's details and user info
     useEffect(() => {
+        isGuildBreeder()
+
+    }, [guildsBreederRoleIDs])
+
+
+    // check for and update isAdmin status
+    const isGuildBreeder = () => {
         // break if we don't have the needed info
-        if (guildBreederRole[0] == undefined || userInfo.guildRoles == null) {
-            // console.log("guildSelection[0] || userInfo.guildRoleIDs still undefined")
+        if (guildsBreederRoleIDs.length <= 1 ||
+            guildsBreederRoleIDs == undefined ||
+            guildsBreederRoleIDs[0] == undefined ||
+            userInfo.guildRoles == null) {
+            // cancel because we don't have the data to determine breeder status
             return
         }
-        // console.warn("Checking Admin...")
-        // console.info(userInfo.guildRoles)
-        // console.info(guildBreederRole)
-        if (userInfo.guildRoles.includes(guildBreederRole[0]) ||
-            userInfo.guildRoles.includes(guildBreederRole)) {
+
+        // since we expect this to be short list O(n^2) is acceptible
+        function doesHaveBreederRole(approvedBreederRoles, usersRoleList) {
+            for (let i = 0; i < approvedBreederRoles.length; i++) {
+                if (usersRoleList.includes(approvedBreederRoles[i])) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        if (doesHaveBreederRole(userInfo.guildRoles, guildsBreederRoleIDs)) {
             setIsBreeder(true)
             console.log("Breeder detected")
         }
-    }, [guildBreederRole])
+    }
 
     // check for and update isAdmin status
     const isGuildAdmin = () => {
@@ -155,9 +169,6 @@ const ProfileScreen = () => {
                 cachedPermissions[guildSelection[0].id] = result.roles
                 // setCachedPermissions(previousCache =>({...previousCache, result}))
                 console.log("caching...")
-                // console.warn(cachedPermissions)
-                // console.log("guild roles")
-                // console.log(result)
                 console.log(`setGuildRoleIDs ${result.roles}`)
                 setGuildRoleIDs(result.roles)
             })
@@ -170,11 +181,11 @@ const ProfileScreen = () => {
             .then(result => {
                 // console.warn( result.data )
                 if ("breederRoleIDs" in result.data) {
-                    console.log(`setGuildBreederRoles ${result.data.breederRoleIDs}`)
-                    setGuildBreederRole(result.data.breederRoleIDs)
-                    setGuildBreederRoleChange(result.data.breederRoleIDs)
+                    console.log(`setGuildBreederRole ${result.data.breederRoleIDs}`)
+                    setGuildsBreederRoleIDs(result.data.breederRoleIDs)
+                    setGuildsBreederRoleIDsUpdated(result.data.breederRoleIDs)
                 } else {
-                    setGuildBreederRole([])
+                    setGuildsBreederRoleIDs([])
                 }
             })
     }
@@ -197,7 +208,7 @@ const ProfileScreen = () => {
                             1
                         </Badge>
                     </div>
-                    {`Breeder Role: ${guildBreederRole}`}
+                    {`Breeder Role: ${guildsBreederRoleIDs}`}
                     <br />
                     {/* {`Ranks: ${guildSelection[0].name}`} */}
                 </div>
@@ -231,7 +242,7 @@ const ProfileScreen = () => {
         // new Date(Date.UTC(1970, 0, 1, 1, 25, 0, 0))
         // console.warn(new Date(0, 0, 0, formData.timeOpen.substr(0,2), formData.timeOpen.substr(3,5), 0, 0))
 
-         // submit formData for upser update
+        // submit formData for upser update
         try {
             // verbose way to overwite user when admin has been revoked and breeder was selected
             let newValues = {
@@ -240,9 +251,9 @@ const ProfileScreen = () => {
                 guild: guildSelection[0].id,
                 guildRoles: guildRoleIDs,
                 token: userInfo.token,
-                timeOpen: new Date(0, 0, 0, formData.timeOpen.substring(0,2), formData.timeOpen.substring(3,5), 0, 0).valueOf(),
-                timeClose: new Date(0, 0, 0, formData.timeClose.substring(0,2), formData.timeClose.substring(3,5), 0, 0).valueOf(),
-                timezoneOffset:new Date().getTimezoneOffset()             
+                timeOpen: new Date(0, 0, 0, formData.timeOpen.substring(0, 2), formData.timeOpen.substring(3, 5), 0, 0).valueOf(),
+                timeClose: new Date(0, 0, 0, formData.timeClose.substring(0, 2), formData.timeClose.substring(3, 5), 0, 0).valueOf(),
+                timezoneOffset: new Date().getTimezoneOffset()
             }
             if (!isBreeder && !isGuildAdmin()) {
                 newValues = { ...newValues, role: "user" }
@@ -288,9 +299,9 @@ const ProfileScreen = () => {
             id: guildSelection[0].id
         }
         const updatedValues = {
-            breederRoleIDs: guildBreederRoleChange
+            breederRoleIDs: guildsBreederRoleIDsUpdated
         }
-        console.warn(guildBreederRoleChange)
+        console.warn(guildsBreederRoleIDsUpdated)
         const result = await updateGuildMeta({ filter: filter, updatedValues: updatedValues })
         toast(result.name)
 
@@ -301,6 +312,7 @@ const ProfileScreen = () => {
     return (
         <>
             <FormContainer>
+                {isLoading && <Loader />}
                 <h1>Update Profile</h1>
                 <Form onSubmit={submitHandler}>
                     <Form.Group className='my-2' controlId="discordGlobalName">
@@ -384,6 +396,7 @@ const ProfileScreen = () => {
                     <br />
                     <b>PLEASE double click the Update button to SAVE</b>
 
+
                     {isUpdating && <Loader />}
                     <br />
                     <Button type='submit' variant="primary" className="mt-3">
@@ -400,7 +413,7 @@ const ProfileScreen = () => {
                     {`Server Name: ${guildSelection.name}`}
                     <br />
                     {`RoleID: `}
-                    <Form.Control id="new-breeder-id" type="text" onChange={e => setGuildBreederRoleChange(e.target.value)} defaultValue={guildBreederRole} />
+                    <Form.Control id="new-breeder-id" type="text" onChange={e => setGuildsBreederRoleIDsUpdated(e.target.value)} defaultValue={guildsBreederRoleIDs} />
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={handleClose}>

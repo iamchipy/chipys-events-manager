@@ -48,7 +48,7 @@ const OAuthScreen = () => {
             }, {});         
 
             // now combind them into a new user obj
-            const fetchedUser = {...data[0], guilds: guilds}
+            const fetchedUser = {...data[0], guilds: guilds, token: accessToken}
             console.log("Discord User Info:")
             console.info(fetchedUser)
             toast.success(`Welcome ${fetchedUser.global_name}`)
@@ -58,9 +58,7 @@ const OAuthScreen = () => {
 
                 toast.info(`Fetching profile data . . . `)
                 // rename for readability
-                const profile = {...result.data, token: accessToken}
-                console.warn(result)
-
+                const profile = result.data
                 console.log("Full Profile")
                 console.info(profile)
 

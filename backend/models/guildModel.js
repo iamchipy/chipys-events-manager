@@ -15,7 +15,7 @@ const guildSchema = mongoose.Schema({
         type: String,
     }, 
     breederRoleIDs: {
-        type: mongoose.Schema.Types.Mixed
+        type: Array
     },            
 },{
     // Enables time stamping
