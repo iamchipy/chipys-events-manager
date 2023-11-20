@@ -12,18 +12,14 @@ const LogoutScreen = () => {
   const navigate = useNavigate
   const [logoutApiCall] = useLogoutMutation()
 
-  const logoutHandler = async () => {
-    try {
-      await logoutApiCall().unwrap();
-      dispatch(logout());
-      navigate('/');
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
   useEffect(() => {
-    logoutHandler();
+    try {
+      logoutApiCall().unwrap();
+      dispatch(logout());
+      navigate('/', "replace");
+    } catch (err) {
+      console.error(err);
+    }
   }, []);
 
   return (

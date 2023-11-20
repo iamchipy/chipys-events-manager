@@ -49,10 +49,12 @@ const ProfileScreen = () => {
 
     // Run once to fetch user's latest profile every time the page refreshes
     useEffect(()=>{
-        // redirect to logout if token isn't valid
-        if (!("token" in userInfo) || userInfo.token == "" || userInfo.token == null){
-            navigate("/logout")
-        }
+        // disabled for now due to it cauing logouts incorrectly
+        // // redirect to logout if token isn't valid
+        // if (!("token" in userInfo) || userInfo.token == "" || userInfo.token == null){
+        //     navigate("/logout")
+        //     return
+        // }
 
         // if token exists we hope it's valid and fetch user info
         registerUser({id:userInfo.id})
