@@ -41,7 +41,7 @@ const ProfileScreen = () => {
         timeOpen: moment(userInfo.timeOpen).format("HH:mm"),
         timeClose: moment(userInfo.timeClose).format("HH:mm"),
     })
-    const headers = { authorization: `Bearer ${userInfo.token}` }
+    const headers = "token" in userInfo?{ authorization: `Bearer ${userInfo.token}` }:{ authorization: "Invalid" }
     let guildsList = []
     for (let tempId in userInfo.guilds) {
         guildsList.push(userInfo.guilds[tempId])
@@ -103,13 +103,13 @@ const ProfileScreen = () => {
                 console.log(`Fetching user's roles in "${guildSelection[0].name}"`)
                 // Check if we've cached this fetch to avoid spam
                 if (currentGuildRolesCache[guildSelection[0].id] != undefined &&
-                    currentGuildRolesCache[guildSelection[0].id].roles != undefined ){
+                    currentGuildRolesCache[guildSelection[0].id].roles != undefined) {
                     console.warn("Using cached guild info:")
-                    console.log(currentGuildRolesCache[guildSelection[0].id])       
+                    console.log(currentGuildRolesCache[guildSelection[0].id])
 
                     setIsBreeder(isGuildBreeder(guildMetaInfo.data.breederRoleIDs, currentGuildRolesCache[guildSelection[0].id].roles))
-               
-                }else{
+
+                } else {
                     console.warn("Fetching fresh discord role info for user")
                     fetch(`https://discord.com/api/users/@me/guilds/${guildSelection[0].id}/member`, { headers })
                         .then(function (response) {
@@ -120,17 +120,17 @@ const ProfileScreen = () => {
                             if ("error" in result) {
                                 console.warn("Error fetching guild member info")
                                 console.log(result.error)
-                            }else if ("roles" in result){
+                            } else if ("roles" in result) {
                                 // now cache the date for later use
                                 currentGuildRolesCache[guildSelection[0].id] = result
                                 console.warn("caching...")
                                 console.log(`User's roles in current guild: ${result.roles}`)
                                 setIsBreeder(isGuildBreeder(guildMetaInfo.data.breederRoleIDs, currentGuildRolesCache[guildSelection[0].id].roles))
-                            }else{
+                            } else {
                                 console.error("Something fails with fetching user's roles indiscord server")
-                            }                          
+                            }
                         })
-                }        
+                }
             })
     }, [guildSelection])
 
@@ -144,26 +144,26 @@ const ProfileScreen = () => {
     const isGuildBreeder = (guildsBreederRoleIDsList, usersRoleIDsList) => {
 
         // standardize incoming value types
-        if (!(Array.isArray(guildsBreederRoleIDsList)) && guildsBreederRoleIDsList != undefined){
+        if (!(Array.isArray(guildsBreederRoleIDsList)) && guildsBreederRoleIDsList != undefined) {
             guildsBreederRoleIDsList = [guildsBreederRoleIDsList]
         }
-        if (!(Array.isArray(usersRoleIDsList)) && usersRoleIDsList != undefined){
+        if (!(Array.isArray(usersRoleIDsList)) && usersRoleIDsList != undefined) {
             usersRoleIDsList = [usersRoleIDsList]
-        }          
+        }
 
         // break if we don't have the needed info
-        if (guildsBreederRoleIDsList == undefined||
+        if (guildsBreederRoleIDsList == undefined ||
             guildsBreederRoleIDsList[0] == undefined) {
             // cancel because we don't have the data to determine breeder status
             console.warn("Ivalid input for guildsBreederRoleIDsList (UNDEFINED)")
             return false
         }
-        if (usersRoleIDsList == undefined||
+        if (usersRoleIDsList == undefined ||
             usersRoleIDsList[0] == undefined) {
             // cancel because we don't have the data to determine breeder status
             console.warn("Ivalid input for usersRoleIDsList (UNDEFINED)")
             return false
-        }        
+        }
 
         // since we expect this to be short list O(n^2) is acceptible
         function doesHaveBreederRole(approvedBreederRoles, usersRoleList) {
@@ -223,7 +223,7 @@ const ProfileScreen = () => {
                     </div>
                     {`Breeder Role: ${guildsCurrentBreederRoleIDs}`}
                     <br />
-                    {/* {`Ranks: ${guildSelection[0].name}`} */}
+                    {`Webhook: ${guildSelection[0].webhook ? "Enabled" : "Disabled"}`}
                 </div>
             </ListGroup.Item>
         )
