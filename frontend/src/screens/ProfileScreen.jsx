@@ -28,10 +28,10 @@ const ProfileScreen = () => {
     const [updateGuildMeta, { isFetching }] = useUpdateGuildMetaMutation()
     const [registerUser, { isLoading }] = useRegisterMutation()
     const { userInfo } = useSelector((state) => state.auth)
-    // const timezoneList = [-12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
     const [guildSelection, setGuildSelection] = useState([])
     const [isBreeder, setIsBreeder] = useState(false)
-    const [guildsCurrentBreederRoleIDs, setGuildsCurrentBreederRoleIDs] = useState([]);
+    const [guildsCurrentWebHook, setGuildsCurrentWebHook] = useState([userInfo.guilds[userInfo.guild]].webhook);
+    const [guildsCurrentBreederRoleIDs, setGuildsCurrentBreederRoleIDs] = useState([]);  //TODO REMOVE Dulplicate var
     const [guildsBreederRoleIDsUpdated, setGuildsBreederRoleIDsUpdated] = useState([]);
     const [currentGuildRolesCache, setUsersCurrentGuildRolesCachePermissions] = useState({});
     const [formData, setFormData] = useState({
@@ -41,7 +41,7 @@ const ProfileScreen = () => {
         timeOpen: moment(userInfo.timeOpen).format("HH:mm"),
         timeClose: moment(userInfo.timeClose).format("HH:mm"),
     })
-    const headers = "token" in userInfo?{ authorization: `Bearer ${userInfo.token}` }:{ authorization: "Invalid" }
+    const headers = "token" in userInfo ? { authorization: `Bearer ${userInfo.token}` } : { authorization: "Invalid" }
     let guildsList = []
     for (let tempId in userInfo.guilds) {
         guildsList.push(userInfo.guilds[tempId])
@@ -94,9 +94,12 @@ const ProfileScreen = () => {
                     console.log(`${guildSelection[0].name} DOES HAVE assigned breeder roles: ${guildMetaInfo.data.breederRoleIDs}`)
                     setGuildsCurrentBreederRoleIDs(guildMetaInfo.data.breederRoleIDs)
                     setGuildsBreederRoleIDsUpdated(guildMetaInfo.data.breederRoleIDs)
+                    setGuildsCurrentWebHook(guildMetaInfo.data.webhook)
+
                 } else {
                     console.log(`${guildSelection[0].name} does NOT have any assigned breeder roles`)
                     setGuildsCurrentBreederRoleIDs([])
+                    setGuildsCurrentWebHook([])
                 }
 
 
@@ -215,15 +218,12 @@ const ProfileScreen = () => {
                 <div className="ms-2 me-auto" >
                     <div className="fw-bold" >
                         <img width="55" src={`https://cdn.discordapp.com/icons/${guildSelection[0].id}/${guildSelection[0].icon}.webp`} />
-
                         {guildSelection[0].name}
-                        <Badge bg="primary" pill>
-                            1
-                        </Badge>
+                        <Badge bg="primary" pill>1</Badge>
                     </div>
                     {`Breeder Role: ${guildsCurrentBreederRoleIDs}`}
                     <br />
-                    {`Webhook: ${guildSelection[0].webhook ? "Enabled" : "Disabled"}`}
+                    {`Webhook: ${guildsCurrentWebHook != "" ? "Enabled" : "Disabled"}`}
                 </div>
             </ListGroup.Item>
         )
@@ -312,9 +312,11 @@ const ProfileScreen = () => {
             id: guildSelection[0].id
         }
         const updatedValues = {
-            breederRoleIDs: guildsBreederRoleIDsUpdated
+            breederRoleIDs: guildsBreederRoleIDsUpdated,
+            webhook: guildsCurrentWebHook
         }
-        console.warn(guildsBreederRoleIDsUpdated)
+        console.warn("guildsBreederRoleIDsUpdated")
+        console.log(guildsBreederRoleIDsUpdated)
         const result = await updateGuildMeta({ filter: filter, updatedValues: updatedValues })
         toast(result.name)
 
@@ -422,10 +424,12 @@ const ProfileScreen = () => {
                     <Modal.Title>Change Breeder Role ID</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    {`Server Name: ${guildSelection.name}`}
+                    {`Server Name: ${guildSelection[0] != undefined ? guildSelection[0].name : "Invalid"}`}
                     <br />
                     {`RoleID: `}
-                    <Form.Control id="new-breeder-id" type="text" onChange={e => setGuildsBreederRoleIDsUpdated(e.target.value)} defaultValue={guildsCurrentBreederRoleIDs} />
+                    <Form.Control id="new-breeder-id" type="text" onChange={event => setGuildsBreederRoleIDsUpdated(event.target.value)} defaultValue={guildsCurrentBreederRoleIDs} />
+                    {`WebHook: `}
+                    <Form.Control id="new-webhook" type="text" onChange={event => setGuildsCurrentWebHook(event.target.value)} defaultValue={guildsCurrentWebHook} />
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={handleClose}>
