@@ -3,6 +3,7 @@ frontend/src/components/DiscordOAuthURL.jsx
 node_modules
 .env
 zsetup_cmd.txt
+.archived
 
 # Logs
 logs
