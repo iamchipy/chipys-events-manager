@@ -54,9 +54,14 @@ const userSchema = mongoose.Schema({
         type: String,     
         default: null
     },               
-    locale: {
-        type: String,       
+    announcement: {
+        type: String,      
+        default: "" 
     },     
+    webhook: {
+        type: String,      
+        default: "" 
+    },         
     timeOpen: {
         type: Number,
         default: 0
