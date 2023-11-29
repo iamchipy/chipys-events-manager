@@ -36,8 +36,8 @@ This MERN Stack webapp is designed to help ARK mega-tribe breeders manager the d
 - - - [X] Event Creation
 - - - [X] Event Deletion
 - - - [X] Event Notes
-- - - [ ] Event User recommendations (by age/timezone)
-- - - [ ] Event Discord announcements
+- - - [X] Event User recommendations (by age/timezone)
+- - - [X] Event Discord announcements
 - - [ ] System for breeders to see/share/post current stats/lines
 - - [ ] System for breeders to announce hatchings in discord
 - - [X] Waiting List with dino filtering
@@ -50,7 +50,7 @@ This MERN Stack webapp is designed to help ARK mega-tribe breeders manager the d
 - - [X] Token hashing and salting
 - - [ ] Secure/Private pages locked behind tokens
 - - [ ] Create additional perivilage levels
-- - [ ] Token TTL/invalidation
+- - [X] Token TTL/invalidation
 - [X] Hosting
 - - [X] Database
 - - [X] DNS
@@ -68,7 +68,7 @@ This MERN Stack webapp is designed to help ARK mega-tribe breeders manager the d
 - - [X] Event creation
 - - [X] Event modification
 - - [X] Event viewing
-- - [ ] Announcement creation
+- - [X] Announcement creation
 - - [ ] Announcement modification
 - - [ ] Announcement viewing
 
