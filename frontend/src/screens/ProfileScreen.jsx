@@ -5,7 +5,6 @@ import {
     useDispatch,
     useSelector,
 } from 'react-redux'
-import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { setCredentials } from "../slices/authSlice";
 import {
@@ -346,7 +345,6 @@ const ProfileScreen = () => {
                             highlightOnlyResult={false}
                             options={guildsList}
                             placeholder="Select Discord Server"
-                            // defaultSelected={[guildSelection]}
                             selected={guildSelection}
                             clearButton
                         />
@@ -369,20 +367,6 @@ const ProfileScreen = () => {
                             defaultValue={formData.timeClose}
                         />
                     </Form.Group>
-                    {/* <Form.Group className='my-4'>
-                        <Form.Label>Select Timezone</Form.Label>
-                        <Form.Select
-                            onChange={handleChangeEvents}
-                            defaultValue={formData.timezone}
-                            name="timezone"
-                        >
-                            {Array.isArray(timezoneList) && timezoneList.map((item, index) => (
-                                <option key={index} value={item} >
-                                    {item} UTC
-                                </option>
-                            ))}
-                        </Form.Select>
-                    </Form.Group> */}
                     <Form.Group className='my-2' controlId="userRole">
                         <Form.Label>Role</Form.Label>
                         <Form.Select

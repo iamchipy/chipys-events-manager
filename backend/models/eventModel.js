@@ -36,7 +36,15 @@ const eventSchema = mongoose.Schema({
     capacity: {
         type: Number,
         default: 1
-    }             
+    },
+    webhook: {
+        type: String,
+        default: ""
+    }     ,
+    announcement: {
+        type: String,
+        default: ""
+    }                 
 },{
     // Enables time stamping
     timestamps: true

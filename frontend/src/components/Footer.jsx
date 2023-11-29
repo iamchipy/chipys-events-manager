@@ -1,4 +1,4 @@
-const VERISON_STRING = "0.01.06"
+const VERISON_STRING = "0.01.07"
 const Footer = () => {
     return (
         <footer>
