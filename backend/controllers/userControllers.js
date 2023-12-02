@@ -362,8 +362,8 @@ const fetchPending = asyncHandler(async (req, res) => {
 // @access      Private
 const fetchPendingByFilter = asyncHandler(async (req, res) => {
     // console.log(`fetchPendingByFilter: ${req.body.userInfo.id}`)
-    console.log(`fetchPendingByFilter: ${req.body.filter}`)
-    console.log(req.body.filter)
+    // console.log(`fetchPendingByFilter:`)
+    // console.log(req.body.filter)
     // filter 
     const filter = req.body.filter
     // console.log(`fetchPending: ${req.body.userInfo.global_name}`)
