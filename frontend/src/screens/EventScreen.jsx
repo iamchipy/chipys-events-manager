@@ -1,7 +1,11 @@
 import { useState, useEffect } from "react";
 import { Form, Button, ListGroup, Badge, Modal } from "react-bootstrap";
 import FormContainer from "../components/FormContainer";
-import { useSelector } from 'react-redux'
+import {
+    useSelector,
+    useDispatch
+} from 'react-redux'
+import { setCredentials } from "../slices/authSlice";
 import { toast } from "react-toastify";
 import {
     useEventUpdateMutation,
@@ -21,7 +25,7 @@ import { INCOMPLETE_STATES } from "../components/FilterPresets"
 const EventScreen = () => {
 
     // Define constants for later
-
+    const dispatch = useDispatch()
     const [eventUpdate, { isUpdating }] = useEventUpdateMutation()
     const [fetchPendingByFilter] = useFetchPendingByFilterMutation()
     const [eventCreate, { isCreating }] = useEventCreateMutation()
@@ -68,26 +72,29 @@ const EventScreen = () => {
     }, [])
 
     // Fetch webhook for current guild
-    const fetchGuildsWebhook = (guildObject) => {
+    const fetchGuildsWebhook = async (guildObject) => {
         // now we do meta-case switching to prioritize person webhooks 
         // CASE #1 - user has their own data
-        if ("webhook" in userInfo && userInfo.webhook != ""){
+        if ("webhook" in userInfo && userInfo.webhook != "" && guildWebhook != "default") {
             setGuildWebhook(userInfo.webhook)
+            console.log(`Custom webhook detected '${userInfo.webhook}'`)
             return
         }
         // CASE #2 - get default value from guild if it exists
         // fetch current selected guild's metadata details
         updateGuildMeta({ filter: { id: guildObject.id } })
             .then(guildMetaInfo => {
-                
+
                 // CASE #2 cont - get default value from guild if it exists
                 if ("webhook" in guildMetaInfo.data) {
                     console.log(`${guildObject.name} DOES have a webhook`)
                     setGuildWebhook(guildMetaInfo.data.webhook)
+                    return guildMetaInfo.data.webhook
                 } else {
                     // CASE #3 - display generic hook with warning
                     console.warn(`${guildObject.name} WEBHOOK MISSING`)
                     setGuildWebhook("https://discord.com/api/webhooks/...")
+                    return "https://discord.com/api/webhooks/..."
                 }
             })
     }
@@ -95,11 +102,11 @@ const EventScreen = () => {
     // Send Discord announcement
     function discordAnnounce(url, data) {
         // validate inputs
-        if (!("content" in data) && 
+        if (!("content" in data) &&
             !("embeds" in data) &&
             !("components" in data) &&
-            !("file" in data)){
-            data  = {content:`DEFAULT: EventAnnouncment sent by <@${userInfo.id}>`}
+            !("file" in data)) {
+            data = { content: `DEFAULT: EventAnnouncment sent by <@${userInfo.id}>` }
         }
 
         //https://discord.com/developers/docs/resources/webhook
@@ -108,7 +115,7 @@ const EventScreen = () => {
             httpRequestObject.open("POST", url, true);
             httpRequestObject.setRequestHeader("Content-Type", "application/json");
             httpRequestObject.onreadystatechange = function () {
-                if (httpRequestObject.readyState === 4 && 
+                if (httpRequestObject.readyState === 4 &&
                     (httpRequestObject.status === 200 || httpRequestObject.status === 204)) {
                     resolve(httpRequestObject.responseText);
                 } else if (httpRequestObject.readyState === 4) {
@@ -390,6 +397,9 @@ const EventScreen = () => {
             return
         }
 
+        console.warn(typeof guildWebhook)
+        const webhookString = typeof variable === 'string' && "target" in guildWebhook ? guildWebhook.target.value : guildWebhook
+
         const dateTime = new Date(formData.date.substring(0, 4),
             parseInt(formData.date.substring(5, 7)) - 1,
             formData.date.substring(8, 10),
@@ -403,6 +413,7 @@ const EventScreen = () => {
         // Wed Dec 06 2023 06:06:00 GMT-0500 (Eastern Standard Time)
         // 1701860760000
         // Wed Dec 06 2023 06:06:00 GMT-0500 (Eastern Standard Time)
+
         let data = {
             ...formData,
             id: userInfo.id,
@@ -411,47 +422,48 @@ const EventScreen = () => {
             startTime: dateTime.valueOf(),
             timezoneOffset: dateTime.getTimezoneOffset(), //WE ARE USING UTC and offset
             dino: dinoSelection[0],
+            webhook: webhookString
 
         }
-
-        // // handle webhook selection between default of custom
-        // if (guildWebhook != undefined) {
-        //     data = {
-        //         ...data,
-        //         webhook: guildWebhook
-        //     }
-        // }
 
         // Log outgoing data for debug
         console.warn("SENT DATA")
         console.log(data)
+
         // console.log(dateTime)
 
         // Create the event with API
         eventCreate(data)
-        .then(res => {
-            if ("error" in res){
-                // console.warn(res.error)
-                toast.warn(res.error.data)
-            }else{
-                toast.success(`${res.data.dino} event created`)
-                console.warn("eventCreate - result")
-                console.log(res.data)
-                refreshFiltered()
-                discordAnnounce(guildWebhook,{content:formData.announcement})
-            }
-        })
+            .then(res => {
+                if ("error" in res) {
+                    // console.warn(res.error)
+                    toast.warn(res.error.data)
+                } else {
+                    toast.success(`${res.data.dino} event created`)
+                    console.warn("eventCreate - result")
+                    console.log(res.data)
+                    refreshFiltered()
+                    discordAnnounce(webhookString, { content: formData.announcement })
+                }
+            })
 
         // Save announcment and webhook info to user's profile for later
-        let updatedValues = {id: userInfo.id, announcement:formData.announcement}
-        if (guildWebhook != userInfo.webhook){
-            updatedValues = {...updatedValues,webhook:guildWebhook}
+        let updatedValues = { id: userInfo.id, announcement: formData.announcement }
+        if (guildWebhook != userInfo.webhook) {
+            console.log("ADDED NEW WEBHOOK")
+            console.log(webhookString)
+            updatedValues = { ...updatedValues, webhook: webhookString }
         }
         updateUserProfile(updatedValues)
-        .then(res => {
-            console.warn("res")
-            console.log(res)
-        })
+            .then(result => {
+                if ("error" in result) {
+                    console.warn(result.error)
+                } else {
+                    console.warn("WebHook/Announcment response")
+                    console.log(result)
+                    dispatch(setCredentials(result.data))
+                }
+            })
     }
 
     const handleSave = async () => {
