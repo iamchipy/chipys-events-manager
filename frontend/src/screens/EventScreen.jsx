@@ -1,7 +1,11 @@
 import { useState, useEffect } from "react";
 import { Form, Button, ListGroup, Badge, Modal } from "react-bootstrap";
 import FormContainer from "../components/FormContainer";
-import { useSelector } from 'react-redux'
+import {
+    useSelector,
+    useDispatch
+} from 'react-redux'
+import { setCredentials } from "../slices/authSlice";
 import { toast } from "react-toastify";
 import {
     useEventUpdateMutation,
@@ -9,6 +13,7 @@ import {
     useEventsByFilterMutation,
     useFetchPendingByFilterMutation,
     useUpdateUserMutation,
+    useUpdateGuildMetaMutation,
 } from "../slices/userApiSlice";
 import dinoNames from "../assets/dinoNames";
 import { Typeahead } from "react-bootstrap-typeahead"
@@ -20,7 +25,7 @@ import { INCOMPLETE_STATES } from "../components/FilterPresets"
 const EventScreen = () => {
 
     // Define constants for later
-
+    const dispatch = useDispatch()
     const [eventUpdate, { isUpdating }] = useEventUpdateMutation()
     const [fetchPendingByFilter] = useFetchPendingByFilterMutation()
     const [eventCreate, { isCreating }] = useEventCreateMutation()
@@ -34,11 +39,11 @@ const EventScreen = () => {
     const [multiSelections, setMultiSelections] = useState([]);
     const [totalPendingCount, setTotalPendingCount] = useState([0]);
     const [selectedEventNote, setSelectedEventNote] = useState();
+    const [guildWebhook, setGuildWebhook] = useState();
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
     const { userInfo } = useSelector((state) => state.auth)
-    const timezoneList = [-12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
     const [formData, setFormData] = useState({
         timezone: userInfo.timezone,
         note: "Event notes...",
@@ -46,8 +51,10 @@ const EventScreen = () => {
         date: "today",
         host: userInfo.global_name,
         capacity: 1,
+        announcement: userInfo.announcement != undefined ? userInfo.announcement : "",
     })
     const guildDisplayName = GuildDisplayName(userInfo)
+    const [updateGuildMeta, { isLoadingGuild }] = useUpdateGuildMetaMutation()
 
     // trigger update on filter change
     useEffect(() => {
@@ -59,6 +66,69 @@ const EventScreen = () => {
         fetchPendingDinosBySelction()
     }, [dinoSelection])
 
+    // Loads the WebHook (once)
+    useEffect(() => {
+        fetchGuildsWebhook(userInfo.guilds[userInfo.guild])
+    }, [])
+
+    // Fetch webhook for current guild
+    const fetchGuildsWebhook = async (guildObject) => {
+        // now we do meta-case switching to prioritize person webhooks 
+        // CASE #1 - user has their own data
+        if ("webhook" in userInfo && userInfo.webhook != "" && guildWebhook != "default") {
+            setGuildWebhook(userInfo.webhook)
+            console.log(`Custom webhook detected '${userInfo.webhook}'`)
+            return
+        }
+        // CASE #2 - get default value from guild if it exists
+        // fetch current selected guild's metadata details
+        updateGuildMeta({ filter: { id: guildObject.id } })
+            .then(guildMetaInfo => {
+
+                // CASE #2 cont - get default value from guild if it exists
+                if ("webhook" in guildMetaInfo.data) {
+                    console.log(`${guildObject.name} DOES have a webhook`)
+                    setGuildWebhook(guildMetaInfo.data.webhook)
+                    return guildMetaInfo.data.webhook
+                } else {
+                    // CASE #3 - display generic hook with warning
+                    console.warn(`${guildObject.name} WEBHOOK MISSING`)
+                    setGuildWebhook("https://discord.com/api/webhooks/...")
+                    return "https://discord.com/api/webhooks/..."
+                }
+            })
+    }
+
+    // Send Discord announcement
+    function discordAnnounce(url, data) {
+        // validate inputs
+        if (!("content" in data) &&
+            !("embeds" in data) &&
+            !("components" in data) &&
+            !("file" in data)) {
+            data = { content: `DEFAULT: EventAnnouncment sent by <@${userInfo.id}>` }
+        }
+
+        //https://discord.com/developers/docs/resources/webhook
+        return new Promise(function (resolve, reject) {
+            var httpRequestObject = new XMLHttpRequest();
+            httpRequestObject.open("POST", url, true);
+            httpRequestObject.setRequestHeader("Content-Type", "application/json");
+            httpRequestObject.onreadystatechange = function () {
+                if (httpRequestObject.readyState === 4 &&
+                    (httpRequestObject.status === 200 || httpRequestObject.status === 204)) {
+                    resolve(httpRequestObject.responseText);
+                } else if (httpRequestObject.readyState === 4) {
+                    reject(httpRequestObject.status);
+                }
+
+            };
+            httpRequestObject.send(JSON.stringify(data));
+        });
+    }
+
+
+    // fetches info about how many dinos matches selected dino from dropdown
     const fetchPendingDinosBySelction = () => {
         // console.log("THIS RUNS WHEN DINO CHANGES")
         // Set the filter
@@ -126,49 +196,6 @@ const EventScreen = () => {
 
     }
 
-    // This function returns the change in timezone hours required to sync up
-    const syncTimezones = (currentZone, targetZone) => {
-        if (currentZone == undefined || targetZone == undefined) {
-            console.warn(`syncTimezones received UNDEFINED (${currentZone} | ${targetZone})`)
-            return null
-        }
-        try {
-            // handle case where they have the same sign
-            if (currentZone <= 0 && targetZone <= 0) {
-                return Math.abs(currentZone) - Math.abs(targetZone)
-            }
-            if (currentZone >= 0 && targetZone >= 0) {
-                return Math.abs(targetZone) - Math.abs(currentZone)
-            }
-            // then cases where they're opposite 
-            return targetZone - currentZone
-        } catch (error) {
-            console.warn(`syncTimezones(${currentZone},${targetZone}) UNHANDLED CASE`)
-            console.error(error)
-            return null
-        }
-    }
-
-    // // returns the time difference in HH:MM format
-    // const timeDifference = (currentTime, targetTime) => {
-    //     // split strings into hour/minute arrays
-    //     currentTime = currentTime.split(":")
-    //     targetTime = targetTime.split(":")
-    //     // create Date objects from those string/arrays
-    //     const startDate = new Date(0, 0, 0, currentTime[0], currentTime[1], 0)
-    //     const endDate = new Date(0, 0, 0, targetTime[0], targetTime[1], 0)
-    //     // run the Date math on them
-    //     let timeSplit = endDate.getTime() - startDate.getTime()
-    //     // calc the hours (in ms) from the difference value
-    //     const hours = Math.floor(timeSplit / 1000 / 60 / 60)
-    //     // extract those hours from the difference to leave only minutes
-    //     timeSplit -= hours * 1000 * 60 * 60
-    //     // floor out the ms into minutes
-    //     const minutes = Math.floor(timeSplit / 1000 / 60)
-    //     // return the HH:MM formatted time
-    //     return (hours <= 9 ? "0" : "") + hours + ":" + (minutes <= 9 ? "0" : "") + minutes
-    // }
-
     // returns true if target time is within timzone+window
     const isUserAvailable = (eventObject, userRequestMergeObject) => {
         // handle 
@@ -189,7 +216,7 @@ const EventScreen = () => {
             const windowCloseAdjusted = new Date(targetTime)
 
             // Overwrite times to create a comparable time window on the same day
-            windowOpenAdjusted.setHours(windowOpen.getHours(),windowOpen.getMinutes())
+            windowOpenAdjusted.setHours(windowOpen.getHours(), windowOpen.getMinutes())
             windowCloseAdjusted.setHours(windowClose.getHours())
             windowCloseAdjusted.setMinutes(windowClose.getMinutes())
 
@@ -206,8 +233,8 @@ const EventScreen = () => {
         // console.log(userRequestMergeObject)
         try {
             const inWindow = isTimeInWindow(eventObject.startTime,
-                                            userRequestMergeObject.timeOpen,
-                                            userRequestMergeObject.timeClose)
+                userRequestMergeObject.timeOpen,
+                userRequestMergeObject.timeClose)
             console.log(`Event is during ${userRequestMergeObject.global_name}'s window? ${inWindow}`)
             return inWindow
 
@@ -221,7 +248,7 @@ const EventScreen = () => {
     // Gather list of all matching requests and return slice with names
     const fetchRecommendedRecipients = async (clickedEvent) => {
         let cachedRequests = []
-        let recommendedRequests  =[]
+        let recommendedRequests = []
         setIsBuildingRecommendation(true)
 
         // Set the filter
@@ -236,8 +263,7 @@ const EventScreen = () => {
 
         console.log(allMatchingRequests)
         // catch no case of no requests for event
-        if ("error" in allMatchingRequests || allMatchingRequests == null)
-        {
+        if ("error" in allMatchingRequests || allMatchingRequests == null) {
             toast.info("No pending requests for selected Event")
             setIsBuildingRecommendation(false)
             return
@@ -248,54 +274,54 @@ const EventScreen = () => {
 
         // launch the promise to fetch user data
         Promise.all(allMatchingRequestsPromises)
-        .then(results => {
-            // loop for each returned prompise
-            results.forEach((result, index) => {
-                const thisRequest = result.data
-                console.warn(index)
-                cachedRequests.push({ ...thisRequest, ...allMatchingRequests.data[index] })
-                if (isUserAvailable(clickedEvent, cachedRequests[index])==true){
-                    console.log(`${cachedRequests[index].global_name} has been added to the list`)
-                    recommendedRequests.push(cachedRequests[index])
-                }
-            })
+            .then(results => {
+                // loop for each returned prompise
+                results.forEach((result, index) => {
+                    const thisRequest = result.data
+                    console.warn(index)
+                    cachedRequests.push({ ...thisRequest, ...allMatchingRequests.data[index] })
+                    if (isUserAvailable(clickedEvent, cachedRequests[index]) == true) {
+                        console.log(`${cachedRequests[index].global_name} has been added to the list`)
+                        recommendedRequests.push(cachedRequests[index])
+                    }
+                })
 
-            // take cached results and sort by matching time and age
-            setIsBuildingRecommendation(false)
-            console.warn("RETURNING:")
-            console.info(cachedRequests)
-            const recommendationListHTML = (
-                <>
-                    <ListGroup>
-                        <Form.Label>Recommended requests for this event:</Form.Label>
-                        {Array.isArray(recommendedRequests) && recommendedRequests.map((item, index) => (
-                            <ListGroup.Item key={index} disabled={true} onClick={(event) => optionsHandler(event, item)} >
-                                <div className="ms-2 me-auto">
-                                    <img src={`https://cdn.discordapp.com/avatars/${item.id}/${item.avatar}`} 
-                                         style={{width:34, height:34}} 
-                                         alt="avatar" />                                    
-                                    <div className="fw-bold d-inline">
-                                        {`${item.global_name} `}
+                // take cached results and sort by matching time and age
+                setIsBuildingRecommendation(false)
+                console.warn("RETURNING:")
+                console.info(cachedRequests)
+                const recommendationListHTML = (
+                    <>
+                        <ListGroup>
+                            <Form.Label>Recommended requests for this event:</Form.Label>
+                            {Array.isArray(recommendedRequests) && recommendedRequests.map((item, index) => (
+                                <ListGroup.Item key={index} disabled={true} onClick={(event) => optionsHandler(event, item)} >
+                                    <div className="ms-2 me-auto">
+                                        <img src={`https://cdn.discordapp.com/avatars/${item.id}/${item.avatar}`}
+                                            style={{ width: 34, height: 34 }}
+                                            alt="avatar" />
+                                        <div className="fw-bold d-inline">
+                                            {`${item.global_name} `}
+                                        </div>
+                                        <br />
+                                        {`Date: ${item.updatedAt.substring(0, 10)} (${item.status})`}
+                                        <br />
+                                        {`Note: ${item.note}`}
                                     </div>
-                                    <br /> 
-                                    {`Date: ${item.updatedAt.substring(0, 10)} (${item.status})`}                                    
-                                    <br /> 
-                                    {`Note: ${item.note}`}
-                                </div>
 
-                            </ListGroup.Item>
-                        ))}
-                    </ListGroup>
-                </>
-            )      
-            setRecommendationList(recommendationListHTML)       
-        })
-        .catch(error => {
-            // LOG ERRORS 
-            console.warn("Promise stack error")
-            console.error(error)
-            return (<>ERR</>)
-        })
+                                </ListGroup.Item>
+                            ))}
+                        </ListGroup>
+                    </>
+                )
+                setRecommendationList(recommendationListHTML)
+            })
+            .catch(error => {
+                // LOG ERRORS 
+                console.warn("Promise stack error")
+                console.error(error)
+                return (<>ERR</>)
+            })
     }
 
     // custom handler that pumps out setStates as needed by overwriting
@@ -371,6 +397,9 @@ const EventScreen = () => {
             return
         }
 
+        console.warn(typeof guildWebhook)
+        const webhookString = typeof variable === 'string' && "target" in guildWebhook ? guildWebhook.target.value : guildWebhook
+
         const dateTime = new Date(formData.date.substring(0, 4),
             parseInt(formData.date.substring(5, 7)) - 1,
             formData.date.substring(8, 10),
@@ -385,7 +414,7 @@ const EventScreen = () => {
         // 1701860760000
         // Wed Dec 06 2023 06:06:00 GMT-0500 (Eastern Standard Time)
 
-        const data = {
+        let data = {
             ...formData,
             id: userInfo.id,
             global_name: userInfo.global_name,
@@ -393,19 +422,48 @@ const EventScreen = () => {
             startTime: dateTime.valueOf(),
             timezoneOffset: dateTime.getTimezoneOffset(), //WE ARE USING UTC and offset
             dino: dinoSelection[0],
+            webhook: webhookString
 
         }
+
+        // Log outgoing data for debug
         console.warn("SENT DATA")
         console.log(data)
+
         // console.log(dateTime)
 
         // Create the event with API
-        await eventCreate(data).then(res => {
-            toast.success(`${res.data.dino} event created`)
-            console.warn("eventCreate - result")
-            console.log(res.data)
-            refreshFiltered()
-        })
+        eventCreate(data)
+            .then(res => {
+                if ("error" in res) {
+                    // console.warn(res.error)
+                    toast.warn(res.error.data)
+                } else {
+                    toast.success(`${res.data.dino} event created`)
+                    console.warn("eventCreate - result")
+                    console.log(res.data)
+                    refreshFiltered()
+                    discordAnnounce(webhookString, { content: formData.announcement })
+                }
+            })
+
+        // Save announcment and webhook info to user's profile for later
+        let updatedValues = { id: userInfo.id, announcement: formData.announcement }
+        if (guildWebhook != userInfo.webhook) {
+            console.log("ADDED NEW WEBHOOK")
+            console.log(webhookString)
+            updatedValues = { ...updatedValues, webhook: webhookString }
+        }
+        updateUserProfile(updatedValues)
+            .then(result => {
+                if ("error" in result) {
+                    console.warn(result.error)
+                } else {
+                    console.warn("WebHook/Announcment response")
+                    console.log(result)
+                    dispatch(setCredentials(result.data))
+                }
+            })
     }
 
     const handleSave = async () => {
@@ -540,18 +598,6 @@ const EventScreen = () => {
                             defaultValue={formData.startTime}
                         />
 
-                        {/* <Form.Label>Select Timezone</Form.Label>
-                        <Form.Select
-                            onChange={handleChangeEvents}
-                            defaultValue={formData.timezone}
-                            name="timezone"
-                        >
-                            {Array.isArray(timezoneList) && timezoneList.map((item, index) => (
-                                <option key={index} value={item} >
-                                    {item} UTC
-                                </option>
-                            ))}
-                        </Form.Select> */}
                         <Form.Label>Host: </Form.Label>
                         <Form.Control
                             type="text"
@@ -572,6 +618,20 @@ const EventScreen = () => {
                             name="note"
                             onChange={handleChangeEvents}
                             defaultValue={formData.note}
+                        />
+                        <Form.Label>Custom Announcement</Form.Label>
+                        <Form.Control
+                            type="text"
+                            name="announcement"
+                            onChange={handleChangeEvents}
+                            defaultValue={formData.announcement}
+                        />
+                        <Form.Label>Custom WebHook</Form.Label>
+                        <Form.Control
+                            type="text"
+                            name="webhook"
+                            onChange={setGuildWebhook}
+                            defaultValue={(userInfo.role === "breeder") ? guildWebhook : "hidden"}
                         />
                     </Form.Group>
                     {isCreating && <Loader />}

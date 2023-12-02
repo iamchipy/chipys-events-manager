@@ -5,7 +5,6 @@ import {
     useDispatch,
     useSelector,
 } from 'react-redux'
-import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { setCredentials } from "../slices/authSlice";
 import {
@@ -28,10 +27,10 @@ const ProfileScreen = () => {
     const [updateGuildMeta, { isFetching }] = useUpdateGuildMetaMutation()
     const [registerUser, { isLoading }] = useRegisterMutation()
     const { userInfo } = useSelector((state) => state.auth)
-    // const timezoneList = [-12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
     const [guildSelection, setGuildSelection] = useState([])
     const [isBreeder, setIsBreeder] = useState(false)
-    const [guildsCurrentBreederRoleIDs, setGuildsCurrentBreederRoleIDs] = useState([]);
+    const [guildsCurrentWebHook, setGuildsCurrentWebHook] = useState([userInfo.guilds[userInfo.guild]].webhook);
+    const [guildsCurrentBreederRoleIDs, setGuildsCurrentBreederRoleIDs] = useState([]);  //TODO REMOVE Dulplicate var
     const [guildsBreederRoleIDsUpdated, setGuildsBreederRoleIDsUpdated] = useState([]);
     const [currentGuildRolesCache, setUsersCurrentGuildRolesCachePermissions] = useState({});
     const [formData, setFormData] = useState({
@@ -41,7 +40,7 @@ const ProfileScreen = () => {
         timeOpen: moment(userInfo.timeOpen).format("HH:mm"),
         timeClose: moment(userInfo.timeClose).format("HH:mm"),
     })
-    const headers = { authorization: `Bearer ${userInfo.token}` }
+    const headers = "token" in userInfo ? { authorization: `Bearer ${userInfo.token}` } : { authorization: "Invalid" }
     let guildsList = []
     for (let tempId in userInfo.guilds) {
         guildsList.push(userInfo.guilds[tempId])
@@ -94,22 +93,25 @@ const ProfileScreen = () => {
                     console.log(`${guildSelection[0].name} DOES HAVE assigned breeder roles: ${guildMetaInfo.data.breederRoleIDs}`)
                     setGuildsCurrentBreederRoleIDs(guildMetaInfo.data.breederRoleIDs)
                     setGuildsBreederRoleIDsUpdated(guildMetaInfo.data.breederRoleIDs)
+                    setGuildsCurrentWebHook(guildMetaInfo.data.webhook)
+
                 } else {
                     console.log(`${guildSelection[0].name} does NOT have any assigned breeder roles`)
                     setGuildsCurrentBreederRoleIDs([])
+                    setGuildsCurrentWebHook([])
                 }
 
 
                 console.log(`Fetching user's roles in "${guildSelection[0].name}"`)
                 // Check if we've cached this fetch to avoid spam
                 if (currentGuildRolesCache[guildSelection[0].id] != undefined &&
-                    currentGuildRolesCache[guildSelection[0].id].roles != undefined ){
+                    currentGuildRolesCache[guildSelection[0].id].roles != undefined) {
                     console.warn("Using cached guild info:")
-                    console.log(currentGuildRolesCache[guildSelection[0].id])       
+                    console.log(currentGuildRolesCache[guildSelection[0].id])
 
                     setIsBreeder(isGuildBreeder(guildMetaInfo.data.breederRoleIDs, currentGuildRolesCache[guildSelection[0].id].roles))
-               
-                }else{
+
+                } else {
                     console.warn("Fetching fresh discord role info for user")
                     fetch(`https://discord.com/api/users/@me/guilds/${guildSelection[0].id}/member`, { headers })
                         .then(function (response) {
@@ -120,17 +122,17 @@ const ProfileScreen = () => {
                             if ("error" in result) {
                                 console.warn("Error fetching guild member info")
                                 console.log(result.error)
-                            }else if ("roles" in result){
+                            } else if ("roles" in result) {
                                 // now cache the date for later use
                                 currentGuildRolesCache[guildSelection[0].id] = result
                                 console.warn("caching...")
                                 console.log(`User's roles in current guild: ${result.roles}`)
                                 setIsBreeder(isGuildBreeder(guildMetaInfo.data.breederRoleIDs, currentGuildRolesCache[guildSelection[0].id].roles))
-                            }else{
+                            } else {
                                 console.error("Something fails with fetching user's roles indiscord server")
-                            }                          
+                            }
                         })
-                }        
+                }
             })
     }, [guildSelection])
 
@@ -144,26 +146,26 @@ const ProfileScreen = () => {
     const isGuildBreeder = (guildsBreederRoleIDsList, usersRoleIDsList) => {
 
         // standardize incoming value types
-        if (!(Array.isArray(guildsBreederRoleIDsList)) && guildsBreederRoleIDsList != undefined){
+        if (!(Array.isArray(guildsBreederRoleIDsList)) && guildsBreederRoleIDsList != undefined) {
             guildsBreederRoleIDsList = [guildsBreederRoleIDsList]
         }
-        if (!(Array.isArray(usersRoleIDsList)) && usersRoleIDsList != undefined){
+        if (!(Array.isArray(usersRoleIDsList)) && usersRoleIDsList != undefined) {
             usersRoleIDsList = [usersRoleIDsList]
-        }          
+        }
 
         // break if we don't have the needed info
-        if (guildsBreederRoleIDsList == undefined||
+        if (guildsBreederRoleIDsList == undefined ||
             guildsBreederRoleIDsList[0] == undefined) {
             // cancel because we don't have the data to determine breeder status
             console.warn("Ivalid input for guildsBreederRoleIDsList (UNDEFINED)")
             return false
         }
-        if (usersRoleIDsList == undefined||
+        if (usersRoleIDsList == undefined ||
             usersRoleIDsList[0] == undefined) {
             // cancel because we don't have the data to determine breeder status
             console.warn("Ivalid input for usersRoleIDsList (UNDEFINED)")
             return false
-        }        
+        }
 
         // since we expect this to be short list O(n^2) is acceptible
         function doesHaveBreederRole(approvedBreederRoles, usersRoleList) {
@@ -215,15 +217,12 @@ const ProfileScreen = () => {
                 <div className="ms-2 me-auto" >
                     <div className="fw-bold" >
                         <img width="55" src={`https://cdn.discordapp.com/icons/${guildSelection[0].id}/${guildSelection[0].icon}.webp`} />
-
                         {guildSelection[0].name}
-                        <Badge bg="primary" pill>
-                            1
-                        </Badge>
+                        <Badge bg="primary" pill>1</Badge>
                     </div>
                     {`Breeder Role: ${guildsCurrentBreederRoleIDs}`}
                     <br />
-                    {/* {`Ranks: ${guildSelection[0].name}`} */}
+                    {`Webhook: ${guildsCurrentWebHook != "" ? "Enabled" : "Disabled"}`}
                 </div>
             </ListGroup.Item>
         )
@@ -312,9 +311,11 @@ const ProfileScreen = () => {
             id: guildSelection[0].id
         }
         const updatedValues = {
-            breederRoleIDs: guildsBreederRoleIDsUpdated
+            breederRoleIDs: guildsBreederRoleIDsUpdated,
+            webhook: guildsCurrentWebHook
         }
-        console.warn(guildsBreederRoleIDsUpdated)
+        console.warn("guildsBreederRoleIDsUpdated")
+        console.log(guildsBreederRoleIDsUpdated)
         const result = await updateGuildMeta({ filter: filter, updatedValues: updatedValues })
         toast(result.name)
 
@@ -344,7 +345,6 @@ const ProfileScreen = () => {
                             highlightOnlyResult={false}
                             options={guildsList}
                             placeholder="Select Discord Server"
-                            // defaultSelected={[guildSelection]}
                             selected={guildSelection}
                             clearButton
                         />
@@ -367,20 +367,6 @@ const ProfileScreen = () => {
                             defaultValue={formData.timeClose}
                         />
                     </Form.Group>
-                    {/* <Form.Group className='my-4'>
-                        <Form.Label>Select Timezone</Form.Label>
-                        <Form.Select
-                            onChange={handleChangeEvents}
-                            defaultValue={formData.timezone}
-                            name="timezone"
-                        >
-                            {Array.isArray(timezoneList) && timezoneList.map((item, index) => (
-                                <option key={index} value={item} >
-                                    {item} UTC
-                                </option>
-                            ))}
-                        </Form.Select>
-                    </Form.Group> */}
                     <Form.Group className='my-2' controlId="userRole">
                         <Form.Label>Role</Form.Label>
                         <Form.Select
@@ -422,10 +408,12 @@ const ProfileScreen = () => {
                     <Modal.Title>Change Breeder Role ID</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    {`Server Name: ${guildSelection.name}`}
+                    {`Server Name: ${guildSelection[0] != undefined ? guildSelection[0].name : "Invalid"}`}
                     <br />
                     {`RoleID: `}
-                    <Form.Control id="new-breeder-id" type="text" onChange={e => setGuildsBreederRoleIDsUpdated(e.target.value)} defaultValue={guildsCurrentBreederRoleIDs} />
+                    <Form.Control id="new-breeder-id" type="text" onChange={event => setGuildsBreederRoleIDsUpdated(event.target.value)} defaultValue={guildsCurrentBreederRoleIDs} />
+                    {`WebHook: `}
+                    <Form.Control id="new-webhook" type="text" onChange={event => setGuildsCurrentWebHook(event.target.value)} defaultValue={guildsCurrentWebHook} />
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={handleClose}>

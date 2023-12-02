@@ -137,8 +137,8 @@ const getUserProfiles = asyncHandler(async (req, res) => {
 // @access      Private
 const updateUserProfile = asyncHandler(async (req, res) => {
     // console.warn(req.body.id)
-    // console.warn("RECEIVED PROFILE UPDATE VALUES")
-    // console.warn(req.body)
+    console.warn("RECEIVED PROFILE UPDATE VALUES")
+    console.warn(req.body)
 
     // first fetch user
     await User.findOneAndUpdate({ id: req.body.id }, req.body)
@@ -224,21 +224,35 @@ const eventCreate = asyncHandler(async (req, res) => {
     // console.warn(JSON.stringify(req.body))
     console.log("eventCreate initiated")
     // const userFilter = {id: req.body.id}
+
+    if (!("dino" in req.body) || req.body.dino == ""){
+        res.status(422).json("Dino selection required to create event")
+        return        
+    }
+
     //TODO somewhere in this function we are double setting HTTPS Request Headers after they are sent
     createdEvent = await Event.create(req.body)
-        .then(result => {
-            console.log(result)
-            if (result == null || "error" in result) {
-                console.log("result.error")
-                console.log(result.error)
-                result.status(400)
-                return
-            }
-            // console.log(result)
-            console.log(`Event Created`)
-            res.status(201).json(result)
+    .then(result => {
+        console.log(result)
+        if (result == null || "error" in result) {
+            console.log("result.error")
+            console.log(result.error)
+            result.status(400)
             return
-        }).catch(e => { console.error(e) })
+        }
+        // console.log(result)
+        console.log(`Event Created`)
+        res.status(201).json(result)
+        return
+    }).catch(e => { 
+        if (e.errors.dino.properties.type == "required" &&
+            e.errors.dino.properties.path == "dino"){
+            // THIS SHOULDN"T be possible due to front loaded validations that were added
+            res.status(422).json("Dino required to create event")
+            return
+        }
+        console.error(e) 
+    })
     res.status(599).json("Unknown error")
 })
 
@@ -348,8 +362,8 @@ const fetchPending = asyncHandler(async (req, res) => {
 // @access      Private
 const fetchPendingByFilter = asyncHandler(async (req, res) => {
     // console.log(`fetchPendingByFilter: ${req.body.userInfo.id}`)
-    console.log(`fetchPendingByFilter: ${req.body.filter}`)
-    console.log(req.body.filter)
+    // console.log(`fetchPendingByFilter:`)
+    // console.log(req.body.filter)
     // filter 
     const filter = req.body.filter
     // console.log(`fetchPending: ${req.body.userInfo.global_name}`)

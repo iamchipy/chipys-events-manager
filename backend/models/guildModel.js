@@ -14,6 +14,9 @@ const guildSchema = mongoose.Schema({
     icon: {
         type: String,
     }, 
+    webhook: {
+        type: String,
+    },     
     breederRoleIDs: {
         type: Array
     },            
