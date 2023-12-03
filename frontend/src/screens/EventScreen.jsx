@@ -397,8 +397,11 @@ const EventScreen = () => {
             return
         }
 
-        console.warn(typeof guildWebhook)
-        const webhookString = typeof variable === 'string' && "target" in guildWebhook ? guildWebhook.target.value : guildWebhook
+        // console.warn("typeof guildWebhook")
+        // console.log(typeof guildWebhook)
+        const webhookString = typeof guildWebhook != 'string' && "target" in guildWebhook ? guildWebhook.target.value : guildWebhook
+        // console.warn("STRING:")
+        // console.log(webhookString)        
 
         const dateTime = new Date(formData.date.substring(0, 4),
             parseInt(formData.date.substring(5, 7)) - 1,
@@ -459,7 +462,7 @@ const EventScreen = () => {
                 if ("error" in result) {
                     console.warn(result.error)
                 } else {
-                    console.warn("WebHook/Announcment response")
+                    console.warn("Saving WebHook/Announcment response")
                     console.log(result)
                     dispatch(setCredentials(result.data))
                 }
