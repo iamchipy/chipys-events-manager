@@ -1,18 +1,18 @@
-# Welcome to Chipy's Breeding Assistant
-### Alpha testing site is now LIVE @ [breeding.chipy.dev](https://breeding.chipy.dev)
+# Welcome to Chipy's Event Assistant
+### Alpha testing site is now LIVE @ [Event.chipy.dev](https://Event.chipy.dev)
 
 This MERN Stack webapp is designed to help ARK mega-tribe breeders manager the dino requests, hatching events, and announcements. If you have any interest in this please feel free to reach out to me @iamchipy or join our Discord community [Here](https://discord.gg/jvYkSRq). I'd be assist with configuration, explaination, or whatever else is needed
 
 # Usage
 
-1. You can start using the app by going to [breeding.chipy.dev](https://breeding.chipy.dev) and signing in with your Discord. 
+1. You can start using the app by going to [Event.chipy.dev](https://Event.chipy.dev) and signing in with your Discord. 
 2. Then click your name in the top right and go to your profile and make sure to select which "guild" or Discord server you are from. (If you don't select the right guild your Tribe breeders won't see your requests)
-![image](https://github.com/iamchipy/chipys-breeding-manager/assets/1663877/49ac4ec3-fb9f-4b8c-a301-d1ab4bf2bcb2)
+![image](https://github.com/iamchipy/chipys-Event-manager/assets/1663877/49ac4ec3-fb9f-4b8c-a301-d1ab4bf2bcb2)
 
 3. Once you've done that you are ready to request Dinos (from the Requests page)!
-![image](https://github.com/iamchipy/chipys-breeding-manager/assets/1663877/0ee2b50d-56d8-4ef8-a684-6fd8d8c79e00)
+![image](https://github.com/iamchipy/chipys-Event-manager/assets/1663877/0ee2b50d-56d8-4ef8-a684-6fd8d8c79e00)
 4. Waiting List then shows you pending dinos and you can filter the list by user/dino
-![image](https://github.com/iamchipy/chipys-breeding-manager/assets/1663877/f4d083c3-ab49-496b-a36f-0d545f3e552b)
+![image](https://github.com/iamchipy/chipys-Event-manager/assets/1663877/f4d083c3-ab49-496b-a36f-0d545f3e552b)
  
 
 # Roadmap
@@ -32,7 +32,7 @@ This MERN Stack webapp is designed to help ARK mega-tribe breeders manager the d
 - [ ] Breeder features
 - - [ ] System for breeders to add new dinos
 - - [X] System for breeders permission management by Server
-- - [X] System for breeders to manage a breeding event
+- - [X] System for breeders to manage a Event event
 - - - [X] Event Creation
 - - - [X] Event Deletion
 - - - [X] Event Notes
