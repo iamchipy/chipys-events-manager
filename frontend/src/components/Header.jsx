@@ -20,7 +20,7 @@ const Header = () => {
         <Container>
           <img src="https://cdn.discordapp.com/app-icons/1168939215367721021/725bdad94d7cad0a78381411d47f44bf.png" style={{width:28, marginTop: -2, marginRight: 5}} alt="logo" />
           <LinkContainer to='/home'>
-            <Navbar.Brand>{"Chipy's Breeder Assistant"}</Navbar.Brand>
+            <Navbar.Brand>{"Chipy's Event Assistant"}</Navbar.Brand>
           </LinkContainer>
           <Navbar.Toggle aria-controls='basic-navbar-nav' />
           <Navbar.Collapse id='basic-navbar-nav'>

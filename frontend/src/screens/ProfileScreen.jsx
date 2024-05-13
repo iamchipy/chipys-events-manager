@@ -405,7 +405,7 @@ const ProfileScreen = () => {
 
             <Modal show={show} onHide={handleClose}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Change Breeder Role ID</Modal.Title>
+                    <Modal.Title>Change Leader Role ID</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {`Server Name: ${guildSelection[0] != undefined ? guildSelection[0].name : "Invalid"}`}

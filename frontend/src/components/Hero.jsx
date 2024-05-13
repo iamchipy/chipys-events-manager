@@ -14,7 +14,7 @@ const Hero = () => {
           <img src="https://cdn.discordapp.com/app-icons/1168939215367721021/725bdad94d7cad0a78381411d47f44bf.png" className="img-fluid" alt="logo" />
           <h1 className='text-center mb-4'>Chipy's Event Assistant</h1>
           <p className='text-center mb-4'>
-            Welcome to Chipy's event manager for ARK Survival Ascended! This tool helps breeders
+            Welcome to Chipy's event manager for ARK Survival Ascended! This tool helps leaders
             manager their requests from tribe members for new tames, arrange hatching events, and 
             notification announcements for members and people on the request list.
           </p>
