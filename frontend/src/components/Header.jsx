@@ -18,7 +18,7 @@ const Header = () => {
     <header>
       <Navbar bg='dark' variant='dark' expand='lg' collapseOnSelect>
         <Container>
-          <img src="https://chipy.dev/res/c3_logo.png" style={{width:28, marginTop: -2, marginRight: 5}} alt="logo" />
+          <img src="./src/assets/cba_logo.png" style={{width:28, marginTop: -2, marginRight: 5}} alt="logo" />
           <LinkContainer to='/home'>
             <Navbar.Brand>{"Chipy's Breeder Assistant"}</Navbar.Brand>
           </LinkContainer>

@@ -11,8 +11,8 @@ const Hero = () => {
     <div className=' py-5'>
       <Container className='d-flex justify-content-center'>
         <Card className='p-5 d-flex flex-column align-items-center hero-card bg-light w-75'>
-          <img src="https://chipy.dev/res/c3_logo.png" className="img-fluid" alt="logo" />
-          <h1 className='text-center mb-4'>Chipy's Breeder Assistant</h1>
+          <img src="./src/assets/cba_logo.png" className="img-fluid" alt="logo" />
+          <h1 className='text-center mb-4'>Chipy's Event Assistant</h1>
           <p className='text-center mb-4'>
             Welcome to Chipy's event manager for ARK Survival Ascended! This tool helps breeders
             manager their requests from tribe members for new tames, arrange hatching events, and 
