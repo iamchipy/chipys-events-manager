@@ -18,7 +18,7 @@ const Header = () => {
     <header>
       <Navbar bg='dark' variant='dark' expand='lg' collapseOnSelect>
         <Container>
-          <img src="./src/assets/cba_logo.png" style={{width:28, marginTop: -2, marginRight: 5}} alt="logo" />
+          <img src="https://cdn.discordapp.com/app-icons/1168939215367721021/725bdad94d7cad0a78381411d47f44bf.png" style={{width:28, marginTop: -2, marginRight: 5}} alt="logo" />
           <LinkContainer to='/home'>
             <Navbar.Brand>{"Chipy's Breeder Assistant"}</Navbar.Brand>
           </LinkContainer>

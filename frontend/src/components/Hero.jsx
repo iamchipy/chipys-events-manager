@@ -11,7 +11,7 @@ const Hero = () => {
     <div className=' py-5'>
       <Container className='d-flex justify-content-center'>
         <Card className='p-5 d-flex flex-column align-items-center hero-card bg-light w-75'>
-          <img src="./src/assets/cba_logo.png" className="img-fluid" alt="logo" />
+          <img src="https://cdn.discordapp.com/app-icons/1168939215367721021/725bdad94d7cad0a78381411d47f44bf.png" className="img-fluid" alt="logo" />
           <h1 className='text-center mb-4'>Chipy's Event Assistant</h1>
           <p className='text-center mb-4'>
             Welcome to Chipy's event manager for ARK Survival Ascended! This tool helps breeders
