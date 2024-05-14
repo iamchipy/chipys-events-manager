@@ -1,7 +1,7 @@
 # Welcome to Chipy's Event Assistant
 ### Alpha testing site is now LIVE @ [Event.chipy.dev](https://Event.chipy.dev)
 
-This MERN Stack webapp is designed to help ARK mega-tribe breeders manager the dino requests, hatching events, and announcements. If you have any interest in this please feel free to reach out to me @iamchipy or join our Discord community [Here](https://discord.gg/jvYkSRq). I'd be assist with configuration, explaination, or whatever else is needed
+This MERN Stack webapp is designed to help ARK mega-tribe breeders manager the dino requests, hatching events, and announcements. If you have any interest in this please feel free to reach out to me @iamchipy or join our Discord community [Here](https://discord.gg/jvYkSRq). I'd be assist with configuration, explaination, or whatever else is needed. I'm also using PM2, Atlas, Nginx, Certbot, CookieParser, BCryptJS, Moment, and others to make this project work well together.
 
 # Usage
 
