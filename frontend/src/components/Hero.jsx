@@ -22,7 +22,7 @@ const Hero = () => {
           Here you can make event requests, get in queue for resources. Manage and review your requests. Manage your profile, timezone and tribe preferences.
           See the existing work-order and pending requests. View all up-coming events.
           </p>          
-          <img src="https://i.imgur.com/3EWWbxW.png" className="img-fluid" alt="Multiple request options" />
+          {/* <img src="https://i.imgur.com/3EWWbxW.png" className="img-fluid" alt="Multiple request options" /> */}
           {/* <img src="https://i.imgur.com/8tqkdma.png" className="img-fluid" alt="Creating events as a leader" style={{float: right}}/> */}
           
           
