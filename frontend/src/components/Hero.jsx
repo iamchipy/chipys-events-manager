@@ -22,8 +22,12 @@ const Hero = () => {
           Here you can make event requests, get in queue for resources. Manage and review your requests. Manage your profile, timezone and tribe preferences.
           See the existing work-order and pending requests. View all up-coming events.
           </p>          
-          <img src="https://cdn.discordapp.com/app-icons/1168939215367721021/725bdad94d7cad0a78381411d47f44bf.png" className="img-fluid" alt="logo" />
-
+          <img src="https://i.imgur.com/3EWWbxW.png" className="img-fluid" alt="Multiple request options" />
+          <img src="https://i.imgur.com/8tqkdma.png" className="img-fluid" alt="Creating events as a leader" style={{float: right}}/>
+          
+          
+          
+          
           {userInfo === null ? 
             <div className='d-flex'>
               <LinkContainer to='/register' >
