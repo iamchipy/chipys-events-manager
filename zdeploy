@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# start SSH
+eval $(ssh-agent -s)
+ssh-add ~/.ssh/SSHKEYNAME
+
+# update git
+git fetch --all
+git reset --hard origin/main
+
+# move to front and rebuild
+cd frontend/
+npm run build
+
+# move back and restart pm2
+cd ..
+pm2 start backend/server.js
+pm2 restart all
